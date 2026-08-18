@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar dependencias
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest
+      - name: Ejecutar tests
+        run: |
+          cd backend
+          pytest
+
+  frontend-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobación básica de HTML/JS
+        run: |
+          echo "Sin build step: frontend estático (HTML/CSS/JS puro)."
+          test -f frontend/index.html

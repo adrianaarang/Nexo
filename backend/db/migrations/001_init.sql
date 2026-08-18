@@ -1,0 +1,2 @@
+-- Esquema inicial: necesidades, voluntarios, donaciones, personas, sync_log.
+-- TODO: definir tablas.

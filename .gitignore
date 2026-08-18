@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Node / editores
+node_modules/
+.DS_Store
+.vscode/
+
+# Logs
+*.log
