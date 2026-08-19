@@ -17,14 +17,49 @@ def seed():
         cur.execute("DELETE FROM donaciones")
         cur.execute("DELETE FROM personas")
 
+        # Estos registros respetan el mismo contrato que usará el formulario.
+        # Permiten probar tipos, prioridades y estados diferentes en la demo.
         cur.executemany(
-            """INSERT INTO necesidades (tipo, descripcion, latitud, longitud, prioridad, estado)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+            """INSERT INTO necesidades
+               (titulo, tipo, descripcion, latitud, longitud, prioridad, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             [
-                ("agua", "Punto sin agua potable desde hace 2 días", 39.4699, -0.3763, "alta", "abierta"),
-                ("refugio", "Familia de 4 sin techo, necesita alojamiento temporal", 39.4712, -0.3801, "alta", "abierta"),
-                ("medicinas", "Falta insulina en el centro de acogida", 39.4650, -0.3750, "alta", "en_proceso"),
-                ("comida", "Reparto de comida para 30 personas", 39.4680, -0.3720, "media", "cubierta"),
+                (
+                    "Agua potable",
+                    "agua",
+                    "Punto sin agua potable desde hace 2 días",
+                    39.4699,
+                    -0.3763,
+                    "alta",
+                    "abierta",
+                ),
+                (
+                    "Alojamiento temporal",
+                    "refugio",
+                    "Familia de 4 sin techo, necesita alojamiento temporal",
+                    39.4712,
+                    -0.3801,
+                    "alta",
+                    "abierta",
+                ),
+                (
+                    "Insulina",
+                    "medicina",
+                    "Falta insulina en el centro de acogida",
+                    39.4650,
+                    -0.3750,
+                    "critica",
+                    "en_proceso",
+                ),
+                (
+                    "Comida para 30 personas",
+                    "alimento",
+                    "Reparto de comida para 30 personas",
+                    39.4680,
+                    -0.3720,
+                    "media",
+                    "cubierta",
+                ),
             ],
         )
 
