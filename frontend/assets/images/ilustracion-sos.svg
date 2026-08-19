@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" fill="none">
+  <!-- ondas concéntricas de señal -->
+  <g stroke="#2E323B" stroke-width="2">
+    <circle cx="280" cy="210" r="190"/>
+    <circle cx="280" cy="210" r="150"/>
+  </g>
+  <circle cx="280" cy="210" r="110" stroke="#F2542D" stroke-width="1.5" opacity="0.35"/>
+  <circle cx="280" cy="210" r="75" stroke="#F2542D" stroke-width="2" opacity="0.6"/>
+  <!-- teléfono line art -->
+  <g stroke="#9CA0A8" stroke-width="3" stroke-linejoin="round">
+    <rect x="238" y="132" width="84" height="156" rx="14"/>
+    <path d="M266 148 L294 148" stroke-linecap="round"/>
+  </g>
+  <!-- burbuja SOS -->
+  <g>
+    <rect x="252" y="180" width="56" height="34" rx="8" fill="#F2542D"/>
+    <text x="280" y="203" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="17" fill="#101010">SOS</text>
+    <path d="M266 214 L260 226 L278 214 Z" fill="#F2542D"/>
+  </g>
+  <!-- puntos que reciben la señal -->
+  <g fill="#F2542D">
+    <circle cx="118" cy="112" r="6"/>
+    <circle cx="452" cy="120" r="6"/>
+    <circle cx="102" cy="312" r="6"/>
+    <circle cx="462" cy="300" r="6"/>
+  </g>
+  <g stroke="#F2542D" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" opacity="0.8">
+    <path d="M235 160 L130 118"/>
+    <path d="M325 160 L440 126"/>
+    <path d="M238 268 L114 306"/>
+    <path d="M322 268 L450 294"/>
+  </g>
+</svg>

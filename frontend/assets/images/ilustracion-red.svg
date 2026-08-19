@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" fill="none">
+  <!-- suelo -->
+  <path d="M30 350 L530 350" stroke="#2E323B" stroke-width="2"/>
+  <!-- casas line art -->
+  <g stroke="#9CA0A8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M70 350 L70 280 L120 240 L170 280 L170 350 Z"/>
+    <path d="M225 350 L225 262 L285 214 L345 262 L345 350 Z"/>
+    <path d="M400 350 L400 285 L448 247 L496 285 L496 350 Z"/>
+  </g>
+  <!-- puertas -->
+  <g stroke="#2E323B" stroke-width="3">
+    <path d="M105 350 L105 315 L135 315 L135 350"/>
+    <path d="M266 350 L266 306 L304 306 L304 350"/>
+    <path d="M432 350 L432 318 L464 318 L464 350"/>
+  </g>
+  <!-- ondas de señal entre tejados -->
+  <g stroke="#F2542D" stroke-width="2.5" stroke-linecap="round">
+    <path d="M120 240 Q200 175 285 214" stroke-dasharray="1 9"/>
+    <path d="M285 214 Q375 190 448 247" stroke-dasharray="1 9"/>
+  </g>
+  <!-- antena / nodo satelital central -->
+  <g stroke="#F2542D" stroke-width="3" stroke-linecap="round">
+    <path d="M285 214 L285 150"/>
+    <path d="M262 128 Q285 108 308 128"/>
+    <path d="M247 108 Q285 74 323 108"/>
+    <path d="M232 88 Q285 40 338 88"/>
+  </g>
+  <circle cx="285" cy="150" r="8" fill="#F2542D"/>
+  <!-- nodos en tejados -->
+  <circle cx="120" cy="240" r="6" fill="#F2542D"/>
+  <circle cx="448" cy="247" r="6" fill="#F2542D"/>
+</svg>
