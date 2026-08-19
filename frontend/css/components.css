@@ -1,7 +1,6 @@
-/* Componentes reutilizables — rediseño minimalista sobre fondo oscuro.
-   Parte de la base común: cada equipo usa estas clases en vez de
-   inventar estilos nuevos, para que todas las pantallas se vean iguales. */
+/* Componentes reutilizables — rediseño minimalista sobre fondo oscuro. */
 
+/* ---------- Grid System ---------- */
 .nexo-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -13,7 +12,10 @@
 }
 
 @media (max-width: 800px) {
-  .nexo-grid, .nexo-grid--equal { grid-template-columns: 1fr; }
+  .nexo-grid, 
+  .nexo-grid--equal { 
+    grid-template-columns: 1fr; 
+  }
 }
 
 /* ---------- Tarjetas ---------- */
@@ -51,7 +53,6 @@
   margin: 0 0 0.4rem 0;
 }
 
-/* Número grande decorativo para las tarjetas de la portada */
 .nexo-card__num {
   color: var(--nexo-orange);
   font-size: 0.8rem;
@@ -152,12 +153,43 @@
   border-color: var(--nexo-orange);
 }
 
-/* ---------- Mapa ---------- */
+/* ---------- Mapa y Controles ---------- */
+.controles {
+  margin-bottom: var(--space-md);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#mapa,
 #mapa-necesidades {
-  height: 460px;
+  height: 500px;
+  width: 100%;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--nexo-border);
+}
+
+/* Marcadores integrados con el tema */
+.marcador-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--nexo-white);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.prioridad-alta { background-color: var(--nexo-orange); }
+.prioridad-media { background-color: #f39c12; }
+.prioridad-baja { background-color: #2ecc71; }
+
+.contenedor-mapa-panel {
+  display: grid;
+ 
+  grid-template-columns: 380px 1fr; 
+  
+  height: calc(100vh - 65px); /* Ocupa el alto restante de la pantalla */
+  width: 100%;
 }
 
 /* ---------- Estoy bien ---------- */
@@ -254,7 +286,6 @@
   justify-self: center;
 }
 
-/* controles */
 .nexo-slider__controls {
   position: absolute;
   right: var(--space-lg);
@@ -281,7 +312,6 @@
   background: var(--nexo-orange);
 }
 
-/* puntos + progreso */
 .nexo-slider__dots {
   position: absolute;
   left: var(--space-lg);
