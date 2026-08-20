@@ -9,17 +9,19 @@ Uso: python db/seed.py
 from database import get_cursor, init_db
 
 
-def seed():
+def seed() -> None:
+    """Reinicia las tablas de demostración e inserta datos coherentes."""
+
     init_db()
-    with get_cursor() as cur:
-        cur.execute("DELETE FROM necesidades")
-        cur.execute("DELETE FROM voluntarios")
-        cur.execute("DELETE FROM donaciones")
-        cur.execute("DELETE FROM personas")
+    with get_cursor() as cursor:
+        cursor.execute("DELETE FROM necesidades")
+        cursor.execute("DELETE FROM voluntarios")
+        cursor.execute("DELETE FROM donaciones")
+        cursor.execute("DELETE FROM personas")
 
         # Estos registros respetan el mismo contrato que usará el formulario.
         # Permiten probar tipos, prioridades y estados diferentes en la demo.
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO necesidades
                (titulo, tipo, descripcion, latitud, longitud, prioridad, estado)
                VALUES (?, ?, ?, ?, ?, ?, ?)""",
@@ -63,30 +65,50 @@ def seed():
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO voluntarios (nombre, contacto, habilidades, disponibilidad)
                VALUES (?, ?, ?, ?)""",
             [
-                ("Laura Gómez", "laura@example.com", "sanitario, primeros auxilios", "inmediata"),
-                ("Marc Ferrer", "marc@example.com", "conductor, logística", "fin de semana"),
+                (
+                    "Laura Gómez",
+                    "laura@example.com",
+                    "sanitario, primeros auxilios",
+                    "inmediata",
+                ),
+                (
+                    "Marc Ferrer",
+                    "marc@example.com",
+                    "conductor, logística",
+                    "fin de semana",
+                ),
                 ("Aixa Ruiz", "aixa@example.com", "cocina, organización", "inmediata"),
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO donaciones (tipo, recurso, cantidad, contacto)
                VALUES (?, ?, ?, ?)""",
             [
                 ("ofrecida", "Mantas", "50 unidades", "creuroja@example.com"),
-                ("solicitada", "Agua embotellada", "200 litros", "puntoayuda1@example.com"),
+                (
+                    "solicitada",
+                    "Agua embotellada",
+                    "200 litros",
+                    "puntoayuda1@example.com",
+                ),
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO personas (nombre, estado, ultima_ubicacion, reportado_por)
                VALUES (?, ?, ?, ?)""",
             [
-                ("Josep Martí", "desaparecida", "Paiporta, cerca del puente", "familia"),
+                (
+                    "Josep Martí",
+                    "desaparecida",
+                    "Paiporta, cerca del puente",
+                    "familia",
+                ),
                 ("Rosa Alba", "localizada", "Polideportivo municipal", "voluntario"),
             ],
         )

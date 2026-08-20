@@ -1,228 +1,211 @@
-"""Pruebas unitarias de modelos y validaciones de necesidades."""
-import unittest
+"""Pruebas pytest de las capas de persistencia y validación de necesidades."""
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pytest
 from pydantic import ValidationError
 
 from db import database
 from modules.necesidades.models import (
-    TransicionEstadoInvalida,
-    actualizar_estado_necesidad,
-    crear_necesidad,
-    listar_necesidades,
-    obtener_necesidad,
+    InvalidStatusTransition,
+    create_need,
+    get_need,
+    list_needs,
+    update_need_status,
 )
 from modules.necesidades.schemas import (
-    EstadoNecesidad,
-    NecesidadActualizarEstado,
-    NecesidadCrear,
-    NecesidadRespuesta,
-    TipoNecesidad,
+    NeedCreate,
+    NeedResponse,
+    NeedStatus,
+    NeedStatusUpdate,
+    NeedType,
 )
 
 
-class TestNecesidades(unittest.TestCase):
-    """Comprueba el contrato del módulo usando una SQLite aislada."""
+@pytest.fixture(autouse=True)
+def temporary_database():
+    """Crea una base de datos SQLite aislada para cada prueba."""
 
-    def setUp(self):
-        """Crea una base nueva antes de cada prueba para evitar contaminación."""
-
-        self.directorio_temporal = TemporaryDirectory()
-        self.ruta_anterior = database.DATABASE_PATH
-        database.DATABASE_PATH = str(
-            Path(self.directorio_temporal.name) / "nexo_test.db"
-        )
+    previous_path = database.DATABASE_PATH
+    with TemporaryDirectory() as temp_directory:
+        database.DATABASE_PATH = str(Path(temp_directory) / "nexo_test.db")
         database.init_db()
+        try:
+            yield
+        finally:
+            database.DATABASE_PATH = previous_path
 
-    def tearDown(self):
-        """Restaura la configuración y elimina la base temporal."""
 
-        database.DATABASE_PATH = self.ruta_anterior
-        self.directorio_temporal.cleanup()
+def build_valid_need(**changes) -> NeedCreate:
+    """Construye datos válidos y permite variar un campo en cada prueba."""
 
-    @staticmethod
-    def crear_datos_validos(**cambios):
-        """Genera una entrada válida y permite variar solo el campo probado."""
+    payload = {
+        "titulo": "Agua potable y mantas",
+        "tipo": "agua",
+        "descripcion": "Se necesita agua potable",
+        "latitud": 39.4699,
+        "longitud": -0.3763,
+    }
+    payload.update(changes)
+    return NeedCreate(**payload)
 
-        datos = {
-            "titulo": "Agua potable y mantas",
-            "tipo": "agua",
-            "descripcion": "Se necesita agua potable",
-            "latitud": 39.4699,
-            "longitud": -0.3763,
-        }
-        datos.update(cambios)
-        return NecesidadCrear(**datos)
 
-    def test_crear_y_leer_necesidad_con_valores_normalizados(self):
-        """La creación devuelve una fila completa que después puede leerse."""
+def test_create_and_get_need_with_normalized_values():
+    """La creación devuelve una fila completa recuperable por su id."""
 
-        necesidad = self.crear_datos_validos(
-            descripcion="  Agua para el refugio  "
+    need = build_valid_need(descripcion="  Agua para el refugio  ")
+
+    created = create_need(need)
+
+    assert created == get_need(created["id"])
+    assert created["titulo"] == "Agua potable y mantas"
+    assert created["descripcion"] == "Agua para el refugio"
+    assert created["prioridad"] == "media"
+    assert created["estado"] == "abierta"
+    assert NeedResponse.model_validate(created).id == created["id"]
+
+
+def test_stored_record_matches_the_shared_json_contract():
+    """El contrato acordado conserva los nombres externos en español."""
+
+    created = create_need(
+        NeedCreate(
+            titulo="Agua potable y mantas",
+            tipo="agua",
+            descripcion=(
+                "Se necesitan 50L de agua en el punto de recogida del barrio"
+            ),
+            latitud=36.463,
+            longitud=-6.195,
+            prioridad="alta",
         )
+    )
 
-        creada = crear_necesidad(necesidad)
+    response = NeedResponse.model_validate(created).model_dump(
+        mode="json",
+        by_alias=True,
+    )
 
-        self.assertEqual(creada, obtener_necesidad(creada["id"]))
-        self.assertEqual(creada["titulo"], "Agua potable y mantas")
-        self.assertEqual(creada["descripcion"], "Agua para el refugio")
-        self.assertEqual(creada["prioridad"], "media")
-        self.assertEqual(creada["estado"], "abierta")
-        # La fila también debe cumplir el contrato público de respuesta.
-        respuesta = NecesidadRespuesta.model_validate(creada)
-        self.assertEqual(respuesta.id, creada["id"])
+    assert isinstance(response["id"], int)
+    assert response["titulo"] == "Agua potable y mantas"
+    assert response["tipo"] == "agua"
+    assert response["prioridad"] == "alta"
+    assert response["estado"] == "abierta"
+    assert response["creado_en"].endswith("Z")
 
-    def test_registro_cumple_el_contrato_de_datos_completo(self):
-        """El ejemplo compartido se guarda y serializa sin cambiar su forma."""
 
-        creada = crear_necesidad(
-            NecesidadCrear(
-                titulo="Agua potable y mantas",
-                tipo="agua",
-                descripcion=(
-                    "Se necesitan 50L de agua en el punto de recogida del barrio"
-                ),
-                latitud=36.463,
-                longitud=-6.195,
-                prioridad="alta",
-            )
+def test_list_needs_filters_by_status_and_type():
+    """Los filtros opcionales devuelven únicamente los registros coincidentes."""
+
+    water = create_need(build_valid_need())
+    create_need(
+        build_valid_need(
+            titulo="Comida caliente",
+            tipo="alimento",
+            descripcion="Comida caliente",
         )
+    )
+    update_need_status(water["id"], NeedStatus.IN_PROGRESS)
+    update_need_status(water["id"], NeedStatus.COVERED)
 
-        respuesta = NecesidadRespuesta.model_validate(creada).model_dump(
-            mode="json"
-        )
+    covered = list_needs(status=NeedStatus.COVERED)
+    food = list_needs(need_type=NeedType.FOOD)
 
-        self.assertIsInstance(respuesta["id"], int)
-        self.assertEqual(respuesta["titulo"], "Agua potable y mantas")
-        self.assertEqual(respuesta["tipo"], "agua")
-        self.assertEqual(respuesta["prioridad"], "alta")
-        self.assertEqual(respuesta["estado"], "abierta")
-        self.assertTrue(respuesta["creado_en"].endswith("Z"))
-
-    def test_listar_necesidades_permite_filtrar_por_estado_y_tipo(self):
-        """Los filtros devuelven solo las filas que coinciden con ambos enums."""
-
-        agua = crear_necesidad(self.crear_datos_validos())
-        crear_necesidad(
-            self.crear_datos_validos(
-                titulo="Comida caliente",
-                tipo="alimento",
-                descripcion="Comida caliente",
-            )
-        )
-        actualizar_estado_necesidad(agua["id"], EstadoNecesidad.EN_PROCESO)
-        actualizar_estado_necesidad(agua["id"], EstadoNecesidad.CUBIERTA)
-
-        cubiertas = listar_necesidades(estado=EstadoNecesidad.CUBIERTA)
-        comida = listar_necesidades(tipo=TipoNecesidad.ALIMENTO)
-
-        self.assertEqual([fila["id"] for fila in cubiertas], [agua["id"]])
-        self.assertEqual([fila["tipo"] for fila in comida], ["alimento"])
-
-    def test_actualizar_estado_devuelve_el_registro_actualizado(self):
-        """Un avance válido devuelve inmediatamente el estado persistido."""
-
-        creada = crear_necesidad(self.crear_datos_validos())
-
-        actualizada = actualizar_estado_necesidad(
-            creada["id"],
-            EstadoNecesidad.EN_PROCESO,
-        )
-
-        self.assertEqual(actualizada["estado"], "en_proceso")
-
-    def test_operaciones_sobre_id_inexistente_devuelven_none(self):
-        """La capa de rutas podrá convertir la ausencia del id en HTTP 404."""
-
-        self.assertIsNone(obtener_necesidad(999))
-        self.assertIsNone(
-            actualizar_estado_necesidad(999, EstadoNecesidad.CUBIERTA)
-        )
-
-    def test_estado_solo_avanza_en_el_orden_acordado(self):
-        """No se permiten saltos, reaperturas ni retrocesos de estado."""
-
-        creada = crear_necesidad(self.crear_datos_validos())
-
-        with self.assertRaises(TransicionEstadoInvalida):
-            actualizar_estado_necesidad(
-                creada["id"],
-                EstadoNecesidad.CUBIERTA,
-            )
-
-        en_proceso = actualizar_estado_necesidad(
-            creada["id"],
-            EstadoNecesidad.EN_PROCESO,
-        )
-        repetida = actualizar_estado_necesidad(
-            creada["id"],
-            EstadoNecesidad.EN_PROCESO,
-        )
-        self.assertEqual(en_proceso, repetida)
-
-        actualizar_estado_necesidad(creada["id"], EstadoNecesidad.CUBIERTA)
-        with self.assertRaises(TransicionEstadoInvalida):
-            actualizar_estado_necesidad(
-                creada["id"],
-                EstadoNecesidad.ABIERTA,
-            )
-
-    def test_creacion_rechaza_campos_invalidos(self):
-        """Los límites y enums rechazan datos fuera del contrato."""
-
-        casos = [
-            ("tipo", "combustible"),
-            ("titulo", "  "),
-            ("descripcion", "  "),
-            ("latitud", 90.1),
-            ("longitud", -180.1),
-            ("latitud", float("nan")),
-            ("prioridad", "urgente"),
-        ]
-
-        for campo, valor in casos:
-            with self.subTest(campo=campo, valor=valor):
-                with self.assertRaises(ValidationError):
-                    self.crear_datos_validos(**{campo: valor})
-
-    def test_contrato_acepta_todos_los_tipos_y_prioridades_acordados(self):
-        """Cada valor publicado en el contrato es aceptado por Pydantic."""
-
-        for tipo in TipoNecesidad:
-            with self.subTest(tipo=tipo.value):
-                necesidad = self.crear_datos_validos(tipo=tipo.value)
-                self.assertEqual(necesidad.tipo, tipo)
-
-        for prioridad in ("baja", "media", "alta", "critica"):
-            with self.subTest(prioridad=prioridad):
-                necesidad = self.crear_datos_validos(prioridad=prioridad)
-                self.assertEqual(necesidad.prioridad.value, prioridad)
-
-    def test_rechazar_campos_desconocidos_y_estados_invalidos(self):
-        """No se admiten claves adicionales ni estados no publicados."""
-
-        with self.assertRaises(ValidationError):
-            self.crear_datos_validos(contacto="dato innecesario")
-
-        with self.assertRaises(ValidationError):
-            NecesidadActualizarEstado(estado="cancelada")
-
-    def test_modelos_usan_consultas_parametrizadas(self):
-        """El contenido con SQL se almacena literalmente y no altera la tabla."""
-
-        descripcion = "Agua'); DROP TABLE necesidades; --"
-        creada = crear_necesidad(
-            self.crear_datos_validos(descripcion=descripcion)
-        )
-
-        self.assertEqual(creada["descripcion"], descripcion)
-        with database.get_cursor() as cursor:
-            total = cursor.execute(
-                "SELECT COUNT(*) FROM necesidades"
-            ).fetchone()[0]
-        self.assertEqual(total, 1)
+    assert [row["id"] for row in covered] == [water["id"]]
+    assert [row["tipo"] for row in food] == ["alimento"]
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_update_need_status_returns_the_persisted_record():
+    """Una transición válida devuelve la fila actualizada de la base de datos."""
+
+    created = create_need(build_valid_need())
+
+    updated = update_need_status(created["id"], NeedStatus.IN_PROGRESS)
+
+    assert updated["estado"] == "en_proceso"
+
+
+def test_missing_ids_return_none():
+    """Las rutas pueden traducir los registros inexistentes a respuestas HTTP 404."""
+
+    assert get_need(999) is None
+    assert update_need_status(999, NeedStatus.COVERED) is None
+
+
+def test_status_only_advances_in_the_agreed_order():
+    """Se rechazan los saltos, las reaperturas y las transiciones hacia atrás."""
+
+    created = create_need(build_valid_need())
+
+    with pytest.raises(InvalidStatusTransition):
+        update_need_status(created["id"], NeedStatus.COVERED)
+
+    in_progress = update_need_status(created["id"], NeedStatus.IN_PROGRESS)
+    repeated = update_need_status(created["id"], NeedStatus.IN_PROGRESS)
+    assert in_progress == repeated
+
+    update_need_status(created["id"], NeedStatus.COVERED)
+    with pytest.raises(InvalidStatusTransition):
+        update_need_status(created["id"], NeedStatus.OPEN)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("tipo", "combustible"),
+        ("titulo", "  "),
+        ("descripcion", "  "),
+        ("latitud", 90.1),
+        ("longitud", -180.1),
+        ("latitud", float("nan")),
+        ("prioridad", "urgente"),
+    ],
+)
+def test_creation_rejects_invalid_fields(field, value):
+    """Los enums, límites de texto y rangos geográficos protegen el contrato."""
+
+    with pytest.raises(ValidationError):
+        build_valid_need(**{field: value})
+
+
+@pytest.mark.parametrize("need_type", list(NeedType))
+def test_contract_accepts_every_agreed_need_type(need_type):
+    """Acepta todos los tipos de necesidad publicados en el contrato."""
+
+    assert build_valid_need(tipo=need_type.value).need_type == need_type
+
+
+@pytest.mark.parametrize("priority", ["baja", "media", "alta", "critica"])
+def test_contract_accepts_every_agreed_priority(priority):
+    """Acepta todas las prioridades publicadas en el contrato."""
+
+    assert build_valid_need(prioridad=priority).priority.value == priority
+
+
+def test_unknown_fields_and_statuses_are_rejected():
+    """Rechaza las claves inesperadas y los estados no publicados."""
+
+    with pytest.raises(ValidationError):
+        build_valid_need(contacto="dato innecesario")
+
+    # Los nombres internos en inglés no forman parte del contrato JSON público.
+    with pytest.raises(ValidationError):
+        build_valid_need(title="Nombre fuera del contrato")
+
+    with pytest.raises(ValidationError):
+        NeedStatusUpdate(estado="cancelada")
+
+    with pytest.raises(ValidationError):
+        NeedStatusUpdate(status="covered")
+
+
+def test_models_use_parameterized_queries():
+    """El contenido similar a SQL se guarda literalmente sin alterar la tabla."""
+
+    description = "Agua'); DROP TABLE necesidades; --"
+    created = create_need(build_valid_need(descripcion=description))
+
+    assert created["descripcion"] == description
+    with database.get_cursor() as cursor:
+        total = cursor.execute("SELECT COUNT(*) FROM necesidades").fetchone()[0]
+    assert total == 1
