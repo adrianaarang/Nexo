@@ -1,149 +1,137 @@
-"""Operaciones SQLite del módulo de necesidades.
+"""Operaciones de persistencia SQLite del módulo de necesidades.
 
-La validación del contenido pertenece a ``schemas.py``. Este módulo se ocupa
-solo de consultas parametrizadas y devuelve diccionarios fáciles de serializar.
+La validación de entrada corresponde a ``schemas.py``. Este módulo solo
+ejecuta consultas parametrizadas y devuelve diccionarios serializables.
 """
 from sqlite3 import Row
 from typing import Any
 
 from db.database import get_cursor
-from modules.necesidades.schemas import (
-    EstadoNecesidad,
-    NecesidadCrear,
-    TipoNecesidad,
-)
+from modules.necesidades.schemas import NeedCreate, NeedStatus, NeedType
 
 
-class TransicionEstadoInvalida(ValueError):
-    """Permite que la capa de rutas traduzca un cambio inválido a HTTP 409."""
+class InvalidStatusTransition(ValueError):
+    """Permite que la capa de rutas traduzca una transición inválida a HTTP 409."""
 
 
-# Una necesidad solo puede avanzar; no se puede saltar un paso ni reabrirla.
-TRANSICIONES_ESTADO = {
-    EstadoNecesidad.ABIERTA: EstadoNecesidad.EN_PROCESO,
-    EstadoNecesidad.EN_PROCESO: EstadoNecesidad.CUBIERTA,
+# Una necesidad solo puede avanzar; no se pueden saltar pasos ni reabrirla.
+STATUS_TRANSITIONS = {
+    NeedStatus.OPEN: NeedStatus.IN_PROGRESS,
+    NeedStatus.IN_PROGRESS: NeedStatus.COVERED,
 }
 
 
-def _fila_a_dict(fila: Row | None) -> dict[str, Any] | None:
-    """Convierte una fila SQLite en un diccionario sin exponer el cursor."""
+def _row_to_dict(row: Row | None) -> dict[str, Any] | None:
+    """Convierte una fila SQLite en diccionario sin exponer el cursor."""
 
-    return dict(fila) if fila is not None else None
+    return dict(row) if row is not None else None
 
 
-def listar_necesidades(
-    estado: EstadoNecesidad | None = None,
-    tipo: TipoNecesidad | None = None,
+def list_needs(
+    status: NeedStatus | None = None,
+    need_type: NeedType | None = None,
 ) -> list[dict[str, Any]]:
-    """Lee las necesidades, con filtros opcionales y un orden estable."""
+    """Lista necesidades en orden estable y permite filtrar por estado o tipo."""
 
-    # Se construye únicamente la cláusula WHERE; los valores siempre se envían
-    # como parámetros para evitar que la entrada del cliente se interprete
-    # como parte de la consulta SQL.
-    condiciones: list[str] = []
-    parametros: list[str] = []
+    # Solo se construye dinámicamente la estructura de WHERE. Los valores
+    # recibidos siguen siendo parámetros y nunca se interpretan como SQL.
+    conditions: list[str] = []
+    parameters: list[str] = []
 
-    if estado is not None:
-        condiciones.append("estado = ?")
-        parametros.append(estado.value)
-    if tipo is not None:
-        condiciones.append("tipo = ?")
-        parametros.append(tipo.value)
+    if status is not None:
+        conditions.append("estado = ?")
+        parameters.append(status.value)
+    if need_type is not None:
+        conditions.append("tipo = ?")
+        parameters.append(need_type.value)
 
-    consulta = "SELECT * FROM necesidades"
-    if condiciones:
-        consulta += " WHERE " + " AND ".join(condiciones)
-    consulta += " ORDER BY id ASC"
-
-    with get_cursor() as cursor:
-        # ORDER BY id mantiene un resultado predecible para API, mapa y tests.
-        cursor.execute(consulta, parametros)
-        return [dict(fila) for fila in cursor.fetchall()]
-
-
-def obtener_necesidad(necesidad_id: int) -> dict[str, Any] | None:
-    """Lee una necesidad por su identificador o devuelve ``None``."""
+    query = "SELECT * FROM necesidades"
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+    query += " ORDER BY id ASC"
 
     with get_cursor() as cursor:
-        # Devolver None deja que routes.py decida la respuesta HTTP apropiada.
+        cursor.execute(query, parameters)
+        return [dict(row) for row in cursor.fetchall()]
+
+
+def get_need(need_id: int) -> dict[str, Any] | None:
+    """Devuelve una necesidad por id o ``None`` si no existe."""
+
+    with get_cursor() as cursor:
         cursor.execute(
             "SELECT * FROM necesidades WHERE id = ?",
-            (necesidad_id,),
+            (need_id,),
         )
-        return _fila_a_dict(cursor.fetchone())
+        return _row_to_dict(cursor.fetchone())
 
 
-def crear_necesidad(necesidad: NecesidadCrear) -> dict[str, Any]:
-    """Guarda una necesidad validada y devuelve el registro creado."""
+def create_need(need: NeedCreate) -> dict[str, Any]:
+    """Guarda una necesidad validada y devuelve el registro completo."""
 
     with get_cursor() as cursor:
-        # El esquema ya validó los campos; aquí solo se persisten con una
-        # consulta parametrizada. SQLite asigna id, estado y fecha de creación.
+        # SQLite genera el id, el estado inicial y la fecha de creación.
         cursor.execute(
             """INSERT INTO necesidades
                (titulo, tipo, descripcion, latitud, longitud, prioridad)
                VALUES (?, ?, ?, ?, ?, ?)""",
             (
-                necesidad.titulo,
-                necesidad.tipo.value,
-                necesidad.descripcion,
-                necesidad.latitud,
-                necesidad.longitud,
-                necesidad.prioridad.value,
+                need.title,
+                need.need_type.value,
+                need.description,
+                need.latitude,
+                need.longitude,
+                need.priority.value,
             ),
         )
-        necesidad_id = cursor.lastrowid
-        # Se devuelve la fila completa para incluir los valores generados por
-        # SQLite en la respuesta del endpoint POST.
+        need_id = cursor.lastrowid
+
+        # La misma conexión permite leer también los datos generados por SQLite.
         cursor.execute(
             "SELECT * FROM necesidades WHERE id = ?",
-            (necesidad_id,),
+            (need_id,),
         )
-        # La fila existe porque la inserción y la lectura usan la misma conexión.
         return dict(cursor.fetchone())
 
 
-def actualizar_estado_necesidad(
-    necesidad_id: int,
-    estado: EstadoNecesidad,
+def update_need_status(
+    need_id: int,
+    status: NeedStatus,
 ) -> dict[str, Any] | None:
-    """Avanza el estado sin permitir saltos ni reabrir una necesidad.
+    """Avanza el estado sin permitir saltos ni reabrir registros.
 
     Repetir el estado actual es válido para que los reintentos del cliente sean
-    idempotentes. Un identificador inexistente se comunica mediante ``None``.
+    idempotentes. Un identificador inexistente se representa con ``None``.
     """
 
     with get_cursor() as cursor:
-        # Es necesario leer primero para distinguir un id inexistente de una
-        # transición que no respeta el flujo del negocio.
+        # Se lee primero para distinguir un registro inexistente de una
+        # transición de negocio inválida en la capa de rutas.
         cursor.execute(
             "SELECT * FROM necesidades WHERE id = ?",
-            (necesidad_id,),
+            (need_id,),
         )
-        fila_actual = cursor.fetchone()
-        if fila_actual is None:
+        current_row = cursor.fetchone()
+        if current_row is None:
             return None
 
-        estado_actual = EstadoNecesidad(fila_actual["estado"])
-        # Aceptar el mismo estado hace seguro repetir una petición PATCH si la
-        # conexión se corta antes de recibir la respuesta.
-        if estado == estado_actual:
-            return dict(fila_actual)
+        current_status = NeedStatus(current_row["estado"])
+        if status == current_status:
+            return dict(current_row)
 
-        if TRANSICIONES_ESTADO.get(estado_actual) != estado:
-            raise TransicionEstadoInvalida(
-                f"No se puede cambiar de {estado_actual.value} a {estado.value}"
+        if STATUS_TRANSITIONS.get(current_status) != status:
+            raise InvalidStatusTransition(
+                f"Cannot change status from {current_status.value} to {status.value}"
             )
 
-        # Solo se ejecuta el UPDATE después de validar la transición.
         cursor.execute(
             "UPDATE necesidades SET estado = ? WHERE id = ?",
-            (estado.value, necesidad_id),
+            (status.value, need_id),
         )
 
-        # La capa superior recibe siempre el registro tal como quedó guardado.
+        # Se devuelve la representación persistida que espera la respuesta API.
         cursor.execute(
             "SELECT * FROM necesidades WHERE id = ?",
-            (necesidad_id,),
+            (need_id,),
         )
-        return _fila_a_dict(cursor.fetchone())
+        return _row_to_dict(cursor.fetchone())

@@ -1,7 +1,7 @@
 """Esquemas de validación del módulo de necesidades.
 
-Los valores permitidos coinciden con el esquema SQLite inicial. Mantenerlos
-centralizados evita que la API y la base de datos acepten contratos distintos.
+Los nombres de Python siguen la convención técnica en inglés. Los alias en
+español conservan el contrato JSON ya compartido con el equipo de frontend.
 """
 from datetime import datetime
 from enum import Enum
@@ -9,82 +9,84 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class TipoNecesidad(str, Enum):
-    """Categorías que puede representar el mapa en el MVP."""
+class NeedType(str, Enum):
+    """Categorías de necesidad admitidas por el mapa del MVP."""
 
-    # Al heredar de str, FastAPI serializa cada miembro con el valor JSON
-    # acordado con las personas responsables del frontend.
-    AGUA = "agua"
-    ALIMENTO = "alimento"
-    MEDICINA = "medicina"
-    REFUGIO = "refugio"
-    HERRAMIENTAS = "herramientas"
-    TRANSPORTE = "transporte"
+    # FastAPI serializa estos enums con los valores acordados del contrato JSON.
+    WATER = "agua"
+    FOOD = "alimento"
+    MEDICINE = "medicina"
+    SHELTER = "refugio"
+    TOOLS = "herramientas"
+    TRANSPORT = "transporte"
 
 
-class PrioridadNecesidad(str, Enum):
+class NeedPriority(str, Enum):
     """Prioridad declarada al registrar una necesidad."""
 
-    # La prioridad crítica se conserva como "critica" sin tilde en la API.
-    ALTA = "alta"
-    MEDIA = "media"
-    BAJA = "baja"
-    CRITICA = "critica"
+    LOW = "baja"
+    MEDIUM = "media"
+    HIGH = "alta"
+    CRITICAL = "critica"
 
 
-class EstadoNecesidad(str, Enum):
-    """Estados disponibles durante el seguimiento de una necesidad."""
+class NeedStatus(str, Enum):
+    """Estados disponibles durante el ciclo de vida de una necesidad."""
 
-    # Los valores reflejan literalmente el contrato JSON compartido.
-    ABIERTA = "abierta"
-    EN_PROCESO = "en_proceso"
-    CUBIERTA = "cubierta"
+    OPEN = "abierta"
+    IN_PROGRESS = "en_proceso"
+    COVERED = "cubierta"
 
 
-class NecesidadBase(BaseModel):
-    """Campos comunes que describen y ubican una necesidad."""
+class NeedBase(BaseModel):
+    """Campos que describen, ubican y priorizan una necesidad."""
 
-    # Rechazar claves desconocidas ayuda a detectar errores del cliente pronto.
+    # Se rechazan claves desconocidas para detectar pronto errores de integración.
+    # Los alias obligan a que la API reciba exactamente las claves del contrato.
     model_config = ConfigDict(extra="forbid")
 
-    # Título y descripción se limitan para evitar textos vacíos o cargas
-    # desproporcionadas en las tarjetas y popups del mapa.
-    titulo: str = Field(min_length=3, max_length=120)
-    tipo: TipoNecesidad
-    descripcion: str = Field(min_length=3, max_length=1000)
-    # Las coordenadas deben ser finitas y pertenecer a los rangos geográficos.
-    latitud: float = Field(ge=-90, le=90, allow_inf_nan=False)
-    longitud: float = Field(ge=-180, le=180, allow_inf_nan=False)
-    # Si el usuario no selecciona prioridad, el contrato aplica "media".
-    prioridad: PrioridadNecesidad = PrioridadNecesidad.MEDIA
+    title: str = Field(alias="titulo", min_length=3, max_length=120)
+    need_type: NeedType = Field(alias="tipo")
+    description: str = Field(alias="descripcion", min_length=3, max_length=1000)
+    latitude: float = Field(alias="latitud", ge=-90, le=90, allow_inf_nan=False)
+    longitude: float = Field(
+        alias="longitud",
+        ge=-180,
+        le=180,
+        allow_inf_nan=False,
+    )
+    priority: NeedPriority = Field(
+        default=NeedPriority.MEDIUM,
+        alias="prioridad",
+    )
 
-    @field_validator("titulo", "descripcion", mode="before")
+    @field_validator("title", "description", mode="before")
     @classmethod
-    def normalizar_texto(cls, texto: object) -> object:
-        """Elimina espacios accidentales antes de comprobar la longitud."""
+    def strip_text_fields(cls, value: object) -> object:
+        """Elimina espacios laterales antes de validar la longitud."""
 
-        if isinstance(texto, str):
-            return texto.strip()
-        return texto
-
-
-class NecesidadCrear(NecesidadBase):
-    """Datos admitidos al crear; id, estado y fecha los genera el servidor."""
+        if isinstance(value, str):
+            return value.strip()
+        return value
 
 
-class NecesidadActualizarEstado(BaseModel):
-    """Único cambio permitido por el endpoint de estado del MVP."""
+class NeedCreate(NeedBase):
+    """Entrada de creación; el servidor controla id, estado y fecha."""
+
+
+class NeedStatusUpdate(BaseModel):
+    """Entrada admitida por el endpoint de actualización de estado."""
 
     model_config = ConfigDict(extra="forbid")
 
-    # No se aceptan otros campos para impedir modificaciones accidentales.
-    estado: EstadoNecesidad
+    # Una actualización de estado no admite ningún otro campo.
+    status: NeedStatus = Field(alias="estado")
 
 
-class NecesidadRespuesta(NecesidadBase):
-    """Representación completa que se devuelve al cliente."""
+class NeedResponse(NeedBase):
+    """Representación completa devuelta a los clientes de la API."""
 
-    # Estos campos los controla la persistencia, nunca el formulario de alta.
+    # Estos campos los genera la persistencia, nunca el formulario.
     id: int = Field(gt=0)
-    estado: EstadoNecesidad
-    creado_en: datetime
+    status: NeedStatus = Field(alias="estado")
+    created_at: datetime = Field(alias="creado_en")
