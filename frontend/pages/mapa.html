@@ -1,116 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mapa de necesidades — Nexo</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa de necesidades — Nexo</title>
 
-  <!-- CSS Globales -->
-  <link rel="stylesheet" href="../css/variables.css">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/components.css">
+    <!-- CSS Globales -->
+    <link rel="stylesheet" href="../css/variables.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/components.css" />
 
-  <!-- Leaflet CSS -->
-  <link 
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-    crossorigin=""
-  />
-</head>
-<body>
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="nexo-header">
+      <a href="../index.html" class="nexo-header__brand">
+        <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
+        Nexo
+      </a>
+      <nav class="nexo-nav">
+        <a href="mapa.html" class="active">Mapa</a>
+        <a href="alertas.html">Alertas</a>
+        <a href="voluntariado.html">Voluntariado</a>
+        <a href="donaciones.html">Donaciones</a>
+        <a href="personas.html">Personas</a>
+        <a href="estoy-bien.html">Estoy bien</a>
+      </nav>
+    </header>
 
-  <!-- Header -->
-  <header class="nexo-header">
-    <a href="../index.html" class="nexo-header__brand">
-      <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
-      Nexo
-    </a>
-    <nav class="nexo-nav">
-      <a href="mapa.html" class="active">Mapa</a>
-      <a href="alertas.html">Alertas</a>
-      <a href="voluntariado.html">Voluntariado</a>
-      <a href="donaciones.html">Donaciones</a>
-      <a href="personas.html">Personas</a>
-      <a href="estoy-bien.html">Estoy bien</a>
-    </nav>
-  </header>
+    <!-- Estructura Principal de 2 Columnas -->
+    <main class="contenedor-mapa-panel">
+      <!-- PANEL LATERAL (IZQUIERDA) -->
+      <aside class="panel-lateral">
+        <!-- Lista de Necesidades Activas con Filtro -->
+        <section class="seccion-lista">
+          <h2>Necesidades Activas</h2>
 
-  <!-- Estructura Principal de 2 Columnas -->
-  <main class="contenedor-mapa-panel">
-    
-    <!-- PANEL LATERAL (IZQUIERDA) -->
-    <aside class="panel-lateral">
-      <!-- Lista de Necesidades Activas con Filtro -->
-      <section class="seccion-lista">
-        <h2>Necesidades Activas</h2>
-        
-        <!-- Filtro por tipo -->
-        <div class="controles" style="margin-bottom: 12px;">
-          <label for="filtroTipo"><strong>Filtrar:</strong></label>
-          <select id="filtroTipo">
-            <option value="todos">Todos los tipos</option>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Voluntariado">Voluntariado</option>
-            <option value="Alojamiento">Alojamiento</option>
-          </select>
-        </div>
-
-        <div id="contenedor-tarjetas">
-          <!-- JS inyectará las tarjetas aquí -->
-        </div>
-      </section>
-      
-      <!-- Formulario para agregar necesidades -->
-      <section class="seccion-form">
-        <h2>Reportar Necesidad</h2>
-        <form id="form-nueva-necesidad">
-          <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
-          
-          <select id="select-tipo" required>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Medicina">Medicina / Salud</option>
-            <option value="Alojamiento">Alojamiento</option>
-            <option value="Voluntariado">Voluntariado</option>
-          </select>
-
-          <select id="select-prioridad" required>
-            <option value="baja">Prioridad Baja</option>
-            <option value="media">Prioridad Media</option>
-            <option value="alta">Prioridad Alta</option>
-          </select>
-
-          <textarea id="textarea-desc" placeholder="Descripción detallada..."></textarea>
-
-          <div class="coords-group">
-            <input type="number" step="any" id="input-lat" placeholder="Latitud" required readonly />
-            <input type="number" step="any" id="input-lng" placeholder="Longitud" required readonly />
-            <button type="button" id="btn-usar-gps">📍 Usar mi ubicación</button>
+          <!-- Filtro por tipo -->
+          <div class="controles" style="margin-bottom: 12px">
+            <label for="filtroTipo"><strong>Filtrar:</strong></label>
+            <select id="filtroTipo">
+              <option value="todos">Todos los tipos</option>
+              <option value="Alimentos">Alimentos</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Voluntariado">Voluntariado</option>
+              <option value="Alojamiento">Alojamiento</option>
+            </select>
           </div>
 
-          <button type="submit" class="btn-primario">Publicar Necesidad</button>
-        </form>
-      </section>
+          <div id="contenedor-tarjetas">
+            <!-- TARJETAS DE NECESIDAD -->
+          </div>
+        </section>
+        
 
-      
+        <!-- Formulario para agregar necesidades -->
+        <section class="seccion-form">
+          <h2>Reportar Necesidad</h2>
+          <form id="form-nueva-necesidad">
+            <!-- CAMPOS DEL FORMULARIO DE NECESIDAD -->
+            <input
+              type="text"
+              id="input-titulo"
+              placeholder="Título (ej. Agua potable)"
+              required
+            />
 
-    </aside>
+            
+            <select id="select-tipo" required>
+              <option value="Alimentos">Alimentos</option>
+              <option value="Ropa">Ropa</option>
+              <option value="Medicina">Medicina / Salud</option>
+              <option value="Alojamiento">Alojamiento</option>
+              <option value="Voluntariado">Voluntariado</option>
+            </select>
 
-    <!-- MAPA INTERACTIVO -->
-    <div id="mapa"></div>
+            <select id="select-prioridad" required>
+              <option value="baja">Prioridad Baja</option>
+              <option value="media">Prioridad Media</option>
+              <option value="alta">Prioridad Alta</option>
+            </select>
 
-  </main>
+            <textarea
+              id="textarea-desc"
+              placeholder="Descripción detallada..."
+            ></textarea>
 
-  <!-- Leaflet JS -->
-  <script 
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-    crossorigin="">
-  </script>
+            <div class="coords-group">
+              <input
+                type="number"
+                step="any"
+                id="input-lat"
+                placeholder="Latitud"
+                required
+                readonly
+              />
+              <input
+                type="number"
+                step="any"
+                id="input-lng"
+                placeholder="Longitud"
+                required
+                readonly
+              />
+              <button type="button" id="btn-usar-gps">
+                📍 Usar mi ubicación
+              </button>
+            </div>
 
-  <!-- Lógica de mapa y datos -->
-  <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
-</body>
+            <button type="submit" class="btn-primario">
+              Publicar Necesidad
+            </button>
+          </form>
+        </section>
+      </aside>
+
+      <!-- MAPA INTERACTIVO -->
+      <div id="mapa"></div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <!-- Lógica de mapa y datos -->
+    <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
+
+    <!-- Importante: type="module" para permitir imports/exports de JS nativo -->
+    <script type="module">
+      import { crearTarjetaNecesidad } from "./js/core/mapa-necesidades/necesidadCard.js";
+      import { inicializarFormulario } from "./js/core/mapa-necesidades/formularioNecesidad.js";
+
+      const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
+
+      // 1. Inicializar el formulario enviando el callback para añadir la tarjeta al listado
+      inicializarFormulario((nuevaNecesidad) => {
+        // Generar un ID temporal para la vista previa local
+        const necesidadConId = {
+          ...nuevaNecesidad,
+          id: Date.now().toString(),
+          estado: "abierta",
+        };
+
+        // Crear el elemento DOM de la tarjeta
+        const tarjetaEl = crearTarjetaNecesidad(
+          necesidadConId,
+          (id, nuevoEstado) => {
+            console.log(`Estado de necesidad ${id} cambiado a: ${nuevoEstado}`);
+          },
+        );
+
+        // Insertar la tarjeta al principio de la lista
+        contenedorTarjetas.prepend(tarjetaEl);
+      });
+    </script>
+  </body>
 </html>

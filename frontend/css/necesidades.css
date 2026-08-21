@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Módulo: Mapa de Necesidades (Equipo 1)
+   Convenciones: BEM-lite, variables nexo-, mobile-first (>=360px)
+   ========================================================================== */
+
+/* Variables locales que extienden el sistema global */
+:root {
+  --nexo-card-bg: #1e293b;
+  --nexo-card-border: #334155;
+  --nexo-card-text: #f8fafc;
+  --nexo-card-subtext: #94a3b8;
+
+  /* Semántica de prioridades */
+  --nexo-prio-critica: #ef4444;
+  --nexo-prio-alta: #f97316;
+  --nexo-prio-media: #eab308;
+  --nexo-prio-baja: #22c55e;
+}
+
+/* Lista de tarjetas y contenedores de estado */
+.nexo-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Tarjeta base (Mobile-First) */
+.nexo-card {
+  background-color: var(--nexo-card-bg);
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid var(--nexo-card-border);
+  border-left: 5px solid var(--nexo-card-border);
+  color: var(--nexo-card-text);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.nexo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Variantes por prioridad (BEM Modifier) */
+.nexo-card--critica {
+  border-left-color: var(--nexo-prio-critica);
+}
+.nexo-card--alta {
+  border-left-color: var(--nexo-prio-alta);
+}
+.nexo-card--media {
+  border-left-color: var(--nexo-prio-media);
+}
+.nexo-card--baja {
+  border-left-color: var(--nexo-prio-baja);
+}
+
+/* Elementos internos de la tarjeta */
+.nexo-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.nexo-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--nexo-card-text);
+}
+
+.nexo-card__badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nexo-card__badge--critica {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--nexo-prio-critica);
+}
+.nexo-card__badge--alta {
+  background: rgba(249, 115, 22, 0.2);
+  color: var(--nexo-prio-alta);
+}
+.nexo-card__badge--media {
+  background: rgba(234, 179, 8, 0.2);
+  color: var(--nexo-prio-media);
+}
+.nexo-card__badge--baja {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--nexo-prio-baja);
+}
+
+.nexo-card__desc {
+  font-size: 0.875rem;
+  color: var(--nexo-card-subtext);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.nexo-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ESTADOS OBLIGATORIOS (Punto 22: Carga, Vacío, Error) */
+.nexo-state {
+  padding: 24px 16px;
+  text-align: center;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px dashed var(--nexo-card-border);
+  color: var(--nexo-card-subtext);
+  font-size: 0.9rem;
+}
+
+.nexo-state--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.nexo-state--empty {
+  color: var(--nexo-card-subtext);
+}
+
+.nexo-state--error {
+  border-color: var(--nexo-prio-critica);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+}

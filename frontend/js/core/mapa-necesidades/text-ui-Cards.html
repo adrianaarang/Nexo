@@ -1,174 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prueba UI - Formulario y Tarjetas</title>
-    <style>
-      :root {
-        --bg: #5068a0; /* background de la página*/
-        --card-bg: #1e293b; /* background de la tarjeta */
-        --text: #f8fafc; /* Textos principales */
-        --accent: #48a1c7; /* Botones */
-        --critica: #641919;
-        --alta: #f97316;
-        --media: #eab308;
-        --baja: #22c55e;
-      }
-      body {
-        font-family: system-ui, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        padding: 20px;
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 20px;
-      }
-      .panel {
-        background: var(--card-bg);
-        padding: 15px;
-        border-radius: 8px;
-      }
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      input,
-      select,
-      textarea,
-      button {
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #334155;
-        background: #0f172a;
-        color: white;
-      }
-      button {
-        background: var(--accent);
-        color: #000;
-        font-weight: bold;
-        cursor: pointer;
-      }
-      .grid-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 15px;
-      }
-      .card {
-        background: #0f172a;
-        padding: 12px;
-        border-radius: 6px;
-        border-left: 4px solid #64748b;
-      }
-      .card.prioridad-critica {
-        border-color: var(--critica);
-      }
-      .card.prioridad-alta {
-        border-color: var(--alta);
-      }
-      .card.prioridad-media {
-        border-color: var(--media);
-      }
-      .card.prioridad-baja {
-        border-color: var(--baja);
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Panel Formulario -->
-    <section class="panel">
-      <h2>Reportar Necesidad</h2>
-      <form id="form-nueva-necesidad">
-        <input
-          type="text"
-          id="input-titulo"
-          placeholder="Título (ej. Agua potable)"
-          required
-        />
-        <select id="select-tipo" required>
-          <option value="agua">Agua</option>
-          <option value="alimento">Alimento</option>
-          <option value="medicina">Medicina</option>
-          <option value="refugio">Refugio</option>
-        </select>
-        <select id="select-prioridad" required>
-          <option value="baja">Baja</option>
-          <option value="media">Media</option>
-          <option value="alta">Alta</option>
-          <option value="critica">Crítica</option>
-        </select>
-        <textarea id="textarea-desc" placeholder="Descripción..."></textarea>
-        <input
-          type="number"
-          step="any"
-          id="input-lat"
-          placeholder="Latitud"
-          value="36.463"
-          required
-        />
-        <input
-          type="number"
-          step="any"
-          id="input-lng"
-          placeholder="Longitud"
-          value="-6.195"
-          required
-        />
-        <button type="button" id="btn-usar-gps">📍 Probar GPS</button>
-        <button type="submit">Publicar Necesidad</button>
-      </form>
-    </section>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prueba UI - Formulario y Tarjetas (Persona 5)</title>
+  <style>
+    :root {
+      --bg: #121826;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --critica: #ef4444;
+      --alta: #f97316;
+      --media: #eab308;
+      --baja: #22c55e;
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 20px;
+    }
+    .panel { background: var(--card-bg); padding: 15px; border-radius: 8px; }
+    form { display: flex; flex-direction: column; gap: 10px; }
+    input, select, textarea, button {
+      padding: 8px; border-radius: 4px; border: 1px solid #334155;
+      background: #0f172a; color: white;
+    }
+    button { background: var(--accent); color: #000; font-weight: bold; cursor: pointer; }
+    .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+    .card { background: #0f172a; padding: 12px; border-radius: 6px; border-left: 4px solid #64748b; }
+    .card.prioridad-critica { border-color: var(--critica); }
+    .card.prioridad-alta { border-color: var(--alta); }
+    .card.prioridad-media { border-color: var(--media); }
+    .card.prioridad-baja { border-color: var(--baja); }
+  </style>
+</head>
+<body>
 
-    <!-- Panel Vista de Tarjetas -->
-    <section class="panel">
-      <h2>Listado de Tarjetas</h2>
-      <div id="contenedor-tarjetas" class="grid-cards"></div>
-    </section>
+  <!-- Panel Formulario -->
+  <section class="panel">
+    <h2>Reportar Necesidad</h2>
+    <form id="form-nueva-necesidad">
+      <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
+      <select id="select-tipo" required>
+        <option value="agua">Agua</option>
+        <option value="alimento">Alimento</option>
+        <option value="medicina">Medicina</option>
+        <option value="refugio">Refugio</option>
+      </select>
+      <select id="select-prioridad" required>
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+        <option value="critica">Crítica</option>
+      </select>
+      <textarea id="textarea-desc" placeholder="Descripción..."></textarea>
+      <input type="number" step="any" id="input-lat" placeholder="Latitud" value="36.463" required />
+      <input type="number" step="any" id="input-lng" placeholder="Longitud" value="-6.195" required />
+      <button type="button" id="btn-usar-gps">📍 Probar GPS</button>
+      <button type="submit">Publicar Necesidad</button>
+    </form>
+  </section>
 
-    <!-- Importante: type="module" para usar imports de JS nativo -->
-    <script type="module">
-      import { crearTarjetaNecesidad } from "./necesidadCard.js";
-      import { inicializarFormulario } from "./formularioNecesidad.js";
+  <!-- Panel Vista de Tarjetas -->
+  <section class="panel">
+    <h2>Listado de Tarjetas</h2>
+    <div id="contenedor-tarjetas" class="grid-cards"></div>
+  </section>
 
-      const contenedor = document.getElementById("contenedor-tarjetas");
+  <!-- Importante: type="module" para usar imports de JS nativo -->
+  <script type="module">
+    import { crearTarjetaNecesidad } from './necesidadCard.js';
+    import { inicializarFormulario } from './formularioNecesidad.js';
 
-      // 1. Datos falsos (MOCK) para ver cómo renderizan las tarjetas
-      const necesidadesEjemplo = [
-        {
-          id: "1",
-          titulo: "Agua potable",
-          tipo: "agua",
-          prioridad: "alta",
-          descripcion: "Se necesitan garrafas de 5L en el centro.",
-          estado: "abierta",
-        },
-        {
-          id: "2",
-          titulo: "Kits primer auxilio",
-          tipo: "medicina",
-          prioridad: "critica",
-          descripcion: "Vendas y antiséptico.",
-          estado: "en_proceso",
-        },
-      ];
+    const contenedor = document.getElementById('contenedor-tarjetas');
 
-      // Renderizar tarjetas de ejemplo
-      necesidadesEjemplo.forEach((necesidad) => {
-        const cardEl = crearTarjetaNecesidad(necesidad, (id, nuevoEstado) => {
-          alert(`Cambiado estado de ID ${id} a ${nuevoEstado}`);
-        });
-        contenedor.appendChild(cardEl);
+    // 1. Datos falsos (MOCK) para ver cómo renderizan las tarjetas
+    const necesidadesEjemplo = [
+      { id: '1', titulo: 'Agua potable', tipo: 'agua', prioridad: 'alta', descripcion: 'Se necesitan garrafas de 5L en el centro.', estado: 'abierta' },
+      { id: '2', titulo: 'Kits primer auxilio', tipo: 'medicina', prioridad: 'critica', descripcion: 'Vendas y antiséptico.', estado: 'en_proceso' }
+    ];
+
+    // Renderizar tarjetas de ejemplo
+    necesidadesEjemplo.forEach(necesidad => {
+      const cardEl = crearTarjetaNecesidad(necesidad, (id, nuevoEstado) => {
+        alert(`Cambiado estado de ID ${id} a ${nuevoEstado}`);
       });
+      contenedor.appendChild(cardEl);
+    });
 
-      // 2. Conectar el formulario para insertar una tarjeta nueva en vivo al enviar
-      inicializarFormulario((nuevaNecesidad) => {
-        const cardNueva = crearTarjetaNecesidad(
-          { ...nuevaNecesidad, id: Date.now().toString() },
-          () => {},
-        );
-        contenedor.prepend(cardNueva);
-      });
-    </script>
-  </body>
+    // 2. Conectar el formulario para insertar una tarjeta nueva en vivo al enviar
+    inicializarFormulario((nuevaNecesidad) => {
+      const cardNueva = crearTarjetaNecesidad({ ...nuevaNecesidad, id: Date.now().toString() }, () => {});
+      contenedor.prepend(cardNueva);
+    });
+  </script>
+</body>
 </html>
