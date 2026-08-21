@@ -11,7 +11,7 @@ const necesidadesMock = [
     prioridad: "alta", // alta | media | baja
     descripcion: "Se necesitan cajas de leche y conservas urgentes.",
     latitud: 40.416775,
-    longitud: -3.703790
+    longitud: -3.70379,
   },
   {
     id: 2,
@@ -19,8 +19,8 @@ const necesidadesMock = [
     tipo: "Ropa",
     prioridad: "media",
     descripcion: "Abrigos y mantas para niños y adultos.",
-    latitud: 40.420000,
-    longitud: -3.690000
+    latitud: 40.42,
+    longitud: -3.69,
   },
   {
     id: 3,
@@ -28,8 +28,8 @@ const necesidadesMock = [
     tipo: "Voluntariado",
     prioridad: "baja",
     descripcion: "Clases de refuerzo en matemáticas dos tardes a la semana.",
-    latitud: 40.410000,
-    longitud: -3.715000
+    latitud: 40.41,
+    longitud: -3.715,
   },
   {
     id: 4,
@@ -37,9 +37,9 @@ const necesidadesMock = [
     tipo: "Alojamiento",
     prioridad: "alta",
     descripcion: "Espacio para una familia afectada por inundaciones.",
-    latitud: 40.430000,
-    longitud: -3.700000
-  }
+    latitud: 40.43,
+    longitud: -3.7,
+  },
 ];
 
 let necesidadesCargadas = [];
@@ -51,12 +51,12 @@ let marcadores = [];
 // 2. INICIALIZACIÓN DEL MAPA LEAFLET
 // ==========================================
 // Centrado por ejemplo en Madrid [Lat, Lng], Zoom 13
-const mapa = L.map('mapa').setView([40.416775, -3.703790], 13);
+const mapa = L.map("mapa").setView([40.416775, -3.70379], 13);
 
 // Añadir capa de OpenStreetMap
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution: '© OpenStreetMap contributors'
+  attribution: "© OpenStreetMap contributors",
 }).addTo(mapa);
 
 // ==========================================
@@ -67,16 +67,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
  * Devuelve un icono de Leaflet con color CSS basado en la prioridad
  */
 function obtenerIconoPorPrioridad(prioridad) {
-  let clasePrioridad = 'prioridad-baja';
+  let clasePrioridad = "prioridad-baja";
 
-  if (prioridad === 'alta') clasePrioridad = 'prioridad-alta';
-  else if (prioridad === 'media') clasePrioridad = 'prioridad-media';
+  if (prioridad === "alta") clasePrioridad = "prioridad-alta";
+  else if (prioridad === "media") clasePrioridad = "prioridad-media";
 
   return L.divIcon({
-    className: '', // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
+    className: "", // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
     html: `<div class="marcador-custom ${clasePrioridad}"></div>`,
     iconSize: [18, 18],
-    iconAnchor: [9, 9]
+    iconAnchor: [9, 9],
   });
 }
 
@@ -91,7 +91,9 @@ function pintarMapa(listaNecesidades) {
     const icono = obtenerIconoPorPrioridad(necesidad.prioridad);
 
     // Crear marcador con icono personalizado
-    const marcador = L.marker([necesidad.latitud, necesidad.longitud], { icon: icono });
+    const marcador = L.marker([necesidad.latitud, necesidad.longitud], {
+      icon: icono,
+    });
 
     // Configurar el Popup del marcador
     // Maquetación usando clases de tu sistema de diseño (components.css)
@@ -118,7 +120,7 @@ function pintarMapa(listaNecesidades) {
  * Elimina todos los marcadores actuales del mapa
  */
 function limpiarMarcadores() {
-  marcadores.forEach(m => mapa.removeLayer(m));
+  marcadores.forEach((m) => mapa.removeLayer(m));
   marcadores = [];
 }
 
@@ -126,12 +128,14 @@ function limpiarMarcadores() {
  * Filtra las necesidades según la opción seleccionada en el menú desplegable
  */
 function aplicarFiltro() {
-  const tipoSeleccionado = document.getElementById('filtroTipo').value;
+  const tipoSeleccionado = document.getElementById("filtroTipo").value;
 
-  if (tipoSeleccionado === 'todos') {
+  if (tipoSeleccionado === "todos") {
     pintarMapa(necesidadesMock);
   } else {
-    const filtradas = necesidadesMock.filter(n => n.tipo === tipoSeleccionado);
+    const filtradas = necesidadesMock.filter(
+      (n) => n.tipo === tipoSeleccionado,
+    );
     pintarMapa(filtradas);
   }
 }
@@ -148,11 +152,10 @@ function aplicarFiltro() {
 }
 */
 
-
 // ==========================================
 // 4. EVENTOS E INICIALIZACIÓN
 // ==========================================
-document.getElementById('filtroTipo').addEventListener('change', aplicarFiltro);
+document.getElementById("filtroTipo").addEventListener("change", aplicarFiltro);
 
 // Carga inicial del mapa con todos los datos
 /*
@@ -171,6 +174,5 @@ async function cargarNecesidadesDesdeAPI() {
 }
 cargarNecesidadesDesdeAPI()
 */
-
 
 pintarMapa(necesidadesMock);
