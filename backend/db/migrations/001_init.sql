@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS donaciones (
 CREATE TABLE IF NOT EXISTS personas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre TEXT NOT NULL,
-    estado TEXT NOT NULL DEFAULT 'desaparecida',  -- desaparecida, localizada, estoy_bien
+    -- Estados admitidos: desaparecida, localizada, estoy_bien.
+    estado TEXT NOT NULL DEFAULT 'desaparecida',
     ultima_ubicacion TEXT NOT NULL DEFAULT '',
     reportado_por TEXT NOT NULL DEFAULT '',
     creado_en TEXT NOT NULL DEFAULT (datetime('now'))
