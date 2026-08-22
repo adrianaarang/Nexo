@@ -1,89 +1,303 @@
-// Alta y listado de donaciones — Equipo 3 (frontend).
-import { getDonaciones, postDonacion } from "./donacionesApi.js";
+// Donations list and form — Team 3 frontend.
+// Lista y formulario de donaciones — Equipo 3 frontend.
+import { getDonations, postDonation } from "./donacionesApi.js";
 
+// Fallback data used when the backend is unavailable.
+// Datos de prueba usados cuando el backend no está disponible.
 const MOCK = [
-  { id: 1, tipo: "ofrecida", recurso: "Agua embotellada", cantidad: "50 litros", contacto: "voluntario@ejemplo.com", creado_en: "2026-08-21T10:00:00Z" },
-  { id: 2, tipo: "solicitada", recurso: "Mantas", cantidad: "10 unidades", contacto: "afectado@ejemplo.com", creado_en: "2026-08-21T11:00:00Z" },
-  { id: 3, tipo: "ofrecida", recurso: "Ropa de abrigo infantil", cantidad: "", contacto: "cruz.roja@ejemplo.com", creado_en: "2026-08-21T12:00:00Z" },
+  { id: 1, tipo: "ofrecida",   recurso: "Agua",        cantidad: "50 litros",   descripcion: "Botellas de 1.5L sin abrir.",                         contacto: "voluntario@ejemplo.com", estado: "activa", creado_en: "2026-08-21T10:00:00Z" },
+  { id: 2, tipo: "solicitada", recurso: "Mantas",       cantidad: "10 unidades", descripcion: "Para familias desplazadas en el polideportivo.",       contacto: "afectado@ejemplo.com",   estado: "activa", creado_en: "2026-08-21T11:00:00Z" },
+  { id: 3, tipo: "ofrecida",   recurso: "Ropa infantil",cantidad: "",            descripcion: "Tallas 2-8 años, invierno.",                           contacto: "cruz.roja@ejemplo.com",  estado: "activa", creado_en: "2026-08-21T12:00:00Z" },
 ];
 
-const lista = document.getElementById("lista-donaciones");
-const estadoEl = document.getElementById("estado-lista");
-const form = document.getElementById("form-donacion");
-const filtro = document.getElementById("filtro-tipo");
+const list           = document.getElementById("lista-donaciones");
+const statusEl       = document.getElementById("estado-lista");
+const form           = document.getElementById("form-donacion");
+const filterType     = document.getElementById("filtro-tipo");
+const filterOrder    = document.getElementById("filtro-orden");
+const filterCategory = document.getElementById("filtro-categoria");
 
-function renderTarjeta(d) {
-  const esOfrecida = d.tipo === "ofrecida";
+function initDropdowns() {
+  document.querySelectorAll(".nexo-select").forEach(sel => {
+    const trigger = sel.querySelector(".nexo-select__trigger");
+    const menu    = sel.querySelector(".nexo-select__menu");
+    const label   = sel.querySelector(".nexo-select__label");
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = sel.classList.contains("abierto");
+      document.querySelectorAll(".nexo-select.abierto").forEach(s => s.classList.remove("abierto"));
+      if (!isOpen) sel.classList.add("abierto");
+    });
+
+    // Form dropdowns don't reload the list on selection.
+    // Los dropdowns del formulario no recargan la lista al seleccionar.
+    const isFormDropdown = form.contains(sel);
+
+    menu.querySelectorAll("li").forEach(li => {
+      li.addEventListener("click", () => {
+        sel.dataset.value = li.dataset.value;
+        label.textContent = li.textContent;
+        label.style.color = "";
+        menu.querySelectorAll("li").forEach(l => l.classList.remove("seleccionado"));
+        li.classList.add("seleccionado");
+        sel.classList.remove("abierto");
+        if (!isFormDropdown) loadDonations();
+      });
+    });
+  });
+
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".nexo-select.abierto").forEach(s => s.classList.remove("abierto"));
+  });
+}
+
+// SVG icons keyed by exact category name (must match backend values).
+// Íconos SVG indexados por nombre exacto de categoría (debe coincidir con el backend).
+const ICONS = {
+  "Agua": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2C12 2 5 9.5 5 14a7 7 0 0 0 14 0C19 9.5 12 2 12 2z"/>
+  </svg>`,
+  "Comida": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="7" width="18" height="13" rx="2"/>
+    <path d="M3 11h18"/>
+    <path d="M8 7V4"/>
+    <path d="M16 7V4"/>
+  </svg>`,
+  "Mantas": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="5" width="18" height="14" rx="2"/>
+    <path d="M3 9h18"/>
+    <path d="M7 5v4"/>
+    <path d="M12 5v4"/>
+    <path d="M17 5v4"/>
+  </svg>`,
+  "Ropa infantil": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6l4-2 5 3 5-3 4 2-2 5h-3v9H8V11H5z"/>
+    <circle cx="12" cy="18" r="1.5"/>
+  </svg>`,
+  "Ropa de adultos": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6l4-2 5 3 5-3 4 2-2 5h-3v9H8V11H5z"/>
+  </svg>`,
+  "Productos de higiene": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 2h10v4H7z"/>
+    <rect x="5" y="6" width="14" height="15" rx="2"/>
+    <path d="M9 11h6"/>
+    <path d="M9 15h4"/>
+  </svg>`,
+  "Alojamiento temporal": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 17l4-8 5 5 3-3 6 6"/>
+    <path d="M3 17h18"/>
+    <path d="M9 17v-4"/>
+  </svg>`,
+  "Combustible y/o baterías": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="2" width="12" height="18" rx="2"/>
+    <path d="M10 2v2h4V2"/>
+    <path d="M12 8v4"/>
+    <path d="M10 10h4"/>
+  </svg>`,
+  "Servicios de comunicación": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12.5a9.5 9.5 0 0 1 14 0"/>
+    <path d="M8.5 16a5.5 5.5 0 0 1 7 0"/>
+    <circle cx="12" cy="19.5" r="1"/>
+  </svg>`,
+  "Medicamentos": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4" y="3" width="16" height="18" rx="2"/>
+    <path d="M9 9h6"/>
+    <path d="M9 13h6"/>
+    <path d="M9 17h4"/>
+    <path d="M8 3v3h8V3"/>
+  </svg>`,
+  "Material de primeros auxilios": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <path d="M12 8v8"/>
+    <path d="M8 12h8"/>
+  </svg>`,
+  "Artículos para bebés": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 3h6l1 5H8z"/>
+    <path d="M8 8c0 5-2 8-2 11h12c0-3-2-6-2-11"/>
+    <path d="M10 14h4"/>
+  </svg>`,
+  "Herramientas": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3-3a6 6 0 0 1-8.1 8.1L6 21a2 2 0 0 1-3-3l6.7-6.1a6 6 0 0 1 8.1-8.1l-3.1 3z"/>
+  </svg>`,
+  "Transporte": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="1" y="8" width="22" height="10" rx="2"/>
+    <path d="M5 8V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/>
+    <circle cx="7" cy="18" r="2"/>
+    <circle cx="17" cy="18" r="2"/>
+  </svg>`,
+};
+
+function getIcon(resource) {
+  return ICONS[resource] || `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 8H3l1.5 11h15z"/>
+    <path d="M3 8l2-4h14l2 4"/>
+    <path d="M12 8v11"/>
+  </svg>`;
+}
+
+function renderCard(d) {
+  const status   = d.estado ?? "activa";
+  const isActive = status === "activa";
   return `
-    <div class="nexo-card">
-      <span class="nexo-card__num">#${d.id}</span>
-      <span class="nexo-badge ${esOfrecida ? "nexo-badge--green" : "nexo-badge--orange"}">
-        ${esOfrecida ? "Ofrecida" : "Solicitada"}
-      </span>
-      <h3>${d.recurso}</h3>
-      ${d.cantidad ? `<p class="nexo-card__meta">Cantidad: ${d.cantidad}</p>` : ""}
-      <p class="nexo-card__meta">Contacto: ${d.contacto}</p>
+    <div class="donacion-card" id="donacion-${d.id}">
+      <div class="donacion-led donacion-led--${status}">
+        <span class="donacion-led__punto"></span>
+        ${isActive ? "Activa" : "Entregada"}
+      </div>
+      <div class="donacion-card__icono">${getIcon(d.recurso)}</div>
+      <div class="donacion-card__contenido">
+        <h3>${d.recurso}</h3>
+        ${d.descripcion ? `<p class="donacion-card__desc">${d.descripcion}</p>` : ""}
+        ${d.cantidad    ? `<p>Cantidad: ${d.cantidad}</p>` : ""}
+        <p>Contacto: ${d.contacto}</p>
+        ${isActive ? `<button class="donacion-card__btn" data-id="${d.id}">Marcar como entregada</button>` : ""}
+      </div>
     </div>
   `;
 }
 
-function mostrarEstado(texto) {
-  estadoEl.textContent = texto;
-  estadoEl.hidden = false;
-}
+// Event delegation — avoids inline onclick which doesn't work in ES modules.
+// Delegación de eventos — el onclick inline no funciona en módulos ES.
+list.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".donacion-card__btn");
+  if (btn) await markAsDelivered(Number(btn.dataset.id));
+});
 
-function ocultarEstado() {
-  estadoEl.hidden = true;
-}
+async function markAsDelivered(id) {
+  const card = document.getElementById(`donacion-${id}`);
+  if (!card) return;
 
-async function cargarDonaciones(tipo = null) {
-  lista.innerHTML = "";
-  mostrarEstado("Cargando...");
+  const led = card.querySelector(".donacion-led");
+  if (led) {
+    led.className = "donacion-led donacion-led--entregada";
+    led.innerHTML = `<span class="donacion-led__punto"></span>Entregada`;
+  }
+  card.querySelector(".donacion-card__btn")?.remove();
 
-  let datos;
   try {
-    datos = await getDonaciones(tipo);
+    await fetch(`http://localhost:8000/api/donaciones/${id}/estado`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: "entregada" }),
+    });
   } catch {
-    datos = tipo ? MOCK.filter(d => d.tipo === tipo) : MOCK;
+    // Backend unavailable — visual update only. / Sin backend, solo actualización visual.
   }
 
-  ocultarEstado();
+  setTimeout(() => {
+    card.remove();
+    if (list.children.length === 0) showStatus("No hay donaciones en este momento.");
+  }, 1200);
+}
 
-  if (datos.length === 0) {
-    mostrarEstado("No hay donaciones en este momento.");
+function showStatus(text) {
+  statusEl.textContent = text;
+  statusEl.hidden = false;
+}
+
+function hideStatus() {
+  statusEl.hidden = true;
+}
+
+async function loadDonations() {
+  const type     = filterType.dataset.value     || null;
+  const order    = filterOrder.dataset.value    || "recientes";
+  const category = filterCategory.dataset.value || null;
+
+  list.innerHTML = "";
+  showStatus("Cargando...");
+
+  // Fetch from API; fall back to mock data if unavailable.
+  // Carga desde la API; usa datos de prueba si no hay conexión.
+  let data;
+  try {
+    data = await getDonations(type);
+  } catch {
+    data = type ? MOCK.filter(d => d.tipo === type) : [...MOCK];
+  }
+
+  if (category) data = data.filter(d => d.recurso === category);
+
+  data.sort((a, b) => {
+    const ta = new Date(a.creado_en).getTime();
+    const tb = new Date(b.creado_en).getTime();
+    return order === "antiguos" ? ta - tb : tb - ta;
+  });
+
+  hideStatus();
+
+  if (data.length === 0) {
+    showStatus("No hay donaciones para los filtros seleccionados.");
     return;
   }
 
-  lista.innerHTML = datos.map(renderTarjeta).join("");
+  list.innerHTML = data.map(renderCard).join("");
+
+  list.querySelectorAll(".donacion-card").forEach((card, i) => {
+    card.style.animationDelay = `${i * 0.07}s`;
+    card.style.opacity = "0";
+    card.addEventListener("animationend", () => { card.style.opacity = "1"; }, { once: true });
+  });
+}
+
+function resetFormDropdowns() {
+  const typeEl = document.getElementById("tipo");
+  typeEl.dataset.value = "ofrecida";
+  typeEl.querySelector(".nexo-select__label").textContent = "Ofrezco recursos";
+  typeEl.querySelectorAll("li").forEach((li, i) => li.classList.toggle("seleccionado", i === 0));
+
+  const resourceEl    = document.getElementById("recurso");
+  resourceEl.dataset.value = "";
+  const resourceLabel = resourceEl.querySelector(".nexo-select__label");
+  resourceLabel.textContent  = "Selecciona una categoría";
+  resourceLabel.style.color  = "var(--nexo-text-muted, #9CA0A8)";
+  resourceEl.querySelectorAll("li").forEach(li => li.classList.remove("seleccionado"));
 }
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const resourceEl = document.getElementById("recurso");
+  if (!resourceEl.dataset.value) {
+    resourceEl.querySelector(".nexo-select__trigger").style.borderColor = "#F2542D";
+    setTimeout(() => { resourceEl.querySelector(".nexo-select__trigger").style.borderColor = ""; }, 1500);
+    return;
+  }
+
   const btn = form.querySelector("button[type=submit]");
-  btn.disabled = true;
+  btn.disabled    = true;
   btn.textContent = "Publicando...";
 
-  const datos = {
-    tipo: form.querySelector("#tipo").value,
-    recurso: form.querySelector("#recurso").value,
-    cantidad: form.querySelector("#cantidad").value,
-    contacto: form.querySelector("#contacto").value,
+  // API field names (tipo, recurso, etc.) are part of the backend contract — kept as-is.
+  // Los nombres de campo de la API son parte del contrato con el backend — no se traducen.
+  const payload = {
+    tipo:       document.getElementById("tipo").dataset.value,
+    recurso:    resourceEl.dataset.value,
+    cantidad:   form.querySelector("#cantidad").value,
+    descripcion: form.querySelector("#descripcion").value,
+    contacto:   form.querySelector("#contacto").value,
   };
 
   try {
-    await postDonacion(datos);
+    await postDonation(payload);
     form.reset();
-    await cargarDonaciones(filtro.value || null);
+    resetFormDropdowns();
+    document.getElementById("contador-desc").textContent = "0 / 1000";
+    await loadDonations();
   } catch {
     alert("No se pudo publicar. Verifica tu conexión.");
   } finally {
-    btn.disabled = false;
+    btn.disabled    = false;
     btn.textContent = "Publicar";
   }
 });
 
-filtro.addEventListener("change", () => {
-  cargarDonaciones(filtro.value || null);
+const descriptionEl = form.querySelector("#descripcion");
+const counterEl     = document.getElementById("contador-desc");
+descriptionEl.addEventListener("input", () => {
+  counterEl.textContent = `${descriptionEl.value.length} / 1000`;
 });
 
-cargarDonaciones();
+initDropdowns();
+loadDonations();
