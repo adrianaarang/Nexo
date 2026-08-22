@@ -1,2 +1,33 @@
-/* Paleta y variables de marca de Nexo.
-   TODO: estilos pendientes. */
+/* Paleta de marca Nexo — rediseño minimalista/elegante inspirado en
+   webs de ONG modernas: fondo oscuro casi negro, blanco de alto
+   contraste y un único acento (naranja del logo).
+   Parte de la base común: todos los equipos usan estas variables en
+   vez de escribir colores nuevos, para que la app se vea coherente. */
+:root {
+  --nexo-black: #101010;
+  --nexo-dark: #16181D;
+  --nexo-navy: #0F2038;
+  --nexo-white: #FFFFFF;
+  --nexo-orange: #F2542D;
+  --nexo-teal: #17A2A0;
+
+  --nexo-bg: #101010;
+  --nexo-bg-alt: #1A1C22;
+  --nexo-text: #F5F5F3;
+  --nexo-text-muted: #9CA0A8;
+  --nexo-border: #2A2D34;
+
+  /* alias de compatibilidad (usados por módulos de los equipos) */
+  --nexo-green: #4CAF50;
+  --nexo-blue: #5B9BD5;
+
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+
+  --font-base: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --letter-wide: 0.18em;
+}

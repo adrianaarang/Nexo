@@ -1,2 +1,172 @@
-/* Estilos base — layout, cabecera, tipografía.
-   TODO: estilos pendientes. */
+/* Estilos base compartidos — rediseño minimalista sobre fondo oscuro.
+   Parte de la base común; los equipos usan las clases, no las editan. */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-base);
+  color: var(--nexo-text);
+  background: var(--nexo-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Cabecera ---------- */
+.nexo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem var(--space-lg);
+  background: transparent;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(14px);
+  background: rgba(16, 16, 16, 0.82);
+  border-bottom: 1px solid var(--nexo-border);
+}
+
+.nexo-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: var(--letter-wide);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--nexo-white);
+}
+
+.nexo-header__brand img {
+  height: 34px;
+  border-radius: 50%;
+  background: var(--nexo-white);
+  padding: 2px;
+}
+
+.nexo-nav {
+  display: flex;
+  gap: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.nexo-nav a {
+  color: var(--nexo-text-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.nexo-nav a:hover,
+.nexo-nav a[aria-current="page"] {
+  color: var(--nexo-white);
+}
+
+/* ---------- Hero (portada) ---------- */
+.nexo-hero {
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nexo-hero__kicker {
+  color: var(--nexo-orange);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: var(--letter-wide);
+  text-transform: uppercase;
+  margin: 0 0 1.25rem 0;
+}
+
+.nexo-hero__title {
+  font-size: clamp(2.6rem, 7vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  margin: 0 0 1.5rem 0;
+  color: var(--nexo-white);
+}
+
+.nexo-hero__title em {
+  font-style: normal;
+  color: var(--nexo-orange);
+}
+
+.nexo-hero__lead {
+  font-size: 1.05rem;
+  color: var(--nexo-text-muted);
+  max-width: 34rem;
+  margin: 0 0 2.5rem 0;
+}
+
+.nexo-hero__actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Contenido general ---------- */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.nexo-subtitle {
+  color: var(--nexo-text-muted);
+  margin-top: 0;
+  margin-bottom: var(--space-lg);
+  max-width: 40rem;
+}
+
+.nexo-section-label {
+  color: var(--nexo-orange);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: var(--letter-wide);
+  text-transform: uppercase;
+  margin: 0 0 0.75rem 0;
+}
+
+footer {
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+  color: var(--nexo-text-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  border-top: 1px solid var(--nexo-border);
+  margin-top: var(--space-xl);
+}
+
+/* ---------- Aviso sin conexión ---------- */
+.nexo-offline-banner {
+  display: none;
+  background: var(--nexo-orange);
+  color: var(--nexo-white);
+  text-align: center;
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.nexo-offline-banner.visible { display: block; }

@@ -2,11 +2,110 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Inicio — Nexo</title>
-  <!-- Pantalla de entrada, enlaza a las páginas de cada módulo. -->
-  <!-- TODO: enlazar css/js y montar el contenido de esta pantalla. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101010" />
+  <title>Nexo — El pueblo salva al pueblo</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="assets/logo/nexo-icon.png" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
 </head>
 <body>
-  <!-- TODO: implementar -->
+  <div id="nexo-offline-banner" class="nexo-offline-banner">Sin conexión — tus acciones se guardarán y se enviarán al recuperar señal.</div>
+
+  <header class="nexo-header">
+    <a href="index.html" class="nexo-header__brand">
+      <img src="assets/logo/nexo-icon.png" alt="Nexo" />
+      Nexo
+    </a>
+    <nav class="nexo-nav">
+      <a href="pages/mapa.html">Mapa</a>
+      <a href="pages/alertas.html">Alertas</a>
+      <a href="pages/voluntariado.html">Voluntariado</a>
+      <a href="pages/donaciones.html">Donaciones</a>
+      <a href="pages/personas.html">Personas</a>
+      <a href="pages/estoy-bien.html">Estoy bien</a>
+    </nav>
+  </header>
+
+  <section class="nexo-hero nexo-hero--split">
+    <div>
+      <p class="nexo-hero__kicker">Conectados para ayudarnos</p>
+      <h1 class="nexo-hero__title">El pueblo<br />salva <em>al pueblo</em></h1>
+      <p class="nexo-hero__lead">
+        Cuando un desastre natural lo arrasa todo, la primera ayuda no llega de fuera:
+        está al lado. Nexo conecta necesidades, voluntarios y recursos en tiempo real.
+      </p>
+      <div class="nexo-hero__actions">
+        <a class="nexo-btn" href="pages/mapa.html">Ver el mapa</a>
+        <a class="nexo-btn nexo-btn--secondary" href="pages/estoy-bien.html">Estoy bien</a>
+      </div>
+    </div>
+    <img class="nexo-hero__art" src="assets/images/ilustracion-sos.svg" alt="Un teléfono emite una señal de SOS que llega a las personas cercanas" />
+  </section>
+
+  <main>
+    <p class="nexo-section-label">Así funciona Nexo</p>
+
+    <div class="nexo-slider" id="slider-funciona">
+      <div class="nexo-slider__track">
+
+        <article class="nexo-slide">
+          <div>
+            <p class="nexo-slide__label">01 — Mapa de necesidades</p>
+            <h2 class="nexo-slide__title">Reporta lo que falta,<br />mira dónde ayudar</h2>
+            <p class="nexo-slide__text">
+              Agua, comida, refugio o medicinas. Cada necesidad aparece en el mapa
+              en tiempo real, con su prioridad, para que la ayuda llegue donde hace falta.
+            </p>
+            <a class="nexo-btn nexo-btn--secondary" href="pages/mapa.html">Abrir mapa</a>
+          </div>
+          <img class="nexo-slide__art" src="assets/images/ilustracion-mapa.svg" alt="Mapa con una ruta y un marcador de ubicación destacado" />
+        </article>
+
+        <article class="nexo-slide">
+          <div>
+            <p class="nexo-slide__label">02 — Voluntariado y donaciones</p>
+            <h2 class="nexo-slide__title">Cada persona,<br />donde más suma</h2>
+            <p class="nexo-slide__text">
+              Apúntate con tus habilidades u ofrece recursos. Nexo evita que todos
+              vayan al mismo sitio mientras otros lugares quedan desatendidos.
+            </p>
+            <a class="nexo-btn nexo-btn--secondary" href="pages/voluntariado.html">Participar</a>
+          </div>
+          <img class="nexo-slide__art" src="assets/images/ilustracion-voluntarios.svg" alt="Personas en círculo conectadas a un corazón central" />
+        </article>
+
+        <article class="nexo-slide">
+          <div>
+            <p class="nexo-slide__label">03 — Alertas y personas</p>
+            <h2 class="nexo-slide__title">Saber qué pasa,<br />saber de los tuyos</h2>
+            <p class="nexo-slide__text">
+              Alertas oficiales de desastres a nivel mundial, registro de personas
+              desaparecidas y un botón de "estoy bien" para tranquilizar a tu gente.
+            </p>
+            <a class="nexo-btn nexo-btn--secondary" href="pages/alertas.html">Ver alertas</a>
+          </div>
+          <img class="nexo-slide__art" src="assets/images/ilustracion-red.svg" alt="Casas conectadas entre sí por señales y una antena central" />
+        </article>
+
+      </div>
+
+      <div class="nexo-slider__dots"></div>
+      <div class="nexo-slider__controls">
+        <button class="nexo-slider__btn" data-slider-prev aria-label="Anterior">&#8592;</button>
+        <button class="nexo-slider__btn" data-slider-next aria-label="Siguiente">&#8594;</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>NEXO — PROYECTO ACADÉMICO DE RESPUESTA COMUNITARIA A EMERGENCIAS</footer>
+
+  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    import { iniciarSlider } from "./js/shared/components/slider.js";
+    iniciarSlider(document.getElementById("slider-funciona"));
+  </script>
 </body>
 </html>

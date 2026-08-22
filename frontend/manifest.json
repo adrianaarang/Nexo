@@ -1,3 +1,13 @@
 {
-  "_comentario": "Manifest PWA de Nexo (nombre, iconos, colores). TODO: completar."
+  "name": "Nexo — Conectados para ayudarnos",
+  "short_name": "Nexo",
+  "description": "App comunitaria de respuesta a emergencias y desastres naturales.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0F2038",
+  "icons": [
+    { "src": "assets/logo/nexo-icon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/logo/nexo-icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
