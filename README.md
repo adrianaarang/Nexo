@@ -11,6 +11,15 @@ Alcance decidido por votación de equipo — ver `docs/decisiones-encuesta.md` y
 - `docs/` — decisiones de producto, arquitectura y privacidad.
 - `infra/` — notas de infraestructura futura (red mesh/satélite).
 
+## Documentación de gobernanza
+
+- `docs/manifiesto.md` — visión, principios, objetivos MVP y organización del proyecto.
+- `docs/convenciones.md` — reglas de equipo (ramas, commits, PRs, ADRs, propiedad de archivos).
+- `docs/reparto-trabajo.md` — reparto en 4 equipos y base común.
+- `docs/backlog.md` — estado por módulo y pendientes de gobernanza (mantenido por el PM).
+- `docs/equipos/grupo2-alertas.md` — plan de trabajo de Alertas Oficiales (Grupo 2).
+- `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2.
+
 ## Cómo arrancar
 
 ### Backend
