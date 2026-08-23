@@ -10,39 +10,48 @@ base de datos utilizamos las funciones preparadas en models.py.
 # Importamos las herramientas necesarias de FastAPI:
 #
 # - APIRouter: agrupa los endpoints relacionados con necesidades.
-# - HTTPException: permite devolver errores HTTP al frontend.
+# - Query: permite usar nombres internos en inglés manteniendo los
+#   parámetros públicos de la API en español.
 # - status: contiene nombres descriptivos para los códigos HTTP.
-from fastapi import APIRouter, HTTPException, status
+# - JSONResponse: permite devolver los errores con el formato único
+#   acordado en las convenciones: {"error", "detalle"}.
+from fastapi import APIRouter, Query, status
+from fastapi.responses import JSONResponse
 
 # Importamos las funciones y errores de models.py que necesitamos:
 #
-# - TransicionEstadoInvalida: avisa cuando se intenta realizar
+# - InvalidStatusTransition: avisa cuando se intenta realizar
 #   un cambio de estado que no está permitido.
-# - actualizar_estado_necesidad: cambia el estado en la base de datos.
-# - crear_necesidad: guarda una necesidad nueva.
-# - listar_necesidades: consulta las necesidades guardadas.
+# - create_need: guarda una necesidad nueva.
+# - list_needs: consulta las necesidades guardadas.
+# - update_need_status: cambia el estado de una necesidad.
+#
+# Los nombres internos están en inglés para seguir las convenciones
+# técnicas del proyecto.
 from modules.necesidades.models import (
-    TransicionEstadoInvalida,
-    actualizar_estado_necesidad,
-    crear_necesidad,
-    listar_necesidades,
+    InvalidStatusTransition,
+    create_need,
+    list_needs,
+    update_need_status,
 )
 
 # Importamos los schemas y enumeraciones necesarios:
 #
-# - EstadoNecesidad: contiene los estados permitidos.
-# - NecesidadActualizarEstado: valida el nuevo estado enviado en el PATCH.
-# - NecesidadCrear: valida los datos recibidos al crear una necesidad.
-# - NecesidadRespuesta: valida la información devuelta por la API.
-# - TipoNecesidad: contiene los tipos de necesidad permitidos.
+# - NeedCreate: valida los datos recibidos al crear una necesidad.
+# - NeedResponse: valida la información devuelta por la API.
+# - NeedStatus: contiene los estados permitidos.
+# - NeedStatusUpdate: valida el nuevo estado enviado en el PATCH.
+# - NeedType: contiene los tipos de necesidad permitidos.
+#
+# Los nombres internos son ingleses, pero los alias definidos en
+# schemas.py mantienen el contrato JSON público en español.
 from modules.necesidades.schemas import (
-    EstadoNecesidad,
-    NecesidadActualizarEstado,
-    NecesidadCrear,
-    NecesidadRespuesta,
-    TipoNecesidad,
+    NeedCreate,
+    NeedResponse,
+    NeedStatus,
+    NeedStatusUpdate,
+    NeedType,
 )
-
 
 # Creamos el router específico del módulo de necesidades.
 #
@@ -65,69 +74,61 @@ router = APIRouter(
 # /api/necesidades + "" = /api/necesidades
 #
 # response_model indica que la respuesta será una lista de necesidades.
-# Cada elemento deberá cumplir la estructura de NecesidadRespuesta.
-@router.get("", response_model=list[NecesidadRespuesta])
-def obtener_necesidades(
-    # Filtro opcional por tipo.
-    # Puede recibir valores como agua, alimento, medicina o refugio.
-    # Si no se envía, su valor será None y no se filtrará por tipo.
-    tipo: TipoNecesidad | None = None,
-
-    # Filtro opcional por estado.
-    # Puede recibir abierta, en_proceso o cubierta.
-    # Si no se envía, su valor será None y no se filtrará por estado.
-    estado: EstadoNecesidad | None = None,
+# Cada elemento se validará mediante NeedResponse.
+@router.get("", response_model=list[NeedResponse])
+def get_needs(
+    # El nombre interno de Python es need_type, siguiendo las convenciones
+    # en inglés. El alias mantiene "tipo" como nombre público de la API.
+    #
+    # Por ejemplo:
+    # /api/necesidades?tipo=agua
+    need_type: NeedType | None = Query(default=None, alias="tipo"),
+    # Internamente utilizamos status_filter.
+    # El alias mantiene "estado" en la URL que utiliza el frontend.
+    #
+    # Por ejemplo:
+    # /api/necesidades?estado=abierta
+    status_filter: NeedStatus | None = Query(default=None, alias="estado"),
 ):
-    """Devuelve las necesidades guardadas en la base de datos.
+    """Devuelve las necesidades con filtros opcionales.
 
-    Los filtros de tipo y estado son opcionales:
+    Los filtros públicos continúan en español:
 
     - Sin filtros, devuelve todas las necesidades.
     - Con tipo, devuelve solamente las de ese tipo.
     - Con estado, devuelve solamente las de ese estado.
-    - Con ambos, devuelve las que cumplan las dos condiciones.
+    - Con ambos, devuelve las que cumplen las dos condiciones.
     """
 
-    # Llamamos a la función de models.py que realiza la consulta SQL.
-    # Le entregamos los filtros recibidos en la URL.
-    #
-    # Ejemplos:
-    # /api/necesidades
-    # /api/necesidades?tipo=agua
-    # /api/necesidades?estado=abierta
-    # /api/necesidades?tipo=agua&estado=abierta
-    necesidades = listar_necesidades(
-        tipo=tipo,
-        estado=estado,
+    # Llamamos a la función de models.py utilizando sus nuevos
+    # parámetros internos en inglés.
+    needs = list_needs(
+        need_type=need_type,
+        status=status_filter,
     )
 
-    # Devolvemos el resultado a FastAPI.
-    # FastAPI comprobará que cada elemento cumple NecesidadRespuesta
-    # y lo convertirá automáticamente en JSON para el frontend.
-    return necesidades
+    # NeedResponse utiliza alias para convertir los nombres internos
+    # al contrato JSON público en español.
+    return needs
 
 
 # Este decorador convierte la función situada debajo en un endpoint POST.
 #
-# La dirección vuelve a estar vacía ("") porque se añade al prefijo:
-# /api/necesidades + "" = /api/necesidades
+# POST se utiliza para crear un recurso nuevo.
 #
-# POST se utiliza cuando el cliente quiere crear un recurso nuevo.
+# response_model indica que la respuesta será una necesidad completa
+# validada mediante NeedResponse.
 #
-# response_model indica que devolveremos una necesidad completa,
-# incluyendo el id, el estado inicial y la fecha de creación.
-#
-# status_code indica el código HTTP que se devolverá si todo funciona.
-# 201 Created significa que el recurso se ha creado correctamente.
+# status_code=201 indica que el recurso se ha creado correctamente.
 @router.post(
     "",
-    response_model=NecesidadRespuesta,
+    response_model=NeedResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def registrar_necesidad(necesidad: NecesidadCrear):
+def create_new_need(need: NeedCreate):
     """Valida y registra una necesidad nueva.
 
-    El frontend debe enviar:
+    El frontend continúa enviando los campos públicos en español:
 
     - titulo
     - tipo
@@ -136,57 +137,97 @@ def registrar_necesidad(necesidad: NecesidadCrear):
     - longitud
     - prioridad, que es opcional
 
-    El frontend no debe enviar id, estado ni creado_en porque esos
-    campos los genera automáticamente el servidor.
+    El frontend no envía id, estado ni creado_en porque estos campos
+    los genera automáticamente el servidor.
     """
 
-    # Cuando FastAPI recibe el JSON, utiliza NecesidadCrear para comprobar:
+    # FastAPI recibe el JSON público en español.
     #
-    # - que estén presentes los campos obligatorios;
-    # - que el tipo y la prioridad sean válidos;
-    # - que las coordenadas estén dentro de los rangos permitidos;
-    # - que el título y la descripción tengan una longitud válida.
+    # NeedCreate utiliza los alias definidos en schemas.py para
+    # transformar esos campos en atributos internos en inglés:
     #
-    # Si algún dato es incorrecto, FastAPI devuelve un error 422
-    # antes de ejecutar el código situado debajo.
+    # titulo      → title
+    # tipo        → need_type
+    # descripcion → description
+    # latitud     → latitude
+    # longitud    → longitude
+    # prioridad   → priority
+    #
+    # También valida que los campos y sus valores sean correctos.
 
-    # Enviamos los datos ya validados a la función de models.py.
-    # Esa función realiza el INSERT en SQLite y recupera el registro
-    # completo después de crearlo.
-    necesidad_creada = crear_necesidad(necesidad)
+    # Enviamos la necesidad validada a la función de models.py.
+    # create_need realiza el INSERT en SQLite y devuelve el registro
+    # completo con id, estado inicial y fecha de creación.
+    created_need = create_need(need)
 
-    # Devolvemos la necesidad completa.
-    # FastAPI la valida con NecesidadRespuesta y la convierte en JSON.
-    return necesidad_creada
+    # NeedResponse valida el resultado y utiliza los alias para devolver
+    # nuevamente el contrato JSON público en español.
+    return created_need
 
 
-# Este endpoint permite cambiar el estado de una necesidad existente.
+# Este endpoint permite cambiar únicamente el estado de una necesidad.
 #
-# PATCH se utiliza para modificar solamente una parte de un recurso.
-# En este caso, no cambiamos el título, el tipo o la ubicación:
-# modificamos únicamente el estado.
+# PATCH se utiliza cuando queremos modificar una parte concreta de
+# un recurso existente, sin sustituir todos sus datos.
 #
-# {necesidad_id} es una parte variable de la dirección.
+# {need_id} es la parte variable de la URL.
 # Por ejemplo:
 # /api/necesidades/5/estado
 #
-# response_model indica que devolveremos la necesidad completa
-# después de actualizarla.
+# response_model indica que una actualización correcta devolverá
+# la necesidad completa, validada mediante NeedResponse.
+#
+# responses documenta en Swagger los posibles errores del endpoint.
+# No crea esos errores ni cambia su funcionamiento; solamente explica
+# qué códigos y qué JSON puede recibir el frontend.
 @router.patch(
-    "/{necesidad_id}/estado",
-    response_model=NecesidadRespuesta,
+    "/{need_id}/estado",
+    response_model=NeedResponse,
+    responses={
+        # Documentamos el error que se produce cuando el identificador
+        # recibido no corresponde a ninguna necesidad.
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Necesidad no encontrada",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Necesidad no encontrada",
+                        "detalle": (
+                            "No existe una necesidad con el " "identificador 99999."
+                        ),
+                    }
+                }
+            },
+        },
+        # Documentamos el error que se produce al intentar saltar estados,
+        # retroceder o reabrir una necesidad que ya estaba cubierta.
+        status.HTTP_409_CONFLICT: {
+            "description": "Transición de estado no válida",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Transición de estado no válida",
+                        "detalle": (
+                            "La necesidad no puede saltar estados, "
+                            "retroceder ni reabrirse."
+                        ),
+                    }
+                }
+            },
+        },
+    },
 )
-def cambiar_estado_necesidad(
-    # FastAPI obtiene este número directamente de la URL.
-    necesidad_id: int,
-
-    # FastAPI obtiene el nuevo estado del JSON enviado por el frontend
-    # y lo valida utilizando NecesidadActualizarEstado.
-    actualizacion: NecesidadActualizarEstado,
+def change_need_status(
+    # FastAPI obtiene el identificador de la propia URL.
+    need_id: int,
+    # El frontend envía {"estado": "..."}.
+    # NeedStatusUpdate utiliza el alias "estado", pero internamente
+    # guarda el valor validado en el atributo inglés status.
+    update: NeedStatusUpdate,
 ):
     """Cambia el estado de una necesidad existente.
 
-    Los cambios permitidos son:
+    Las transiciones permitidas son:
 
     - abierta → en_proceso
     - en_proceso → cubierta
@@ -196,35 +237,44 @@ def cambiar_estado_necesidad(
     """
 
     try:
-        # Intentamos actualizar el estado mediante la función de models.py.
+        # Intentamos actualizar la necesidad mediante models.py.
         #
-        # actualizacion.estado contiene el nuevo estado enviado
-        # por el frontend, por ejemplo EstadoNecesidad.EN_PROCESO.
-        necesidad_actualizada = actualizar_estado_necesidad(
-            necesidad_id=necesidad_id,
-            estado=actualizacion.estado,
+        # update.status contiene el nuevo estado después de haber sido
+        # validado por NeedStatusUpdate.
+        updated_need = update_need_status(
+            need_id=need_id,
+            status=update.status,
         )
 
-    except TransicionEstadoInvalida as error:
-        # Si models.py detecta un cambio no permitido, convertimos
-        # ese error de Python en una respuesta HTTP 409 Conflict.
+    except InvalidStatusTransition:
+        # Si se intenta realizar una transición no permitida,
+        # devolvemos HTTP 409 Conflict.
         #
-        # Por ejemplo, intentar pasar directamente:
-        # abierta → cubierta
-        raise HTTPException(
+        # JSONResponse nos permite respetar el formato único de errores
+        # acordado en las convenciones del proyecto.
+        return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
-            detail=str(error),
-        ) from error
+            content={
+                "error": "Transición de estado no válida",
+                "detalle": (
+                    "La necesidad no puede saltar estados, " "retroceder ni reabrirse."
+                ),
+            },
+        )
 
     # models.py devuelve None cuando no encuentra una necesidad
     # con el identificador recibido.
-    if necesidad_actualizada is None:
-        # Convertimos esa ausencia en un error HTTP 404 Not Found.
-        raise HTTPException(
+    if updated_need is None:
+        # Convertimos la ausencia en HTTP 404 Not Found y mantenemos
+        # el formato común {"error", "detalle"}.
+        return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No se ha encontrado la necesidad indicada.",
+            content={
+                "error": "Necesidad no encontrada",
+                "detalle": (f"No existe una necesidad con el identificador {need_id}."),
+            },
         )
 
     # Si la necesidad existe y la transición es válida,
-    # devolvemos el registro completo después de actualizarlo.
-    return necesidad_actualizada
+    # devolvemos el registro completo actualizado.
+    return updated_need
