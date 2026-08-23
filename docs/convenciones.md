@@ -12,7 +12,7 @@ objeción expresa del grupo; ante un choque, se avisa en la daily antes de impro
 |---|------|-----------|
 | 1 | Idioma | Commits y mensajes de Git en inglés. Comentarios indistintamente en inglés o castellano (respeta el archivo que tocas). README bilingüe. **Textos de UI en español. Docs técnicos en español.** El español en identificadores (ej. `obtenerAlertas`) se migra a inglés en refactor post-demo |
 | 2 | Naming | Python `snake_case` (`get_alerts`). JS `camelCase`, función = verbo (`getAlerts`). Constantes `SNAKE_CASE` (`GDACS_CACHE_TTL_SECONDS`). Clases `PascalCase`. Tablas SQL `snake_case`. Booleans `is_`/`has_`. CSS `nexo-` + BEM-lite. Respetar lo ya usado en el archivo |
-| 3 | Ramas | `feature/<modulo>` (grupo) y `feature/<modulo>/<nombre>` (personal). `dev` integra, `main` solo lo de la demo |
+| 3 | Ramas | `feature/<modulo>` (grupo) y `feature/<modulo>/<nombre>` (personal). `dev` integra, `main` solo lo de la demo. **Siempre `pull` antes de `push`** (reunión jefes 21/08). Opción A: rama propia por persona para probar y luego subir a `dev`; opción B: rama por tarea que se sube a `dev` |
 | 4 | Commits | Conventional Commits en inglés: `feat(alertas): add GDACS client`. Sin "wip". Un tema por commit |
 | 5 | Protección de ramas | Sí, proteger `dev` y `main` (lo habilita Adriana) |
 | 6 | PRs y revisión | Mínimo 1 revisor del grupo + aprobación del **capitán**; el capitán mergea; **CI obligatoriamente en verde** |
