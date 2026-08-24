@@ -3,7 +3,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from backend.sync.sync_controller import router, get_db
+from sync.sync_controller import router, get_db
 
 app = FastAPI()
 app.include_router(router)

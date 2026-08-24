@@ -9,7 +9,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import sqlite3
-from backend.sync.services import process_sync_batch
+from sync.services import process_sync_batch
 
 router = APIRouter(prefix="/api/sync", tags=["sync"])
 
