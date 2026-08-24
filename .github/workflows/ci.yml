@@ -17,9 +17,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           cd backend
-          pip install -r requirements.txt
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          pip install pytest httpx
+          pip install -r requirements-dev.txt
       - name: Ejecutar tests
         env:
           PYTHONPATH: backend
@@ -32,4 +30,5 @@ jobs:
       - name: Comprobación básica de HTML/JS
         run: |
           echo "Sin build step: frontend estático (HTML/CSS/JS puro)."
-          test -f frontend/index.htmlgit add .github/workflows/ci.yml
+          test -f frontend/index.html
+          
