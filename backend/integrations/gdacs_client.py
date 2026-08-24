@@ -1,5 +1,6 @@
 """Cliente para GDACS — fuente principal de alertas a nivel mundial"""
 import time
+from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
 
@@ -54,7 +55,7 @@ def _to_iso_date(pub_date):
     if not pub_date:
         return None
     try:
-        return parsedate_to_datetime(pub_date).isoformat()
+        return parsedate_to_datetime(pub_date)
     except (TypeError, ValueError):
         return None
 
@@ -65,18 +66,34 @@ def _parse_item(item):
     alert_level = _get_text(item, "gdacs:alertlevel")
     country = _get_text(item, "gdacs:country")
 
+    lat = _get_coordinate(item, "geo:Point/geo:lat")
+    if lat is None:
+        lat = _get_coordinate(item, "geo:lat")
+    if lat is None:
+        lat = 0.0
+
+    lon = _get_coordinate(item, "geo:Point/geo:long")
+    if lon is None:
+        lon = _get_coordinate(item, "geo:long")
+    if lon is None:
+        lon = 0.0
+
+    fecha = _to_iso_date(_get_text(item, "pubDate"))
+    if fecha is None:
+        fecha = datetime.now(timezone.utc)
+
     return {
         "id": f"gdacs-{event_type or 'NA'}{event_id or ''}",
         "fuente": "gdacs",
         "tipo": _map_event_type(event_type),
-        "titulo": _get_text(item, "title"),
-        "descripcion": _get_text(item, "description"),
+        "titulo": _get_text(item, "title") or "Sin título",
+        "descripcion": _get_text(item, "description") or "",
         "severidad": _map_severity(alert_level),
-        "pais": country,
-        "lat": _get_coordinate(item, "geo:Point/geo:lat"),
-        "lon": _get_coordinate(item, "geo:Point/geo:long"),
-        "fecha": _to_iso_date(_get_text(item, "pubDate")),
-        "enlace": _get_text(item, "link"),
+        "pais": country or "",
+        "lat": lat,
+        "lon": lon,
+        "fecha": fecha,
+        "enlace": _get_text(item, "link") or "",
     }
 
 
