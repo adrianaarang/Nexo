@@ -3,61 +3,61 @@
 // ==========================================
 // 1. DATOS MOCK (Inventados hasta integrar API)
 // ==========================================
-const necesidadesMock = [
+const mockNeeds = [
   {
     id: 1,
-    titulo: "Recogida de alimentos perecederos",
-    tipo: "Alimentos",
-    prioridad: "alta", // alta | media | baja
-    descripcion: "Se necesitan cajas de leche y conservas urgentes.",
-    latitud: 40.416775,
-    longitud: -3.703790
+    title: "Perishable food collection",
+    type: "Food",
+    priority: "high", // high | medium | low
+    description: "Urgent need for milk cartons and canned goods.",
+    latitude: 40.416775,
+    longitude: -3.703790
   },
   {
     id: 2,
-    titulo: "Ropa de abrigo para invierno",
-    tipo: "Ropa",
-    prioridad: "media",
-    descripcion: "Abrigos y mantas para niños y adultos.",
-    latitud: 40.420000,
-    longitud: -3.690000
+    title: "Winter warm clothing",
+    type: "Clothing",
+    priority: "medium",
+    description: "Coats and blankets for children and adults.",
+    latitude: 40.420000,
+    longitude: -3.690000
   },
   {
     id: 3,
-    titulo: "Voluntarios para apoyo escolar",
-    tipo: "Voluntariado",
-    prioridad: "baja",
-    descripcion: "Clases de refuerzo en matemáticas dos tardes a la semana.",
-    latitud: 40.410000,
-    longitud: -3.715000
+    title: "Volunteers for school support",
+    type: "Volunteering",
+    priority: "low",
+    description: "Math tutoring classes two afternoons a week.",
+    latitude: 40.410000,
+    longitude: -3.715000
   },
   {
     id: 4,
-    titulo: "Alojamiento temporal de emergencia",
-    tipo: "Alojamiento",
-    prioridad: "alta",
-    descripcion: "Espacio para una familia afectada por inundaciones.",
-    latitud: 40.430000,
-    longitud: -3.700000
+    title: "Temporary emergency shelter",
+    type: "Shelter",
+    priority: "high",
+    description: "Space for a family affected by flooding.",
+    latitude: 40.430000,
+    longitude: -3.700000
   }
 ];
 
-let necesidadesCargadas = [];
+let loadedNeeds = [];
 
 // Array para guardar las referencias a los marcadores activos
-let marcadores = [];
+let markers = [];
 
 // ==========================================
 // 2. INICIALIZACIÓN DEL MAPA LEAFLET
 // ==========================================
 // Centrado por ejemplo en Madrid [Lat, Lng], Zoom 13
-const mapa = L.map('mapa').setView([40.416775, -3.703790], 13);
+const map = L.map('map').setView([40.416775, -3.703790], 13);
 
 // Añadir capa de OpenStreetMap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap contributors'
-}).addTo(mapa);
+}).addTo(map);
 
 // ==========================================
 // 3. FUNCIONES DE RENDERIZADO Y FILTRADO
@@ -66,15 +66,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 /**
  * Devuelve un icono de Leaflet con color CSS basado en la prioridad
  */
-function obtenerIconoPorPrioridad(prioridad) {
-  let clasePrioridad = 'prioridad-baja';
+function getIconByPriority(priority) {
+  let priorityClass = 'priority-low';
 
-  if (prioridad === 'alta') clasePrioridad = 'prioridad-alta';
-  else if (prioridad === 'media') clasePrioridad = 'prioridad-media';
+  if (priority === 'high') priorityClass = 'priority-high';
+  else if (priority === 'medium') priorityClass = 'priority-medium';
 
   return L.divIcon({
     className: '', // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
-    html: `<div class="marcador-custom ${clasePrioridad}"></div>`,
+    html: `<div class="marcador-custom ${priorityClass}"></div>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9]
   });
@@ -83,67 +83,67 @@ function obtenerIconoPorPrioridad(prioridad) {
 /**
  * Pinta la lista de necesidades recibida en el mapa
  */
-function pintarMapa(listaNecesidades) {
+function renderMap(needsList) {
   // Limpiar marcadores anteriores
-  limpiarMarcadores();
+  clearMarkers();
 
-  listaNecesidades.forEach((necesidad) => {
-    const icono = obtenerIconoPorPrioridad(necesidad.prioridad);
+  needsList.forEach((need) => {
+    const icon = getIconByPriority(need.priority);
 
     // Crear marcador con icono personalizado
-    const marcador = L.marker([necesidad.latitud, necesidad.longitud], { icon: icono });
+    const marker = L.marker([need.latitude, need.longitude], { icon: icon });
 
     // Configurar el Popup del marcador
     // Maquetación usando clases de tu sistema de diseño (components.css)
-    const contenidoPopup = `
+    const popupContent = `
       <div class="nexo-popup">
         <div style="margin-bottom: 8px;">
-          <span class="nexo-badge nexo-badge--${necesidad.prioridad}">${necesidad.prioridad}</span>
-          <span class="nexo-badge" style="background: var(--nexo-bg-alt); border-color: var(--nexo-border);">${necesidad.tipo}</span>
+          <span class="nexo-badge nexo-badge--${need.priority}">${need.priority}</span>
+          <span class="nexo-badge" style="background: var(--nexo-bg-alt); border-color: var(--nexo-border);">${need.type}</span>
         </div>
-        <h3 style="color: #000; margin: 0 0 6px 0; font-size: 1rem;">${necesidad.titulo}</h3>
-        <p style="color: #555; margin: 0; font-size: 0.85rem;">${necesidad.descripcion}</p>
+        <h3 style="color: #000; margin: 0 0 6px 0; font-size: 1rem;">${need.title}</h3>
+        <p style="color: #555; margin: 0; font-size: 0.85rem;">${need.description}</p>
       </div>
     `;
 
-    marcador.bindPopup(contenidoPopup);
-    marcador.addTo(mapa);
+    marker.bindPopup(popupContent);
+    marker.addTo(map);
 
     // Guardar referencia en el array de marcadores
-    marcadores.push(marcador);
+    markers.push(marker);
   });
 }
 
 /**
  * Elimina todos los marcadores actuales del mapa
  */
-function limpiarMarcadores() {
-  marcadores.forEach(m => mapa.removeLayer(m));
-  marcadores = [];
+function clearMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
 }
 
 /**
  * Filtra las necesidades según la opción seleccionada en el menú desplegable
  */
-function aplicarFiltro() {
-  const tipoSeleccionado = document.getElementById('filtroTipo').value;
+function applyFilter() {
+  const selectedType = document.getElementById('typeFilter').value;
 
-  if (tipoSeleccionado === 'todos') {
-    pintarMapa(necesidadesMock);
+  if (selectedType === 'all') {
+    renderMap(mockNeeds);
   } else {
-    const filtradas = necesidadesMock.filter(n => n.tipo === tipoSeleccionado);
-    pintarMapa(filtradas);
+    const filtered = mockNeeds.filter(n => n.type === selectedType);
+    renderMap(filtered);
   }
 }
 /*
-function aplicarFiltro() {
-  const tipoSeleccionado = document.getElementById('filtroTipo').value;
+function applyFilter() {
+  const selectedType = document.getElementById('typeFilter').value;
 
-  if (tipoSeleccionado === 'todos') {
-    pintarMapa(necesidadesCargadas);
+  if (selectedType === 'all') {
+    renderMap(loadedNeeds);
   } else {
-    const filtradas = necesidadesCargadas.filter(n => n.tipo === tipoSeleccionado);
-    pintarMapa(filtradas);
+    const filtered = loadedNeeds.filter(n => n.type === selectedType);
+    renderMap(filtered);
   }
 }
 */
@@ -152,25 +152,24 @@ function aplicarFiltro() {
 // ==========================================
 // 4. EVENTOS E INICIALIZACIÓN
 // ==========================================
-document.getElementById('filtroTipo').addEventListener('change', aplicarFiltro);
+document.getElementById('typeFilter').addEventListener('change', applyFilter);
 
 // Carga inicial del mapa con todos los datos
 /*
-async function cargarNecesidadesDesdeAPI() {
+async function loadNeedsFromAPI() {
   try {
-    const response = await fetch('https://api.tu-servidor.com/necesidades');
-    const datos = await response.json();
-    necesidadesCargadas = datos; 
+    const response = await fetch('https://api.your-server.com/needs');
+    const data = await response.json();
+    loadedNeeds = data; 
 
     // Pintamos los marcadores en el mapa
-    pintarMapa(necesidadesCargadas);
+    renderMap(loadedNeeds);
 
   } catch (error) {
-    console.error("Error al cargar necesidades:", error);
+    console.error("Error loading needs:", error);
   }
 }
-cargarNecesidadesDesdeAPI()
+loadNeedsFromAPI()
 */
 
-
-pintarMapa(necesidadesMock);
+renderMap(mockNeeds);
