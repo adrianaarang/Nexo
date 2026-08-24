@@ -47,13 +47,13 @@
         
         <!-- Filtro por tipo -->
         <div class="controles" style="margin-bottom: 12px;">
-          <label for="filtroTipo"><strong>Filtrar:</strong></label>
-          <select id="filtroTipo">
-            <option value="todos">Todos los tipos</option>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Voluntariado">Voluntariado</option>
-            <option value="Alojamiento">Alojamiento</option>
+          <label for="typeFilter"><strong>Filtrar:</strong></label>
+          <select id="typeFilter">
+            <option value="all">Todos los tipos</option>
+            <option value="Food">Alimentos</option>
+            <option value="Clothing">Ropa</option>
+            <option value="Volunteering">Voluntariado</option>
+            <option value="Shelter">Alojamiento</option>
           </select>
         </div>
 
@@ -69,17 +69,17 @@
           <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
           
           <select id="select-tipo" required>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Medicina">Medicina / Salud</option>
-            <option value="Alojamiento">Alojamiento</option>
-            <option value="Voluntariado">Voluntariado</option>
+            <option value="Food">Alimentos</option>
+            <option value="Clothing">Ropa</option>
+            <option value="Medicine">Medicina / Salud</option>
+            <option value="Shelter">Alojamiento</option>
+            <option value="Volunteering">Voluntariado</option>
           </select>
 
           <select id="select-prioridad" required>
-            <option value="baja">Prioridad Baja</option>
-            <option value="media">Prioridad Media</option>
-            <option value="alta">Prioridad Alta</option>
+            <option value="low">Prioridad Baja</option>
+            <option value="medium">Prioridad Media</option>
+            <option value="high">Prioridad Alta</option>
           </select>
 
           <textarea id="textarea-desc" placeholder="Descripción detallada..."></textarea>
@@ -94,12 +94,10 @@
         </form>
       </section>
 
-      
-
     </aside>
 
     <!-- MAPA INTERACTIVO -->
-    <div id="mapa"></div>
+    <div id="map"></div>
 
   </main>
 
