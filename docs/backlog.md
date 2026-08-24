@@ -1,6 +1,6 @@
 # Backlog de NEXO
 
-> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-24.
+> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-24 (rama de integración de alertas + Kanban).
 > Referencia de prioridades: `docs/manifiesto.md` y `docs/roadmap.md`.
 
 ## Estado por módulo
@@ -12,7 +12,7 @@
 | Voluntariado y donaciones | Núcleo (MVP) | `feature/donaciones-grupo3` | abierto | Grupo 3 | Solo frontend; **falta backend** donaciones (sin API definida) |
 | Registro de personas / "estoy bien" | Siguiente | `feature/personas/david` | #20 abierto | Grupo 4 | PR #20 añade backend "estoy bien" (`POST /api/personas/estoy-bien`); **falta 2 aprobaciones**. BD+seed+router ya en repo; falta frontend registro |
 | Modo offline (PWA) | Siguiente | — | — | Grupo 4 | Sin empezar; cola offline (`syncQueue.js`/`localDb.js`/`serviceWorker.js`) en TODO → G4 implementa |
-| Documentación y gobernanza | Transversal | `feature/docs` | por abrir | PM (Juan) | Manifiesto, convenciones, reparto, backlog, `formas-de-trabajo.md`, `faq.md`, `roles-y-tareas.md` en local; actualizado 2026-08-24 tras `pull` |
+| Documentación y gobernanza | Transversal | `feature/docs` | por abrir | PM (Juan) | Manifiesto, convenciones, reparto, backlog, `formas-de-trabajo.md`, `faq.md`, `roles-y-tareas.md` en local; `docs/equipos.md` (composición de equipos) y `.github/workflows/setup-kanban.yml` (Kanban automático) añadidos en `feature/docs` |
 
 ## PRs en curso (2026-08-24)
 
@@ -23,6 +23,12 @@
 | #19 | fix(alertas): alinear contratos + robustecer GDACS | `juan/fix-alerts-integration` → `feature/alerts` | **MERGED** (`1348ad7`) | JCRbit, adrianaarang, jowel2701 |
 | #18 | Feature/form cards (mapa E2E) | `feature/form-cards-elenadiaz1` → `dev` | Abierto, **bloqueado**: falta GET/PATCH + quitar `mockNeeds`; necesita 2 aprobaciones | Gema-Villanueva, SiR0N |
 | #20 | feat(personas): add estoy bien backend | `feature/personas/david` → `dev` | Abierto; falta 2 aprobaciones | adryeli, Isabela-Tellez, Anasfady |
+| — | fix(alertas): CORS + apiClient para dev local | `juan/integrate-alerts-dev` → `feature/alerts` | **Por abrir** (branch lista en remoto) | Juan | Incluye `apiClient.js`→`127.0.0.1` y `config.py` CORS `127.0.0.1:5500`; Paso 1 de integración Sprint 1 |
+| — | feat(alertas): integración Sprint 1 (G2) a dev | `feature/alerts` → `dev` | **Por abrir** | Juan | Paso 2 de integración Sprint 1 (alertas a `dev`) |
+
+## Tablero / Kanban
+
+Los issues (epics por bloque/equipo) se crean **automáticamente** al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`, sin permisos extra). `Base común` y `Equipo 2` se cierran al crearse; el resto se cierra solo al mergear sus PR de integración si incluyen `Closes #<num>`. El tablero visual es un Project V2 personal del PM (agrupado por Label = equipo, columnas por Status). Composición de equipos en `docs/equipos.md`.
 
 ## Objetivos MVP (de `docs/manifiesto.md`)
 - [ ] O1 Alertas GDACS con filtros y estados (núcleo del Grupo 2)
