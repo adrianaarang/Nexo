@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sandbox / Pruebas — Tarjetas y Formulario</title>
+    <title>Sandbox / Pruebas — Módulo de Necesidades</title>
 
-    <!-- Hojas de estilos del proyecto -->
+    <!-- Hojas de estilos globales y de necesidades -->
     <link rel="stylesheet" href="../../../css/variables.css" />
     <link rel="stylesheet" href="../../../css/style.css" />
     <link rel="stylesheet" href="../../../css/necesidades.css" />
@@ -14,8 +14,13 @@
       body {
         background-color: #0f172a;
         color: #f8fafc;
-        padding: 20px;
+        padding: 24px;
         font-family: system-ui, -apple-system, sans-serif;
+      }
+      .sandbox-header {
+        margin-bottom: 24px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 12px;
       }
       .sandbox-layout {
         display: grid;
@@ -31,24 +36,25 @@
       }
       .sandbox-section {
         background: rgba(30, 41, 59, 0.5);
-        padding: 16px;
+        padding: 20px;
         border-radius: 8px;
         border: 1px solid #334155;
       }
       .sandbox-controls {
         display: flex;
         gap: 8px;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
         flex-wrap: wrap;
       }
       .sandbox-btn {
         background: #334155;
         color: #fff;
-        border: none;
+        border: 1px solid #475569;
         padding: 6px 12px;
         border-radius: 4px;
         cursor: pointer;
         font-size: 0.8rem;
+        transition: background 0.2s ease;
       }
       .sandbox-btn:hover {
         background: #475569;
@@ -56,83 +62,83 @@
     </style>
   </head>
   <body>
-    <h1>🧪 Entorno de Pruebas: Tarjetas y Formulario (E1)</h1>
-    <p>Página aislada para validar componentes BEM-lite sin interferir con el mapa.</p>
+    <header class="sandbox-header">
+      <h1>🧪 Entorno Sandbox: Módulo de Necesidades (E1)</h1>
+      <p>Validación aislada de los objetos <code>NeedFormController</code> y <code>NeedCardComponent</code>.</p>
+    </header>
 
     <div class="sandbox-layout">
-      <!-- COLUMNA IZQUIERDA: Formulario -->
-      <div class="sandbox-section">
+      <!-- PANEL IZQUIERDO: Formulario de Necesidades -->
+      <section class="sandbox-section">
         <div id="formContainer"></div>
-      </div>
+      </section>
 
-      <!-- COLUMNA DERECHA: Listado y Estados UI -->
-      <div class="sandbox-section">
-        <h3>Vista Previa de Tarjetas y Estados</h3>
+      <!-- PANEL DERECHO: Tarjetas y Estados Visuales UI -->
+      <section class="sandbox-section">
+        <h3>Vista Previa de Tarjetas y Estados UI</h3>
         
-        <!-- Botones para simular estados visuales (Punto 22 del Manifiesto) -->
+        <!-- Botones de prueba para validar estados del Punto 22 -->
         <div class="sandbox-controls">
-          <button id="btnStateLoading" class="sandbox-btn">Probar Carga</button>
-          <button id="btnStateEmpty" class="sandbox-btn">Probar Vacío</button>
-          <button id="btnStateError" class="sandbox-btn">Probar Error</button>
-          <button id="btnStateSample" class="sandbox-btn">Cargar Ejemplos</button>
+          <button id="btnStateLoading" type="button" class="sandbox-btn">Probar Carga</button>
+          <button id="btnStateEmpty" type="button" class="sandbox-btn">Probar Vacío</button>
+          <button id="btnStateError" type="button" class="sandbox-btn">Probar Error</button>
+          <button id="btnStateSample" type="button" class="sandbox-btn">Cargar Ejemplos</button>
         </div>
 
         <div id="cardsContainer" class="nexo-cards-container">
-          <!-- Aquí se inyectarán las tarjetas o los estados visuales -->
+          <!-- Aquí se inyectan dinámicamente los nodos DOM de las tarjetas -->
         </div>
-      </div>
+      </section>
     </div>
 
-    <!-- Script en ES Module -->
+    <!-- Carga del Script como ES Module -->
     <script type="module">
-      import { initNeedForm, setFormCoordinates, clearNeedForm } from "./formularioNecesidad.js";
-      import { 
-        createNeedCard, 
-        renderLoadingState, 
-        renderEmptyState, 
-        renderErrorState 
-      } from "./necesidadCard.js";
+      import { NeedFormController } from "./formularioNecesidad.js";
+      import { NeedCardComponent } from "./necesidadCard.js";
 
-      const formContainer = document.getElementById("formContainer");
       const cardsContainer = document.getElementById("cardsContainer");
 
-      // 1. Inicializar Formulario
-      initNeedForm(formContainer, (newNeed) => {
-        console.log("Payload enviado desde formulario:", newNeed);
-        
-        // Asignar ID simulado
-        const needWithId = { ...newNeed, id: Date.now().toString() };
-        
-        // Crear tarjeta DOM
-        const cardEl = createNeedCard(needWithId, (id, newStatus) => {
-          alert(`Estado de la necesidad #${id} cambiado a: ${newStatus}`);
+      // 1. Instanciar el Controlador del Formulario (Objeto)
+      const needForm = new NeedFormController("#formContainer", (newNeedData) => {
+        console.log("Payload recibido desde el formulario:", newNeedData);
+
+        // Generar un ID simulado
+        const payloadWithId = { ...newNeedData, id: Date.now().toString() };
+
+        // Crear la instancia del componente Tarjeta
+        const cardComponent = new NeedCardComponent(payloadWithId, (id, status) => {
+          alert(`Cambiar estado de la necesidad #${id} a: ${status}`);
         });
 
-        // Limpiar contenedor si había un estado de vacío/error e insertar tarjeta arriba
+        // Limpiar mensajes de estado de carga/vacío si existen
         if (cardsContainer.querySelector(".nexo-state")) {
           cardsContainer.innerHTML = "";
         }
-        cardsContainer.prepend(cardEl);
-        clearNeedForm();
+
+        // Agregar la tarjeta al inicio del contenedor
+        cardsContainer.prepend(cardComponent.getNode());
+
+        // Limpiar el formulario tras la publicación
+        needForm.reset();
       });
 
-      // Simular coordenadas seleccionadas (como si hicieras clic en el mapa)
-      setFormCoordinates(36.465123, -6.198456);
+      // Simular selección de coordenadas desde el mapa (ej: clic en Leaflet)
+      needForm.setCoordinates(36.465123, -6.198456);
 
-      // 2. Controladores de los Estados Visuales (Para validar el Punto 22)
+      // 2. Controladores de los Estados Visuales (Métodos Estáticos)
       document.getElementById("btnStateLoading").addEventListener("click", () => {
         cardsContainer.innerHTML = "";
-        cardsContainer.appendChild(renderLoadingState());
+        cardsContainer.appendChild(NeedCardComponent.renderLoading());
       });
 
       document.getElementById("btnStateEmpty").addEventListener("click", () => {
         cardsContainer.innerHTML = "";
-        cardsContainer.appendChild(renderEmptyState());
+        cardsContainer.appendChild(NeedCardComponent.renderEmpty());
       });
 
       document.getElementById("btnStateError").addEventListener("click", () => {
         cardsContainer.innerHTML = "";
-        cardsContainer.appendChild(renderErrorState("Error al conectar con la base de datos de necesidades."));
+        cardsContainer.appendChild(NeedCardComponent.renderError("Error al conectar con el servidor."));
       });
 
       document.getElementById("btnStateSample").addEventListener("click", () => {
@@ -140,30 +146,32 @@
         
         const sampleNeeds = [
           {
-            id: "1",
-            title: "Agua potable y suero",
-            description: "Se necesitan al menos 50L de agua embotellada para centro de mando local.",
+            id: "101",
+            title: "Agua potable y suero fisiológico",
+            description: "Se necesitan 100L de agua embotellada para puesto de socorro local.",
             type: "alimentos",
             priority: "critica",
             status: "abierta"
           },
           {
-            id: "2",
-            title: "Mantas y ropa de abrigo",
-            description: "Cobijas para albergue temporal en polideportivo.",
+            id: "102",
+            title: "Mantas térmicas y abrigo",
+            description: "Ropa limpia y cobijas para punto de acogida temporal.",
             type: "ropa",
             priority: "media",
             status: "abierta"
           }
         ];
 
-        sampleNeeds.forEach(need => {
-          const cardEl = createNeedCard(need, (id, status) => console.log(id, status));
-          cardsContainer.appendChild(cardEl);
+        sampleNeeds.forEach((need) => {
+          const card = new NeedCardComponent(need, (id, status) => {
+            console.log(`Estado cambiado: ${id} -> ${status}`);
+          });
+          cardsContainer.appendChild(card.getNode());
         });
       });
 
-      // Renderizar estado de ejemplo inicial
+      // Cargar datos de prueba iniciales
       document.getElementById("btnStateSample").click();
     </script>
   </body>

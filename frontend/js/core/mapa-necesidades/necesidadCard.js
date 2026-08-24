@@ -1,89 +1,83 @@
+// frontend/js/core/mapa-necesidades/necesidadCard.js
+
 /**
- * Crea la tarjeta HTML para mostrar en la lista lateral utilizando BEM-lite (nexo-card)
- * @param {Object} need - Objeto con datos de la necesidad
- * @param {Function} onStatusChange - Callback para actualizar el estado
- * @returns {HTMLElement} Elemento DOM de la tarjeta
+ * Componente Objeto para las Tarjetas de Necesidad y Estados UI
  */
-export function createNeedCard(need, onStatusChange) {
-  const card = document.createElement("article");
-  const priority = (need.priority || "baja").toLowerCase();
-
-  card.className = `nexo-card nexo-card--${priority}`;
-  card.dataset.id = need.id;
-
-  const typeText = (need.type || "General").toUpperCase();
-  const statusText = (need.status || "abierta").replace("_", " ");
-
-  card.innerHTML = `
-    <div class="nexo-card__header">
-      <h3 class="nexo-card__title">${need.title}</h3>
-      <span class="nexo-card__badge nexo-card__badge--${priority}">
-        ${priority}
-      </span>
-    </div>
-    <p class="nexo-card__desc">${need.description || "Sin descripción proporcionada."}</p>
-    <div class="nexo-card__footer">
-      <span class="nexo-card__type">🏷️ ${typeText}</span>
-      <span class="nexo-card__status nexo-card__status--${need.status}">
-        ${statusText}
-      </span>
-      ${
-        need.status !== "cubierta"
-          ? `<button type="button" class="btn-cover" data-id="${need.id}">Marcar Cubierta</button>`
-          : '<span class="check-done">✓ Cubierta</span>'
-      }
-    </div>
-  `;
-
-  // Evento para cambiar de estado al pulsar el botón
-  const btnCover = card.querySelector(".btn-cover");
-  if (btnCover) {
-    btnCover.addEventListener("click", () => {
-      onStatusChange(need.id, "cubierta");
-    });
+export class NeedCardComponent {
+  /**
+   * @param {Object} needData - Datos de la necesidad
+   * @param {Function} [onStatusChange] - Callback para cambio de estado
+   */
+  constructor(needData, onStatusChange) {
+    this.data = needData;
+    this.onStatusChange = onStatusChange;
+    this.element = this.createDOMElement();
   }
 
-  return card;
-}
+  /**
+   * Construye el nodo DOM de la tarjeta
+   */
+  createDOMElement() {
+    const card = document.createElement("article");
+    const priority = (this.data.priority || "baja").toLowerCase();
 
-/**
- * Renderiza el estado de vacío cuando no hay necesidades (Cumple Punto 22)
- * @returns {HTMLElement} Elemento DOM
- */
-export function renderEmptyState() {
-  const container = document.createElement("div");
-  container.className = "nexo-state nexo-state--empty";
-  container.innerHTML = `
-    <p>🍃 No hay necesidades registradas en esta zona actualmente.</p>
-  `;
-  return container;
-}
+    card.className = `nexo-card nexo-card--${priority}`;
+    card.dataset.id = this.data.id;
 
-/**
- * Renderiza el estado de carga (Loading skeleton/spinner)
- * @returns {HTMLElement} Elemento DOM
- */
-export function renderLoadingState() {
-  const container = document.createElement("div");
-  container.className = "nexo-state nexo-state--loading";
-  container.innerHTML = `
-    <p>⏳ Cargando necesidades en tiempo real...</p>
-  `;
-  return container;
-}
+    card.innerHTML = `
+      <div class="nexo-card__header">
+        <h3 class="nexo-card__title">${this.data.title}</h3>
+        <span class="nexo-card__badge nexo-card__badge--${priority}">${priority}</span>
+      </div>
+      <p class="nexo-card__desc">${this.data.description || "Sin descripción."}</p>
+      <div class="nexo-card__footer">
+        <span class="nexo-card__type">🏷️ ${(this.data.type || "General").toUpperCase()}</span>
+        ${
+          this.data.status !== "cubierta"
+            ? `<button type="button" class="btn-cover" data-id="${this.data.id}">Marcar Cubierta</button>`
+            : '<span class="check-done">✓ Cubierta</span>'
+        }
+      </div>
+    `;
 
-/**
- * Renderiza el estado de error cuando la API o conexión falla
- * @param {string} message - Mensaje explicativo del error
- * @returns {HTMLElement} Elemento DOM
- */
-export function renderErrorState(
-  message = "Error al conectar con la red de necesidades.",
-) {
-  const container = document.createElement("div");
-  container.className = "nexo-state nexo-state--error";
-  container.innerHTML = `
-    <p>⚠️ ${message}</p>
-  `;
-  return container;
+    const btnCover = card.querySelector(".btn-cover");
+    if (btnCover) {
+      btnCover.addEventListener("click", () => {
+        if (typeof this.onStatusChange === "function") {
+          this.onStatusChange(this.data.id, "cubierta");
+        }
+      });
+    }
+
+    return card;
+  }
+
+  /**
+   * Retorna el elemento DOM listo para insertar en listas o popups de Leaflet
+   */
+  getNode() {
+    return this.element;
+  }
+
+  // Métodos Estáticos para Estados UI (Punto 22)
+  static renderLoading() {
+    const el = document.createElement("div");
+    el.className = "nexo-state nexo-state--loading";
+    el.innerHTML = "<p>⏳ Cargando necesidades...</p>";
+    return el;
+  }
+
+  static renderEmpty() {
+    const el = document.createElement("div");
+    el.className = "nexo-state nexo-state--empty";
+    el.innerHTML = "<p>🍃 No hay necesidades registradas.</p>";
+    return el;
+  }
+
+  static renderError(msg = "Error al cargar los datos.") {
+    const el = document.createElement("div");
+    el.className = "nexo-state nexo-state--error";
+    el.innerHTML = `<p>⚠️ ${msg}</p>`;
+    return el;
+  }
 }
