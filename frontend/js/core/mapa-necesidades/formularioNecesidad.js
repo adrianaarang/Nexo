@@ -1,4 +1,8 @@
 // frontend/js/core/mapa-necesidades/formularioNecesidad.js
+import { crearNecesidad, configurarBaseUrl } from "./necesidadesApi.js";
+
+// Si trabajas localmente con Live Server (puerto 5500) y FastAPI en 8000:
+configurarBaseUrl("http://localhost:8000/api/necesidades");
 
 export class NeedFormController {
   constructor(container, onSubmit) {
@@ -8,14 +12,11 @@ export class NeedFormController {
         : container;
     this.onSubmit = onSubmit;
     this.formElement = null;
-
     this.init();
   }
 
   init() {
     if (!this.container) return;
-
-    // Si el contenedor ya es un formulario, lo usamos; si no, buscamos el formulario dentro
     this.formElement =
       this.container.tagName === "FORM"
         ? this.container
@@ -27,12 +28,8 @@ export class NeedFormController {
     }
   }
 
-  /**
-   * Conecta la Geolocalización del navegador con los campos Latitud / Longitud
-   */
   setupGeolocation() {
     const gpsBtn = this.formElement.querySelector("#btn-usar-gps");
-
     if (!gpsBtn) return;
 
     gpsBtn.addEventListener("click", () => {
@@ -40,7 +37,6 @@ export class NeedFormController {
         alert("Tu navegador no soporta geolocalización.");
         return;
       }
-
       gpsBtn.textContent = "⏳ Obteniendo ubicación...";
       gpsBtn.disabled = true;
 
@@ -48,18 +44,14 @@ export class NeedFormController {
         (position) => {
           const { latitude, longitude } = position.coords;
           this.setCoordinates(latitude, longitude);
-
           gpsBtn.textContent = "✓ Ubicación capturada";
           setTimeout(() => {
             gpsBtn.textContent = "📍 Usar mi ubicación";
             gpsBtn.disabled = false;
           }, 2000);
         },
-        (error) => {
-          console.error("Error obteniendo ubicación:", error);
-          alert(
-            "No se pudo obtener tu ubicación. Por favor, selecciona un punto en el mapa.",
-          );
+        () => {
+          alert("No se pudo obtener tu ubicación.");
           gpsBtn.textContent = "📍 Usar mi ubicación";
           gpsBtn.disabled = false;
         },
@@ -68,9 +60,6 @@ export class NeedFormController {
     });
   }
 
-  /**
-   * Asigna las coordenadas a los inputs del formulario
-   */
   setCoordinates(lat, lng) {
     const latInput =
       this.formElement.querySelector("#input-lat") ||
@@ -85,9 +74,6 @@ export class NeedFormController {
     }
   }
 
-  /**
-   * Vincula el evento submit del formulario enviando los datos en ESPAÑOL al backend (routes.py)
-   */
   bindEvents() {
     this.formElement.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -111,7 +97,6 @@ export class NeedFormController {
         this.formElement.querySelector("#input-lng") ||
         this.formElement.querySelector("#needLng");
 
-      // Construimos exactamente el payload con las claves y valores que exige schemas.py
       const payloadSpanish = {
         titulo: titleInput ? titleInput.value.trim() : "",
         tipo: typeSelect ? typeSelect.value : "alimento",
@@ -123,62 +108,31 @@ export class NeedFormController {
 
       if (isNaN(payloadSpanish.latitud) || isNaN(payloadSpanish.longitud)) {
         alert(
-          "Por favor, selecciona un punto en el mapa o usa el botón de geolocalización.",
+          "Por favor, selecciona un punto en el mapa o usa la geolocalización.",
         );
         return;
       }
 
       try {
-        const response = await fetch("/api/necesidades", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payloadSpanish),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error("Error de validación del backend:", errorData);
-          alert(
-            `Error de validación: ${
-              errorData.detalle || "Revisa los campos del formulario."
-            }`,
-          );
-          return;
-        }
-
-        // La API devuelve la necesidad con su id, estado ("abierta") y creado_en
-        const guardadaEnDB = await response.json();
-
-        // Mapeo para la tarjeta/marcador local en el mapa
-        const necesidadCreada = {
-          id: guardadaEnDB.id,
-          title: guardadaEnDB.titulo,
-          type: guardadaEnDB.tipo,
-          priority: guardadaEnDB.prioridad,
-          description: guardadaEnDB.descripcion,
-          latitude: guardadaEnDB.latitud,
-          longitude: guardadaEnDB.longitud,
-          status: guardadaEnDB.estado,
-        };
+        // Enviar al backend centralizado y recuperar el objeto completo con ID real
+        const nuevaNecesidad = await crearNecesidad(payloadSpanish);
 
         if (typeof this.onSubmit === "function") {
-          this.onSubmit(necesidadCreada);
+          this.onSubmit(nuevaNecesidad);
         }
 
         this.reset();
-        alert("¡Necesidad registrada correctamente en la base de datos!");
+        alert("¡Necesidad registrada correctamente!");
       } catch (error) {
-        console.error("Error de conexión:", error);
-        alert("No se pudo conectar con el servidor.");
+        console.error("Error guardando necesidad:", error);
+        alert(
+          `Error: ${error.message} ${error.detalle ? `(${error.detalle})` : ""}`,
+        );
       }
     });
   }
 
   reset() {
-    if (this.formElement) {
-      this.formElement.reset();
-    }
+    if (this.formElement) this.formElement.reset();
   }
 }
