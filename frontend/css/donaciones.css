@@ -1,0 +1,331 @@
+/* Estilos exclusivos del módulo de donaciones — Equipo 3. */
+
+/* --- Dropdown personalizado --- */
+.nexo-select {
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+}
+
+.nexo-select__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  background: var(--nexo-bg-alt, #1A1C22);
+  border: 1px solid var(--nexo-border, #2A2D34);
+  border-radius: 4px;
+  color: var(--nexo-text, #F5F5F3);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  text-align: left;
+}
+
+.nexo-select__trigger:hover,
+.nexo-select.abierto .nexo-select__trigger {
+  border-color: var(--nexo-orange, #F2542D);
+}
+
+.nexo-select__chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--nexo-text-muted, #9CA0A8);
+  transition: transform 0.22s ease;
+}
+
+.nexo-select.abierto .nexo-select__chevron {
+  transform: rotate(180deg);
+}
+
+@keyframes dropdown-open {
+  from { opacity: 0; transform: translateY(-8px) scaleY(0.95); }
+  to   { opacity: 1; transform: translateY(0)   scaleY(1); }
+}
+
+.nexo-select__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: var(--nexo-bg-alt, #1A1C22);
+  border: 1px solid var(--nexo-orange, #F2542D);
+  border-radius: 4px;
+  list-style: none;
+  z-index: 100;
+  overflow: hidden;
+  transform-origin: top center;
+}
+
+.nexo-select.abierto .nexo-select__menu {
+  display: block;
+  animation: dropdown-open 0.2s ease forwards;
+}
+
+.nexo-select__menu li {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--nexo-text-muted, #9CA0A8);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.nexo-select__menu li:hover {
+  background: rgba(242, 84, 45, 0.08);
+  color: var(--nexo-text, #F5F5F3);
+}
+
+.nexo-select__menu li.seleccionado {
+  color: var(--nexo-orange, #F2542D);
+  font-weight: 700;
+}
+
+/* --- Variante para formulario (más grande) --- */
+.nexo-select--form {
+  flex: none;
+}
+
+.nexo-select--form .nexo-select__trigger {
+  padding: 0.72rem 0.9rem;
+  font-size: 0.92rem;
+}
+
+.nexo-select--form .nexo-select__menu {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.nexo-select--form .nexo-select__menu li {
+  padding: 0.65rem 0.9rem;
+  font-size: 0.88rem;
+}
+
+/* --- Título de sección --- */
+.nexo-seccion-titulo {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--nexo-text-muted, #9CA0A8);
+  border-left: 3px solid var(--nexo-orange, #F2542D);
+  padding-left: 0.75rem;
+  margin-bottom: 1.4rem;
+}
+
+/* --- Filtros --- */
+.donaciones-filtros {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+/* --- Animación de entrada de tarjetas --- */
+@keyframes tarjeta-entrada {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.donacion-card {
+  animation: tarjeta-entrada 0.25s ease forwards;
+}
+
+/* --- Layout principal --- */
+.donaciones-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.donaciones-form-sticky {
+  position: sticky;
+  top: 85px;
+}
+
+@media (max-width: 800px) {
+  .donaciones-layout {
+    grid-template-columns: 1fr;
+  }
+  .donaciones-form-sticky {
+    position: static;
+  }
+}
+
+/* --- Tarjeta de donación --- */
+.donacion-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: var(--nexo-bg-alt, #1A1C22);
+  border: 1px solid var(--nexo-border, #2A2D34);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s ease;
+  position: relative;
+}
+
+.donacion-card:hover {
+  border-color: var(--nexo-text-muted, #9CA0A8);
+}
+
+.donacion-card__icono {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  color: var(--nexo-text-muted, #9CA0A8);
+  margin-top: 2px;
+}
+
+.donacion-card__icono svg {
+  width: 100%;
+  height: 100%;
+}
+
+.donacion-card__contenido {
+  flex: 1;
+}
+
+.donacion-card__contenido h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--nexo-white, #fff);
+  margin-bottom: 0.3rem;
+}
+
+.donacion-card__contenido p {
+  font-size: 0.85rem;
+  color: var(--nexo-text-muted, #9CA0A8);
+  margin-bottom: 0.2rem;
+}
+
+.donacion-card__desc {
+  font-size: 0.82rem;
+  color: var(--nexo-text, #F5F5F3) !important;
+  margin-bottom: 0.4rem !important;
+  line-height: 1.4;
+}
+
+.donacion-card__btn {
+  margin-top: 0.6rem;
+  padding: 0.35rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--nexo-text-muted, #9CA0A8);
+  border-radius: 999px;
+  color: var(--nexo-text, #F5F5F3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.donacion-card__btn:hover {
+  border-color: var(--nexo-orange, #F2542D);
+  color: var(--nexo-orange, #F2542D);
+}
+
+/* --- LED de estado --- */
+.donacion-led {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.donacion-led__punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donacion-led--activa .donacion-led__punto {
+  background: #4CAF50;
+  box-shadow: 0 0 6px #4CAF50, 0 0 12px rgba(76,175,80,0.4);
+}
+
+.donacion-led--activa {
+  color: #4CAF50;
+}
+
+.donacion-led--entregada .donacion-led__punto {
+  background: #F2542D;
+  box-shadow: 0 0 6px #F2542D, 0 0 12px rgba(242,84,45,0.4);
+}
+
+.donacion-led--entregada {
+  color: #F2542D;
+}
+
+/* --- Formulario --- */
+.nexo-form__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1.4rem;
+}
+
+.nexo-form__campo:last-of-type {
+  margin-bottom: 0;
+}
+
+#form-donacion label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nexo-text-muted, #9CA0A8);
+}
+
+/* --- Botón publicar --- */
+#form-donacion button[type=submit] {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  background: var(--nexo-orange, #F2542D);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+#form-donacion button[type=submit]:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+#form-donacion button[type=submit]:active {
+  transform: translateY(0);
+}
+
+#form-donacion button[type=submit]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Estado vacío / cargando --- */
+#estado-lista {
+  color: var(--nexo-text-muted, #9CA0A8);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
