@@ -71,3 +71,7 @@ Los issues se crean solos al mergear `feature/docs` -> `dev`, via
 El script idempotente es `scripts/setup-kanban.sh`.
 El tablero (Project V2) se crea manualmente en la cuenta del PM y se le anaden
 las issues; la creacion del tablero no la hace el token de CI.
+
+Al crearse, los issues de **Base común** y **Equipo 2 (alertas S1)** se cierran
+automaticamente (trabajo ya completado). El resto se cierra solo al mergear sus
+PR de integracion si estos incluyen `Closes #<num>`.

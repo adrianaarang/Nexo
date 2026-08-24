@@ -16,7 +16,7 @@ milestone() {
 }
 
 issue() {
-  local title="$1" body="$2" labels="$3" ms="$4" assignee="$5"
+  local title="$1" body="$2" labels="$3" ms="$4" assignee="$5" close="$6"
   local n
   n=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq 'length' 2>/dev/null || echo 0)
   if [ -n "$n" ] && [ "$n" != "0" ]; then
@@ -26,7 +26,14 @@ issue() {
   local cmd=(gh issue create -R "$REPO" -t "$title" -b "$body" -l "$labels")
   [ -n "$ms" ] && cmd+=(-m "$ms")
   [ -n "$assignee" ] && cmd+=(-a "$assignee")
-  "${cmd[@]}"
+  local out
+  out=$("${cmd[@]}" --json number --jq .number)
+  echo "creado #$out: $title"
+  if [ "$close" = "closed" ]; then
+    gh issue close "$out" -R "$REPO" \
+      -c "Cerrado automaticamente por setup-kanban: trabajo ya completado en su rama." >/dev/null 2>&1 || true
+    echo "  -> cerrado (done)"
+  fi
 }
 
 # ---- Labels (sirven tambien como agrupacion por equipo en el tablero) ----
@@ -50,7 +57,7 @@ issue "Base comun - revision previa al reparto" \
 - [ ] main.py/config.py + BD (necesidades, voluntarios, donaciones, personas)
 - [ ] seed.py
 - [ ] Visto bueno de 1 persona por equipo (sin PR todavia)" \
-"base-comun,kanban" "Sprint 1 (MVP)" "adrianaarang"
+"base-comun,kanban" "Sprint 1 (MVP)" "adrianaarang" "closed"
 
 issue "Equipo 1 - Mapa de necesidades" \
 "Frontend pages/mapa.html + js/core/mapa-necesidades/. Backend modules/necesidades/ (crear, listar, estado abierta->cubierta).
@@ -68,7 +75,7 @@ issue "Equipo 2 - Alertas oficiales" \
 - [ ] PR feature/alerts -> dev
 - [ ] Decision (Sprint 2): vacio sin alertas; cache GDACS
 - [ ] Hueco Proteccion Civil (TODO)" \
-"equipo-2,kanban" "Sprint 1 (MVP)" "juandelaf1"
+"equipo-2,kanban" "Sprint 1 (MVP)" "juandelaf1" "closed"
 
 issue "Equipo 3 - Voluntariado y donaciones" \
 "Frontend voluntariado.html, donaciones.html + js/core/voluntariado-donaciones/. Backend modules/voluntariado/ + modules/donaciones/.
