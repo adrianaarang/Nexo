@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   backend-tests:
@@ -20,9 +20,9 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
       - name: Ejecutar tests
-        run: |
-          cd backend
-          pytest
+        env:
+          PYTHONPATH: backend
+        run: pytest tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
