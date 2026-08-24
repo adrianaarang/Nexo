@@ -11,7 +11,7 @@ const mockNeeds = [
     priority: "high", // high | medium | low
     description: "Urgent need for milk cartons and canned goods.",
     latitude: 40.416775,
-    longitude: -3.703790
+    longitude: -3.70379,
   },
   {
     id: 2,
@@ -19,8 +19,8 @@ const mockNeeds = [
     type: "Clothing",
     priority: "medium",
     description: "Coats and blankets for children and adults.",
-    latitude: 40.420000,
-    longitude: -3.690000
+    latitude: 40.42,
+    longitude: -3.69,
   },
   {
     id: 3,
@@ -28,8 +28,8 @@ const mockNeeds = [
     type: "Volunteering",
     priority: "low",
     description: "Math tutoring classes two afternoons a week.",
-    latitude: 40.410000,
-    longitude: -3.715000
+    latitude: 40.41,
+    longitude: -3.715,
   },
   {
     id: 4,
@@ -37,9 +37,9 @@ const mockNeeds = [
     type: "Shelter",
     priority: "high",
     description: "Space for a family affected by flooding.",
-    latitude: 40.430000,
-    longitude: -3.700000
-  }
+    latitude: 40.43,
+    longitude: -3.7,
+  },
 ];
 
 let loadedNeeds = [];
@@ -51,12 +51,12 @@ let markers = [];
 // 2. INICIALIZACIÓN DEL MAPA LEAFLET
 // ==========================================
 // Centrado por ejemplo en Madrid [Lat, Lng], Zoom 13
-const map = L.map('map').setView([40.416775, -3.703790], 13);
+const map = L.map("map").setView([40.416775, -3.70379], 13);
 
 // Añadir capa de OpenStreetMap
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution: '© OpenStreetMap contributors'
+  attribution: "© OpenStreetMap contributors",
 }).addTo(map);
 
 // ==========================================
@@ -67,16 +67,16 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
  * Devuelve un icono de Leaflet con color CSS basado en la prioridad
  */
 function getIconByPriority(priority) {
-  let priorityClass = 'priority-low';
+  let priorityClass = "priority-low";
 
-  if (priority === 'high') priorityClass = 'priority-high';
-  else if (priority === 'medium') priorityClass = 'priority-medium';
+  if (priority === "high") priorityClass = "priority-high";
+  else if (priority === "medium") priorityClass = "priority-medium";
 
   return L.divIcon({
-    className: '', // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
+    className: "", // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
     html: `<div class="marcador-custom ${priorityClass}"></div>`,
     iconSize: [18, 18],
-    iconAnchor: [9, 9]
+    iconAnchor: [9, 9],
   });
 }
 
@@ -118,7 +118,7 @@ function renderMap(needsList) {
  * Elimina todos los marcadores actuales del mapa
  */
 function clearMarkers() {
-  markers.forEach(m => map.removeLayer(m));
+  markers.forEach((m) => map.removeLayer(m));
   markers = [];
 }
 
@@ -126,12 +126,12 @@ function clearMarkers() {
  * Filtra las necesidades según la opción seleccionada en el menú desplegable
  */
 function applyFilter() {
-  const selectedType = document.getElementById('typeFilter').value;
+  const selectedType = document.getElementById("typeFilter").value;
 
-  if (selectedType === 'all') {
+  if (selectedType === "all") {
     renderMap(mockNeeds);
   } else {
-    const filtered = mockNeeds.filter(n => n.type === selectedType);
+    const filtered = mockNeeds.filter((n) => n.type === selectedType);
     renderMap(filtered);
   }
 }
@@ -148,11 +148,10 @@ function applyFilter() {
 }
 */
 
-
 // ==========================================
 // 4. EVENTOS E INICIALIZACIÓN
 // ==========================================
-document.getElementById('typeFilter').addEventListener('change', applyFilter);
+document.getElementById("typeFilter").addEventListener("change", applyFilter);
 
 // Carga inicial del mapa con todos los datos
 /*
