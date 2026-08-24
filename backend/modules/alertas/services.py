@@ -18,26 +18,24 @@ def fetch_base_alerts() -> List[Dict[str, Any]]:
     Returns:
         List[Dict[str, Any]]: A list of dictionaries representing raw alert entities.
     """
-    alertas: List[Dict[str, Any]] = []
+    alerts: List[Dict[str, Any]] = []
 
     try:
         gdacs_data = gdacs_client.get_alerts()
         if gdacs_data:
-            alertas.extend(gdacs_data)
+            alerts.extend(gdacs_data)
     except Exception as exc:
         logger.error("Failed to fetch alerts from GDACS client: %s", exc, exc_info=True)
 
     try:
-        get_pc_alerts = getattr(proteccion_civil_client, "get_alerts", None)
-        if callable(get_pc_alerts):
-            pc_data = get_pc_alerts()
-            if pc_data:
-                alertas.extend(pc_data)
+        pc_data = proteccion_civil_client.get_alerts()
+        if pc_data:
+            alerts.extend(pc_data)
     except Exception as exc:
         logger.error("Failed to fetch alerts from Proteccion Civil client: %s", exc, exc_info=True)
 
-    if alertas:
-        return alertas
+    if alerts:
+        return alerts
 
     logger.warning("No external alerts retrieved. Falling back to internal mock dataset.")
     return getattr(gdacs_mock, "MOCK_GDACS_DATA", [])
