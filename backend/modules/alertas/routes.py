@@ -19,13 +19,13 @@ def get_alertas(
     Guarantees an HTTP 200 status code with an empty JSON list if no records
     match or if external integrations fail.
 
-    Args:
-        tipo (Optional[str]): Event classification query.
-        severidad (Optional[str]): Severity tier query.
-        pais (Optional[str]): Target country query.
+    - Args:
+        - tipo (Optional[str]): Event classification query.
+        - severidad (Optional[str]): Severity tier query.
+        - pais (Optional[str]): Target country query.
 
-    Returns:
-        List[Dict]: Processed alert dictionaries automatically validated by FastAPI.
+    - Returns:
+        - List[Dict]: Processed alert dictionaries automatically validated by FastAPI.
     """
     # Sanitize empty string queries to None to allow empty query string parameters
     tipo_clean = tipo.strip() if tipo and tipo.strip() else None
