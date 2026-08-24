@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/components.css" />
 
+
     <!-- Leaflet CSS -->
     <link
       rel="stylesheet"
@@ -17,6 +18,7 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
+    <link rel="stylesheet" href="../css/necesidades.css" />
   </head>
   <body>
     <!-- Header -->
@@ -34,14 +36,6 @@
         <a href="estoy-bien.html">Estoy bien</a>
       </nav>
     </header>
-
-    <!-- Estructura Principal de 2 Columnas -->
-    <main class="contenedor-mapa-panel">
-      <!-- PANEL LATERAL (IZQUIERDA) -->
-      <aside class="panel-lateral">
-        <!-- Lista de Necesidades Activas con Filtro -->
-        <section class="seccion-lista">
-          <h2>Necesidades Activas</h2>
 
   <!-- Estructura Principal de 2 Columnas -->
   <main class="contenedor-mapa-panel">
@@ -72,16 +66,22 @@
       <!-- Formulario para agregar necesidades -->
       <section class="seccion-form">
         <h2>Reportar Necesidad</h2>
+
         <form id="form-nueva-necesidad">
-          <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
-          
-          <select id="select-tipo" required>
-            <option value="Food">Alimentos</option>
-            <option value="Clothing">Ropa</option>
-            <option value="Medicine">Medicina / Salud</option>
-            <option value="Shelter">Alojamiento</option>
-            <option value="Volunteering">Voluntariado</option>
-          </select>
+            <input
+              type="text"
+              id="input-titulo"
+              placeholder="Título (ej. Agua potable)"
+              required
+            />          
+
+            <select id="select-tipo" required>
+              <option value="Food">Alimentos</option>
+              <option value="Clothing">Ropa</option>
+              <option value="Medicine">Medicina / Salud</option>
+              <option value="Shelter">Alojamiento</option>
+              <option value="Volunteering">Voluntariado</option>
+            </select>
 
           <select id="select-prioridad" required>
             <option value="low">Prioridad Baja</option>
@@ -89,31 +89,12 @@
             <option value="high">Prioridad Alta</option>
           </select>
 
-          <textarea id="textarea-desc" placeholder="Descripción detallada..."></textarea>
-
-          <div class="coords-group">
-            <input type="number" step="any" id="input-lat" placeholder="Latitud" required readonly />
-            <input type="number" step="any" id="input-lng" placeholder="Longitud" required readonly />
-            <button type="button" id="btn-usar-gps">📍 Usar mi ubicación</button>
-          </div>
-
-          <div id="contenedor-tarjetas">
-            <!-- TARJETAS DE NECESIDAD -->
-          </div>
-        </section>
-        
-
-    </aside>
-
-    <!-- MAPA INTERACTIVO -->
-    <div id="map"></div>
-
-            <textarea
+          <textarea
               id="textarea-desc"
               placeholder="Descripción detallada..."
-            ></textarea>
+          ></textarea>
 
-            <div class="coords-group">
+          <div class="coords-group">
               <input
                 type="number"
                 step="any"
@@ -138,13 +119,12 @@
             <button type="submit" class="btn-primario">
               Publicar Necesidad
             </button>
-          </form>
-        </section>
-      </aside>
+        </form>
+      </section>
+    </aside>
 
-      <!-- MAPA INTERACTIVO -->
-      <div id="mapa"></div>
-    </main>
+    <!-- MAPA INTERACTIVO -->
+    <div id="map"></div>
 
     <!-- Leaflet JS -->
     <script
@@ -156,32 +136,29 @@
     <!-- Lógica de mapa y datos -->
     <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
 
-    <!-- Importante: type="module" para permitir imports/exports de JS nativo -->
+    <!-- Conexión modular con tus Clases de Necesidades (E1) -->
     <script type="module">
-      import { crearTarjetaNecesidad } from "./js/core/mapa-necesidades/necesidadCard.js";
-      import { inicializarFormulario } from "./js/core/mapa-necesidades/formularioNecesidad.js";
+      import { NeedFormController } from "../js/core/mapa-necesidades/formularioNecesidad.js";
+      import { NeedCardComponent } from "../js/core/mapa-necesidades/necesidadCard.js";
 
       const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
 
-      // 1. Inicializar el formulario enviando el callback para añadir la tarjeta al listado
-      inicializarFormulario((nuevaNecesidad) => {
-        // Generar un ID temporal para la vista previa local
+      // 1. Instanciar el controlador del formulario sobre el form existente
+      const needForm = new NeedFormController("#form-nueva-necesidad", (nuevaNecesidad) => {
         const necesidadConId = {
           ...nuevaNecesidad,
           id: Date.now().toString(),
-          estado: "abierta",
+          status: "abierta"
         };
 
-        // Crear el elemento DOM de la tarjeta
-        const tarjetaEl = crearTarjetaNecesidad(
-          necesidadConId,
-          (id, nuevoEstado) => {
-            console.log(`Estado de necesidad ${id} cambiado a: ${nuevoEstado}`);
-          },
-        );
+        // 2. Instanciar el componente Tarjeta (Objeto)
+        const tarjetaComponente = new NeedCardComponent(necesidadConId, (id, nuevoEstado) => {
+          console.log(`Estado de necesidad #${id} cambiado a: ${nuevoEstado}`);
+        });
 
-        // Insertar la tarjeta al principio de la lista
-        contenedorTarjetas.prepend(tarjetaEl);
+        // Insertar la tarjeta al inicio del panel lateral
+        contenedorTarjetas.prepend(tarjetaComponente.getNode());
+        needForm.reset();
       });
     </script>
   </body>

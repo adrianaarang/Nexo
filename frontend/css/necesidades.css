@@ -1,109 +1,172 @@
 /* ==========================================================================
-   Módulo: Mapa de Necesidades (Equipo 1) - Helen
-   Convenciones: BEM-lite, variables nexo-, mobile-first (>=360px)
+   E1: LAYOUT GENERAL DEL MAPA Y PANEL LATERAL
    ========================================================================== */
 
-/* Variables locales que extienden el sistema global */
-:root {
-  --nexo-card-bg: #1e293b;
-  --nexo-card-border: #334155;
-  --nexo-card-text: #f8fafc;
-  --nexo-card-subtext: #94a3b8;
-
-  /* Semántica de prioridades */
-  --nexo-prio-critica: #ef4444;
-  --nexo-prio-alta: #f97316;
-  --nexo-prio-media: #eab308;
-  --nexo-prio-baja: #22c55e;
+.contenedor-mapa-panel {
+  display: flex;
+  height: calc(100vh - 65px); /* Ajuste según la altura de tu header */
+  width: 100%;
+  overflow: hidden;
+  background-color: #0f172a;
 }
 
-/* Lista de tarjetas y contenedores de estado */
-.nexo-cards-container {
+/* Panel Lateral Izquierdo */
+.panel-lateral {
+  width: 420px;
+  min-width: 320px;
+  background-color: #1e293b;
+  border-right: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 2;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Contenedor del Mapa */
+#mapa, #map {
+  flex: 1;
+  height: 100%;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   ESTILOS BEM-LITE: FORMULARIO DE NECESIDADES (.nexo-form)
+   ========================================================================== */
+
+.seccion-form, .seccion-lista {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.seccion-form h2, .seccion-lista h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 8px;
+}
+
+#form-nueva-necesidad {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
 }
 
-/* Tarjeta base (Mobile-First) */
+#form-nueva-necesidad input,
+#form-nueva-necesidad select,
+#form-nueva-necesidad textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+#form-nueva-necesidad input:focus,
+#form-nueva-necesidad select:focus,
+#form-nueva-necesidad textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.coords-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.coords-group #btn-usar-gps {
+  grid-column: span 2;
+  background: #334155;
+  color: #94a3b8;
+  border: 1px dashed #475569;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primario, .nexo-btn--primary {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primario:hover {
+  background-color: #1d4ed8;
+}
+
+/* ==========================================================================
+   ESTILOS BEM-LITE: TARJETAS DE NECESIDAD (.nexo-card)
+   ========================================================================== */
+
+#contenedor-tarjetas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .nexo-card {
-  background-color: var(--nexo-card-bg);
-  border-radius: 8px;
-  padding: 14px;
-  border: 1px solid var(--nexo-card-border);
-  border-left: 5px solid var(--nexo-card-border);
-  color: var(--nexo-card-text);
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-left: 4px solid #94a3b8; /* Prioridad por defecto */
+  border-radius: 6px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
-.nexo-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
+/* Variación por Prioridad */
+.nexo-card--critica, .nexo-card--high { border-left-color: #ef4444; }
+.nexo-card--media, .nexo-card--medium   { border-left-color: #f59e0b; }
+.nexo-card--baja, .nexo-card--low       { border-left-color: #10b981; }
 
-/* Variantes por prioridad (BEM Modifier) */
-.nexo-card--critica {
-  border-left-color: var(--nexo-prio-critica);
-}
-.nexo-card--alta {
-  border-left-color: var(--nexo-prio-alta);
-}
-.nexo-card--media {
-  border-left-color: var(--nexo-prio-media);
-}
-.nexo-card--baja {
-  border-left-color: var(--nexo-prio-baja);
-}
-
-/* Elementos internos de la tarjeta */
 .nexo-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
 }
 
 .nexo-card__title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f8fafc;
   margin: 0;
-  color: var(--nexo-card-text);
 }
 
 .nexo-card__badge {
   font-size: 0.75rem;
   padding: 2px 8px;
   border-radius: 12px;
-  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
-.nexo-card__badge--critica {
-  background: rgba(239, 68, 68, 0.2);
-  color: var(--nexo-prio-critica);
-}
-.nexo-card__badge--alta {
-  background: rgba(249, 115, 22, 0.2);
-  color: var(--nexo-prio-alta);
-}
-.nexo-card__badge--media {
-  background: rgba(234, 179, 8, 0.2);
-  color: var(--nexo-prio-media);
-}
-.nexo-card__badge--baja {
-  background: rgba(34, 197, 94, 0.2);
-  color: var(--nexo-prio-baja);
-}
+.nexo-card__badge--critica, .nexo-card__badge--high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.nexo-card__badge--media, .nexo-card__badge--medium   { background: rgba(245, 158, 11, 0.2); color: #fde68a; }
+.nexo-card__badge--baja, .nexo-card__badge--low       { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
 
 .nexo-card__desc {
-  font-size: 0.875rem;
-  color: var(--nexo-card-subtext);
+  font-size: 0.85rem;
+  color: #cbd5e1;
   margin: 0;
   line-height: 1.4;
 }
@@ -112,35 +175,58 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 6px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  color: #94a3b8;
+  border-top: 1px solid #334155;
+  padding-top: 6px;
 }
 
-/* ESTADOS OBLIGATORIOS (Punto 22: Carga, Vacío, Error) */
-.nexo-state {
-  padding: 24px 16px;
-  text-align: center;
+/* Ajustes visuales para Popup de Leaflet */
+.leaflet-popup-content-wrapper {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
   border-radius: 8px;
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px dashed var(--nexo-card-border);
-  color: var(--nexo-card-subtext);
-  font-size: 0.9rem;
 }
 
-.nexo-state--loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+.leaflet-popup-tip {
+  background: #1e293b !important;
 }
 
-.nexo-state--empty {
-  color: var(--nexo-card-subtext);
+/* Adaptación Móvil */
+@media (max-width: 768px) {
+  .contenedor-mapa-panel {
+    flex-direction: column-reverse;
+  }
+  .panel-lateral {
+    width: 100%;
+    height: 50vh;
+  }
+  #mapa, #map {
+    height: 50vh;
+  }
+}
+/* Corrección de legibilidad para Popup de Leaflet */
+.leaflet-popup-content-wrapper, 
+.leaflet-popup-content {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-radius: 8px;
+  padding: 8px;
 }
 
-.nexo-state--error {
-  border-color: var(--nexo-prio-critica);
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.1);
+.leaflet-popup-content h3,
+.leaflet-popup-content .nexo-card__title {
+  color: #ffffff !important;
+  font-weight: 600;
 }
+
+.leaflet-popup-content p,
+.leaflet-popup-content .nexo-card__desc {
+  color: #cbd5e1 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
