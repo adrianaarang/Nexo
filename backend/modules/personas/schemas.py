@@ -36,3 +36,7 @@ class PersonResponse(BaseModel):
     last_location: str = Field(alias="ultima_ubicacion")
     reported_by: str = Field(alias="reportado_por")
     created_at: datetime = Field(alias="creado_en")
+    version: int = 1
+    client_id: str | None = None
+    updated_at: str | None = None
+    is_deleted: int = 0
