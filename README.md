@@ -6,7 +6,7 @@ Alcance decidido por votación de equipo — ver `docs/decisiones-encuesta.md` y
 
 ## Estructura
 
-- `frontend/` — HTML, CSS y JS (PWA, sin framework).
+- `frontend/` — HTML, CSS y JS (PWA).
 - `backend/` — API en Python (FastAPI).
 - `docs/` — decisiones de producto, arquitectura y privacidad.
 - `infra/` — notas de infraestructura futura (red mesh/satélite).

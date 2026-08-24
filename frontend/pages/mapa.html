@@ -43,6 +43,7 @@
         <section class="seccion-lista">
           <h2>Necesidades Activas</h2>
 
+<<<<<<< HEAD
           <!-- Filtro por tipo -->
           <div class="controles" style="margin-bottom: 12px">
             <label for="filtroTipo"><strong>Filtrar:</strong></label>
@@ -53,6 +54,60 @@
               <option value="Voluntariado">Voluntariado</option>
               <option value="Alojamiento">Alojamiento</option>
             </select>
+=======
+  <!-- Estructura Principal de 2 Columnas -->
+  <main class="contenedor-mapa-panel">
+    
+    <!-- PANEL LATERAL (IZQUIERDA) -->
+    <aside class="panel-lateral">
+      <!-- Lista de Necesidades Activas con Filtro -->
+      <section class="seccion-lista">
+        <h2>Necesidades Activas</h2>
+        
+        <!-- Filtro por tipo -->
+        <div class="controles" style="margin-bottom: 12px;">
+          <label for="typeFilter"><strong>Filtrar:</strong></label>
+          <select id="typeFilter">
+            <option value="all">Todos los tipos</option>
+            <option value="Food">Alimentos</option>
+            <option value="Clothing">Ropa</option>
+            <option value="Volunteering">Voluntariado</option>
+            <option value="Shelter">Alojamiento</option>
+          </select>
+        </div>
+
+        <div id="contenedor-tarjetas">
+          <!-- JS inyectará las tarjetas aquí -->
+        </div>
+      </section>
+      
+      <!-- Formulario para agregar necesidades -->
+      <section class="seccion-form">
+        <h2>Reportar Necesidad</h2>
+        <form id="form-nueva-necesidad">
+          <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
+          
+          <select id="select-tipo" required>
+            <option value="Food">Alimentos</option>
+            <option value="Clothing">Ropa</option>
+            <option value="Medicine">Medicina / Salud</option>
+            <option value="Shelter">Alojamiento</option>
+            <option value="Volunteering">Voluntariado</option>
+          </select>
+
+          <select id="select-prioridad" required>
+            <option value="low">Prioridad Baja</option>
+            <option value="medium">Prioridad Media</option>
+            <option value="high">Prioridad Alta</option>
+          </select>
+
+          <textarea id="textarea-desc" placeholder="Descripción detallada..."></textarea>
+
+          <div class="coords-group">
+            <input type="number" step="any" id="input-lat" placeholder="Latitud" required readonly />
+            <input type="number" step="any" id="input-lng" placeholder="Longitud" required readonly />
+            <button type="button" id="btn-usar-gps">📍 Usar mi ubicación</button>
+>>>>>>> dev
           </div>
 
           <div id="contenedor-tarjetas">
@@ -61,6 +116,7 @@
         </section>
         
 
+<<<<<<< HEAD
         <!-- Formulario para agregar necesidades -->
         <section class="seccion-form">
           <h2>Reportar Necesidad</h2>
@@ -87,6 +143,12 @@
               <option value="media">Prioridad Media</option>
               <option value="alta">Prioridad Alta</option>
             </select>
+=======
+    </aside>
+
+    <!-- MAPA INTERACTIVO -->
+    <div id="map"></div>
+>>>>>>> dev
 
             <textarea
               id="textarea-desc"
