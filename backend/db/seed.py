@@ -9,49 +9,106 @@ Uso: python db/seed.py
 from database import get_cursor, init_db
 
 
-def seed():
-    init_db()
-    with get_cursor() as cur:
-        cur.execute("DELETE FROM necesidades")
-        cur.execute("DELETE FROM voluntarios")
-        cur.execute("DELETE FROM donaciones")
-        cur.execute("DELETE FROM personas")
+def seed() -> None:
+    """Reinicia las tablas de demostración e inserta datos coherentes."""
 
-        cur.executemany(
-            """INSERT INTO necesidades (tipo, descripcion, latitud, longitud, prioridad, estado)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+    init_db()
+    with get_cursor() as cursor:
+        cursor.execute("DELETE FROM necesidades")
+        cursor.execute("DELETE FROM voluntarios")
+        cursor.execute("DELETE FROM donaciones")
+        cursor.execute("DELETE FROM personas")
+
+        # Estos registros respetan el mismo contrato que usará el formulario.
+        # Permiten probar tipos, prioridades y estados diferentes en la demo.
+        cursor.executemany(
+            """INSERT INTO necesidades
+               (titulo, tipo, descripcion, latitud, longitud, prioridad, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             [
-                ("agua", "Punto sin agua potable desde hace 2 días", 39.4699, -0.3763, "alta", "abierta"),
-                ("refugio", "Familia de 4 sin techo, necesita alojamiento temporal", 39.4712, -0.3801, "alta", "abierta"),
-                ("medicinas", "Falta insulina en el centro de acogida", 39.4650, -0.3750, "alta", "en_proceso"),
-                ("comida", "Reparto de comida para 30 personas", 39.4680, -0.3720, "media", "cubierta"),
+                (
+                    "Agua potable",
+                    "agua",
+                    "Punto sin agua potable desde hace 2 días",
+                    39.4699,
+                    -0.3763,
+                    "alta",
+                    "abierta",
+                ),
+                (
+                    "Alojamiento temporal",
+                    "refugio",
+                    "Familia de 4 sin techo, necesita alojamiento temporal",
+                    39.4712,
+                    -0.3801,
+                    "alta",
+                    "abierta",
+                ),
+                (
+                    "Insulina",
+                    "medicina",
+                    "Falta insulina en el centro de acogida",
+                    39.4650,
+                    -0.3750,
+                    "critica",
+                    "en_proceso",
+                ),
+                (
+                    "Comida para 30 personas",
+                    "alimento",
+                    "Reparto de comida para 30 personas",
+                    39.4680,
+                    -0.3720,
+                    "media",
+                    "cubierta",
+                ),
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO voluntarios (nombre, contacto, habilidades, disponibilidad)
                VALUES (?, ?, ?, ?)""",
             [
-                ("Laura Gómez", "laura@example.com", "sanitario, primeros auxilios", "inmediata"),
-                ("Marc Ferrer", "marc@example.com", "conductor, logística", "fin de semana"),
+                (
+                    "Laura Gómez",
+                    "laura@example.com",
+                    "sanitario, primeros auxilios",
+                    "inmediata",
+                ),
+                (
+                    "Marc Ferrer",
+                    "marc@example.com",
+                    "conductor, logística",
+                    "fin de semana",
+                ),
                 ("Aixa Ruiz", "aixa@example.com", "cocina, organización", "inmediata"),
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO donaciones (tipo, recurso, cantidad, contacto)
                VALUES (?, ?, ?, ?)""",
             [
                 ("ofrecida", "Mantas", "50 unidades", "creuroja@example.com"),
-                ("solicitada", "Agua embotellada", "200 litros", "puntoayuda1@example.com"),
+                (
+                    "solicitada",
+                    "Agua embotellada",
+                    "200 litros",
+                    "puntoayuda1@example.com",
+                ),
             ],
         )
 
-        cur.executemany(
+        cursor.executemany(
             """INSERT INTO personas (nombre, estado, ultima_ubicacion, reportado_por)
                VALUES (?, ?, ?, ?)""",
             [
-                ("Josep Martí", "desaparecida", "Paiporta, cerca del puente", "familia"),
+                (
+                    "Josep Martí",
+                    "desaparecida",
+                    "Paiporta, cerca del puente",
+                    "familia",
+                ),
                 ("Rosa Alba", "localizada", "Polideportivo municipal", "voluntario"),
             ],
         )

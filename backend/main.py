@@ -9,6 +9,11 @@ uvicorn main:app --reload --port 8000
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Inicializar la configuración de logs antes de importar otros módulos 
+from middleware.logging_config import setup_logging
+
+setup_logging()
+
 from config import CORS_ORIGINS
 from db.database import init_db
 from middleware.error_handler import registrar_manejadores_de_error
