@@ -58,12 +58,12 @@ export class NeedFormController {
         (error) => {
           console.error("Error obteniendo ubicación:", error);
           alert(
-            "No se pudo obtener tu ubicación. Por favor, selecciona un punto en el mapa."
+            "No se pudo obtener tu ubicación. Por favor, selecciona un punto en el mapa.",
           );
           gpsBtn.textContent = "📍 Usar mi ubicación";
           gpsBtn.disabled = false;
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, timeout: 10000 },
       );
     });
   }
@@ -111,19 +111,19 @@ export class NeedFormController {
         this.formElement.querySelector("#input-lng") ||
         this.formElement.querySelector("#needLng");
 
-      // Datos con nombres en ESPAÑOL exigidos por routes.py
+      // Construimos exactamente el payload con las claves y valores que exige schemas.py
       const payloadSpanish = {
         titulo: titleInput ? titleInput.value.trim() : "",
-        tipo: typeSelect ? typeSelect.value : "Food",
-        prioridad: prioritySelect ? prioritySelect.value : "medium",
+        tipo: typeSelect ? typeSelect.value : "alimento",
         descripcion: descTextarea ? descTextarea.value.trim() : "",
         latitud: parseFloat(latInput?.value),
-        longitud: parseFloat(lngInput?.value)
+        longitud: parseFloat(lngInput?.value),
+        prioridad: prioritySelect ? prioritySelect.value : "media",
       };
 
       if (isNaN(payloadSpanish.latitud) || isNaN(payloadSpanish.longitud)) {
         alert(
-          "Por favor, selecciona un punto en el mapa o usa el botón de geolocalización."
+          "Por favor, selecciona un punto en el mapa o usa el botón de geolocalización.",
         );
         return;
       }
@@ -132,24 +132,26 @@ export class NeedFormController {
         const response = await fetch("/api/necesidades", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(payloadSpanish)
+          body: JSON.stringify(payloadSpanish),
         });
 
         if (!response.ok) {
           const errorData = await response.json();
+          console.error("Error de validación del backend:", errorData);
           alert(
-            `Error al guardar: ${
-              errorData.detalle || "No se pudo guardar la necesidad."
-            }`
+            `Error de validación: ${
+              errorData.detalle || "Revisa los campos del formulario."
+            }`,
           );
           return;
         }
 
+        // La API devuelve la necesidad con su id, estado ("abierta") y creado_en
         const guardadaEnDB = await response.json();
 
-        // Mapeo para renderizar la tarjeta en la interfaz local
+        // Mapeo para la tarjeta/marcador local en el mapa
         const necesidadCreada = {
           id: guardadaEnDB.id,
           title: guardadaEnDB.titulo,
@@ -158,7 +160,7 @@ export class NeedFormController {
           description: guardadaEnDB.descripcion,
           latitude: guardadaEnDB.latitud,
           longitude: guardadaEnDB.longitud,
-          status: guardadaEnDB.estado
+          status: guardadaEnDB.estado,
         };
 
         if (typeof this.onSubmit === "function") {
@@ -166,11 +168,10 @@ export class NeedFormController {
         }
 
         this.reset();
+        alert("¡Necesidad registrada correctamente en la base de datos!");
       } catch (error) {
-        console.error("Error conectando con la API:", error);
-        alert(
-          "No se pudo conectar con el servidor. Verifica que el backend está corriendo."
-        );
+        console.error("Error de conexión:", error);
+        alert("No se pudo conectar con el servidor.");
       }
     });
   }

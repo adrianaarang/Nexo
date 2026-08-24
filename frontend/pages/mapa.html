@@ -75,18 +75,20 @@
               required
             />          
 
-            <select id="select-tipo" required>
-              <option value="Food">Alimentos</option>
-              <option value="Clothing">Ropa</option>
-              <option value="Medicine">Medicina / Salud</option>
-              <option value="Shelter">Alojamiento</option>
-              <option value="Volunteering">Voluntariado</option>
+            <select id="select-tipo" name="tipo">
+              <option value="agua">Agua</option>
+              <option value="alimento">Alimento</option>
+              <option value="medicina">Medicina</option>
+              <option value="refugio">Refugio</option>
+              <option value="herramientas">Herramientas</option>
+              <option value="transporte">Transporte</option>
             </select>
 
-          <select id="select-prioridad" required>
-            <option value="low">Prioridad Baja</option>
-            <option value="medium">Prioridad Media</option>
-            <option value="high">Prioridad Alta</option>
+          <select id="select-prioridad" name="prioridad">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
           </select>
 
           <textarea
