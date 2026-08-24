@@ -16,3 +16,5 @@ node_modules/
 # Logs
 backend/logs
 *.log
+
+docs/equipos/grupo2-alertas.md
