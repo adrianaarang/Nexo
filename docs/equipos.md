@@ -64,3 +64,10 @@ Fuente de verdad: `docs/manifiesto.md` v1.0 (§7 y §8).
 - Milestones: `Sprint 1 (MVP)`, `Sprint 2`.
 - Tablero: columnas por **Status** (`To Do` / `In Progress` / `In Review` / `Done`),
   agrupado por **Label** (= bloque/equipo).
+
+## Automatizacion (creacion al mergear)
+Los issues se crean solos al mergear `feature/docs` -> `dev`, via
+`.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`, sin permisos extra).
+El script idempotente es `scripts/setup-kanban.sh`.
+El tablero (Project V2) se crea manualmente en la cuenta del PM y se le anaden
+las issues; la creacion del tablero no la hace el token de CI.
