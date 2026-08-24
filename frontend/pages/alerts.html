@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101010" />
+  <title>Alertas — Nexo</title>
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="icon" href="../assets/logo/nexo-icon.png" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/alerts.css" />
+</head>
+<body>
+  <div id="nexo-offline-banner" class="nexo-offline-banner">Sin conexión — tus acciones se guardarán y enviarán cuando vuelvas a tener conexión.</div>
+
+  <header class="nexo-header">
+    <a href="../index.html" class="nexo-header__brand">
+      <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
+      Nexo
+    </a>
+    <nav class="nexo-nav">
+      <a href="mapa.html">Mapa</a>
+      <a href="alertas.html" aria-current="page">Alertas</a>
+      <a href="voluntariado.html">Voluntariado</a>
+      <a href="donaciones.html">Donaciones</a>
+      <a href="personas.html">Personas</a>
+      <a href="estoy-bien.html">Estoy bien</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="nexo-section-label">Nexo · Alertas oficiales</p>
+    <h1>Alertas activas</h1>
+    <p class="nexo-subtitle">
+      Alertas oficiales de desastres a nivel mundial (GDACS), ordenadas por fecha.
+    </p>
+
+    <!-- Barra de filtros (D3): tipo, severidad y país -->
+    <form id="alerts-filters" class="alerts-filters">
+      <label class="alerts-filter">
+        <span>Tipo</span>
+        <select id="type-filter">
+          <option value="">Todos</option>
+          <option value="terremoto">Terremoto</option>
+          <option value="ciclon">Ciclón</option>
+          <option value="inundacion">Inundación</option>
+          <option value="incendio">Incendio</option>
+          <option value="volcan">Volcán</option>
+          <option value="sequia">Sequía</option>
+          <option value="otro">Otro</option>
+        </select>
+      </label>
+
+      <label class="alerts-filter">
+        <span>Severidad</span>
+        <select id="severity-filter">
+          <option value="">Todas</option>
+          <option value="red">Crítico</option>
+          <option value="orange">Atención</option>
+          <option value="green">Bajo riesgo</option>
+        </select>
+      </label>
+
+      <label class="alerts-filter">
+        <span>País</span>
+        <input id="country-filter" type="text" placeholder="ej. España" />
+      </label>
+
+      <button type="submit" class="nexo-btn">Filtrar</button>
+    </form>
+
+    <!-- El JS inyecta aquí la lista de tarjetas o los estados de carga/error/vacío -->
+    <div id="alerts-container"></div>
+  </main>
+
+  <footer>NEXO — PROYECTO ACADÉMICO DE RESPUESTA A EMERGENCIAS COMUNITARIAS</footer>
+
+  <script type="module" src="../js/app.js"></script>
+  <script type="module" src="../js/core/alertas-oficiales/alerts.js"></script>
+</body>
+</html>

@@ -5,19 +5,27 @@ import { createCard } from "../../shared/components/card.js";
 import { el, formatDate } from "../../shared/utils.js";
 
 const TYPE_LABELS = {
-  earthquake: "Earthquake",
-  cyclone: "Cyclone",
-  flood: "Flood",
-  fire: "Fire",
-  volcano: "Volcano",
-  drought: "Drought",
-  other: "Other",
+  terremoto: "Terremoto",
+  ciclon: "Ciclón",
+  inundacion: "Inundación",
+  incendio: "Incendio",
+  volcan: "Volcán",
+  sequia: "Sequía",
+  otro: "Otro",
+  // English fallbacks in case backend sends English keys
+  earthquake: "Terremoto",
+  cyclone: "Ciclón",
+  flood: "Inundación",
+  fire: "Incendio",
+  volcano: "Volcán",
+  drought: "Sequía",
+  other: "Otro",
 };
 
 const SEVERITY_LABELS = {
-  red: "Critical",
-  orange: "Warning",
-  green: "Low risk",
+  red: "Crítico",
+  orange: "Atención",
+  green: "Bajo riesgo",
 };
 
 const SOURCES = ["GDACS"];
@@ -38,37 +46,45 @@ function updateMeta(lastUpdate) {
   return [
     el("p", {
       class: "alerts-meta__line",
-      text: `Last updated: ${formatDate(lastUpdate)}`,
+      text: `Última actualización: ${formatDate(lastUpdate)}`,
     }),
     el("p", {
       class: "alerts-meta__line",
-      text: `Sources consulted: ${SOURCES.join(", ")}`,
+      text: `Fuentes consultadas: ${SOURCES.join(", ")}`,
     }),
   ];
 }
 
 export function renderAlert(alert) {
+  const severidad = alert.severidad ?? alert.severity;
+  const tipo = alert.tipo ?? alert.type;
+  const pais = alert.pais ?? alert.country;
+  const fecha = alert.fecha ?? alert.date;
+  const descripcion = alert.descripcion ?? alert.description;
+  const titulo = alert.titulo ?? alert.title;
+  const enlace = alert.enlace ?? alert.link;
+
   const badge = {
-    type: alert.severity,
-    text: SEVERITY_LABELS[alert.severity] ?? alert.severity,
+    type: severidad,
+    text: SEVERITY_LABELS[severidad] ?? severidad,
   };
 
   const lines = [
-    `${TYPE_LABELS[alert.type] ?? alert.type} · ${alert.country || "Unknown country"}`,
-    formatDate(alert.date),
+    `${TYPE_LABELS[tipo] ?? tipo} · ${pais || "País desconocido"}`,
+    formatDate(fecha),
   ];
-  if (alert.description) lines.push(alert.description);
+  if (descripcion) lines.push(descripcion);
 
-  const card = createCard({ title: alert.title, lines, badge });
+  const card = createCard({ title: titulo, lines, badge });
 
-  if (alert.link) {
+  if (enlace) {
     card.appendChild(
       el("a", {
         class: "nexo-btn nexo-btn--secondary alerts-link",
-        href: alert.link,
+        href: enlace,
         target: "_blank",
         rel: "noopener",
-        text: "View on GDACS",
+        text: "Ver en GDACS",
       })
     );
   }
@@ -84,14 +100,14 @@ export function renderList(alerts, lastUpdate) {
 
 export function showEmptyState(lastUpdate) {
   getContainer().replaceChildren(
-    el("h2", { class: "alerts-empty__title", text: "No active alerts right now" }),
+    el("h2", { class: "alerts-empty__title", text: "Sin alertas activas ahora" }),
     ...updateMeta(lastUpdate)
   );
 }
 
 export function showLoading() {
   getContainer().replaceChildren(
-    el("p", { class: "alerts-state", text: "Loading alerts…" })
+    el("p", { class: "alerts-state", text: "Cargando alertas…" })
   );
 }
 
@@ -99,18 +115,18 @@ export function showError() {
   const retryButton = el("button", {
     class: "nexo-btn nexo-btn--secondary",
     type: "button",
-    text: "Retry",
+    text: "Reintentar",
   });
   retryButton.addEventListener("click", fetchAlerts);
 
   getContainer().replaceChildren(
     el("h2", {
       class: "alerts-empty__title",
-      text: "Could not load alerts",
+      text: "No se pudieron cargar las alertas",
     }),
     el("p", {
       class: "alerts-meta__line",
-      text: "Check your internet connection or try again.",
+      text: "Comprueba tu conexión o inténtalo de nuevo.",
     }),
     retryButton
   );
@@ -122,7 +138,7 @@ export async function fetchAlerts() {
 
   try {
     const alerts = await getAlerts(readFilters());
-    if (!alerts.length) showEmptyState(lastUpdate);
+    if (!alerts || !alerts.length) showEmptyState(lastUpdate);
     else renderList(alerts, lastUpdate);
   } catch (err) {
     console.error("Error loading alerts:", err);
