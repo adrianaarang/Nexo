@@ -1,7 +1,7 @@
 ﻿// Renders active official alerts (Group 2).
 // Handled states: loading, error, and empty (D2). Filters reload the list (D3).
 import { getAlerts } from "./alertsApi.js";
-import { createCard } from "../../shared/components/card.js";
+import { crearTarjeta } from "../../shared/components/card.js";
 import { el, formatDate } from "../../shared/utils.js";
 
 const TYPE_LABELS = {
@@ -65,8 +65,8 @@ export function renderAlert(alert) {
   const enlace = alert.enlace ?? alert.link;
 
   const badge = {
-    type: severidad,
-    text: SEVERITY_LABELS[severidad] ?? severidad,
+    tipo: severidad,
+    texto: SEVERITY_LABELS[severidad] ?? severidad,
   };
 
   const lines = [
@@ -75,7 +75,7 @@ export function renderAlert(alert) {
   ];
   if (descripcion) lines.push(descripcion);
 
-  const card = createCard({ title: titulo, lines, badge });
+  const card = crearTarjeta({ titulo, lineas: lines, badge });
 
   if (enlace) {
     card.appendChild(

@@ -21,14 +21,14 @@ def fetch_base_alerts() -> List[Dict[str, Any]]:
     alertas: List[Dict[str, Any]] = []
 
     try:
-        gdacs_data = gdacs_client.get_alertas()
+        gdacs_data = gdacs_client.get_alerts()
         if gdacs_data:
             alertas.extend(gdacs_data)
     except Exception as exc:
         logger.error("Failed to fetch alerts from GDACS client: %s", exc, exc_info=True)
 
     try:
-        pc_data = proteccion_civil_client.get_alertas()
+        pc_data = proteccion_civil_client.get_alerts()
         if pc_data:
             alertas.extend(pc_data)
     except Exception as exc:
