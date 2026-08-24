@@ -9,7 +9,15 @@ network failures.
 from typing import Any
 from unittest.mock import patch
 from fastapi.testclient import TestClient
+import pytest
+
+from integrations import gdacs_client
 from main import app
+
+@pytest.fixture(autouse=True)
+def reset_gdacs_cache():
+    gdacs_client._cache = {"timestamp": 0.0, "data": []}
+    yield
 
 
 class TestAlertsBase:

@@ -47,11 +47,11 @@ class AlertResponse(BaseModel):
         description="Standardized event type classification",
     )
     titulo: str = Field(
-        ...,
+        default="",
         description="Short descriptive title of the alert",
     )
     descripcion: str = Field(
-        ...,
+        default="",
         description="Detailed alert summary or description",
     )
     severidad: SeverityEnum = Field(
@@ -62,19 +62,19 @@ class AlertResponse(BaseModel):
         default="",
         description="Name of the affected country",
     )
-    lat: float = Field(
-        ...,
+    lat: Optional[float] = Field(
+        default=None,
         description="Geographical latitude coordinate",
     )
-    lon: float = Field(
-        ...,
+    lon: Optional[float] = Field(
+        default=None,
         description="Geographical longitude coordinate",
     )
-    fecha: datetime = Field(
-        ...,
+    fecha: Optional[datetime] = Field(
+        default=None,
         description="Publication timestamp in ISO format",
     )
     enlace: str = Field(
-        ...,
+        default="",
         description="External URL pointing to the detailed report",
     )
