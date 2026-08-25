@@ -87,6 +87,53 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 | Futuro | Red mesh / satélite / Mesh/satellite network | `infra/mesh-satelite` | Roadmap futuro |
 | Futuro | Código abierto / Open source | `LICENSE`, `CONTRIBUTING.md` | Roadmap futuro |
 
+## Estructura del repositorio
+
+- `frontend/` — HTML, CSS y JS (PWA): `index.html` y `pages/` (mapa, alertas, voluntariado, donaciones, personas, estoy-bien).
+- `backend/` — API en FastAPI: `main.py`, `config.py`, `db/` (modelos + migraciones), `modules/` (necesidades, alertas, voluntariado, donaciones, personas), `sync/` (modo offline), `integrations/` (GDACS), `middleware/`.
+- `tests/backend/` — suites de pytest por módulo.
+- `docs/` — gobernanza, decisiones y trazabilidad (`backlog.md`, `equipos/`).
+- `infra/` — notas de red mesh/satélite (futuro).
+
+## Endpoints de la API
+
+Todos bajo `/api` (FastAPI). Documentación interactiva en `http://localhost:8000/docs`.
+
+| Módulo | Métodos y rutas (prefijo) |
+|--------|---------------------------|
+| Necesidades (G1) | `GET/POST /api/necesidades`, `PATCH /api/necesidades/{id}` (cambio de estado) |
+| Alertas (G2) | `GET /api/alertas` (GDACS + fallback) |
+| Voluntariado (G3) | `GET/POST /api/voluntarios`, `GET /api/voluntarios/{id}/aprobar|rechazar`, `PATCH /api/voluntarios/{id}/disponible` |
+| Donaciones (G3) | `GET/POST /api/donaciones` — en desarrollo |
+| Personas (G4) | `POST /api/personas` ("estoy bien") |
+| Sync / offline (G4) | `POST /api/sync/batch` |
+| Salud | `GET /api/health` |
+
+## Páginas del frontend
+
+`index.html` (inicio) y `frontend/pages/`: `mapa.html` (necesidades), `alertas.html`, `voluntariado.html`, `donaciones.html`, `personas.html`, `estoy-bien.html`. El JS por módulo está en `frontend/js/core/` y `frontend/js/siguiente/`.
+
+## Variables de entorno
+
+Copiar `backend/.env.example` → `backend/.env`. Principales:
+
+- `DATABASE_URL` — SQLite por defecto (`sqlite:///./nexo.db`).
+- `BACKEND_PORT` — puerto de la API (8000).
+- `CORS_ORIGINS` — origen del frontend (p.ej. `http://localhost:5500`).
+- `GDACS_API_URL`, `GDACS_CACHE_TTL_SECONDS` — fuente y caché de alertas oficiales.
+- `PROTECCION_CIVIL_API_URL` — hueco previsto para Protección Civil.
+- `NEXO_ADMIN_KEY` — clave para acciones de organización.
+
+## Pruebas
+
+```bash
+cd backend
+pip install -r requirements.txt
+pytest            # o: cd .. && pytest tests/backend
+```
+
+Hay suites de pytest por módulo en `tests/backend/` (necesidades, alertas, voluntariado, donaciones, personas y sync).
+
 ## Estado actual
 
 - **Base común:** Arreglada y en `dev` (MERGED #35, `fix/base-comun`): `dev` arranca (`init_db` idempotente) y conecta (CORS + `apiClient`).
@@ -191,6 +238,53 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 | Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
 | Future | Mesh/satellite network | `infra/mesh-satelite` | Future roadmap |
 | Future | Open source | `LICENSE`, `CONTRIBUTING.md` | Future roadmap |
+
+## Repository structure
+
+- `frontend/` — HTML, CSS and JS (PWA): `index.html` and `pages/` (mapa, alertas, voluntariado, donaciones, personas, estoy-bien).
+- `backend/` — FastAPI API: `main.py`, `config.py`, `db/` (models + migrations), `modules/` (necesidades, alertas, voluntariado, donaciones, personas), `sync/` (offline mode), `integrations/` (GDACS), `middleware/`.
+- `tests/backend/` — pytest suites per module.
+- `docs/` — governance, decisions and traceability (`backlog.md`, `equipos/`).
+- `infra/` — mesh/satellite network notes (future).
+
+## API endpoints
+
+All under `/api` (FastAPI). Interactive docs at `http://localhost:8000/docs`.
+
+| Module | Methods and routes (prefix) |
+|--------|------------------------------|
+| Needs (G1) | `GET/POST /api/necesidades`, `PATCH /api/necesidades/{id}` (status change) |
+| Alerts (G2) | `GET /api/alertas` (GDACS + fallback) |
+| Volunteering (G3) | `GET/POST /api/voluntarios`, `GET /api/voluntarios/{id}/aprobar|rechazar`, `PATCH /api/voluntarios/{id}/disponible` |
+| Donations (G3) | `GET/POST /api/donaciones` — in progress |
+| Persons (G4) | `POST /api/personas` ("I'm safe") |
+| Sync / offline (G4) | `POST /api/sync/batch` |
+| Health | `GET /api/health` |
+
+## Frontend pages
+
+`index.html` (home) and `frontend/pages/`: `mapa.html` (needs), `alertas.html`, `voluntariado.html`, `donaciones.html`, `personas.html`, `estoy-bien.html`. Per-module JS lives in `frontend/js/core/` and `frontend/js/siguiente/`.
+
+## Environment variables
+
+Copy `backend/.env.example` → `backend/.env`. Main ones:
+
+- `DATABASE_URL` — SQLite by default (`sqlite:///./nexo.db`).
+- `BACKEND_PORT` — API port (8000).
+- `CORS_ORIGINS` — frontend origin (e.g. `http://localhost:5500`).
+- `GDACS_API_URL`, `GDACS_CACHE_TTL_SECONDS` — official alerts source and cache.
+- `PROTECCION_CIVIL_API_URL` — placeholder for Civil Protection.
+- `NEXO_ADMIN_KEY` — key for organizer actions.
+
+## Tests
+
+```bash
+cd backend
+pip install -r requirements.txt
+pytest            # or: cd .. && pytest tests/backend
+```
+
+Pytest suites per module live in `tests/backend/` (necesidades, alertas, voluntariado, donaciones, personas and sync).
 
 ## Current status
 
