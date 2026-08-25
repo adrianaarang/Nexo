@@ -36,35 +36,13 @@ def get_cursor():
         conn.close()
 
 
-def _run_migration(conn, sql):
-    """Ejecuta un archivo de migración sentencia por sentencia.
-
-    SQLite no admite `ADD COLUMN IF NOT EXISTS`, así que al re-ejecutar
-    las migraciones en un arranque posterior los `ALTER TABLE` fallan con
-    "duplicate column name". Esos errores son esperados e inofensivos: los
-    ignoramos para que `init_db` sea idempotente.
-    """
-    for raw in sql.split(";"):
-        statement = raw.strip()
-        if not statement:
-            continue
-        try:
-            conn.execute(statement)
-        except sqlite3.OperationalError as err:
-            message = str(err).lower()
-            if "duplicate column" in message or "already exists" in message:
-                continue
-            raise
-
-
 def init_db():
-    """Ejecuta todas las migraciones .sql en orden. Idempotente:
-    los `CREATE TABLE IF NOT EXISTS` no recrean tablas y los `ALTER TABLE`
-    ya aplicados se ignoran (ver `_run_migration`)."""
+    """Ejecuta todas las migraciones .sql en orden. Idempotente
+    gracias a IF NOT EXISTS en cada CREATE TABLE."""
     conn = get_connection()
     try:
         for migration in sorted(MIGRATIONS_DIR.glob("*.sql")):
-            _run_migration(conn, migration.read_text(encoding="utf-8"))
+            conn.executescript(migration.read_text(encoding="utf-8"))
         conn.commit()
     finally:
         conn.close()

@@ -9,7 +9,7 @@
 
 import { encolarAccion } from "../siguiente/modo-offline/syncQueue.js";
 
-export const API_BASE_URL = "http://127.0.0.1:8000";
+export const API_BASE_URL = "http://localhost:8000";
 
 export async function apiGet(path) {
   const resp = await fetch(`${API_BASE_URL}${path}`);

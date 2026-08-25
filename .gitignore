@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 venv/
 .env
-.venv
+
 # Base de datos local
 *.db
 *.sqlite3
