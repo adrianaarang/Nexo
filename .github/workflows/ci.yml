@@ -21,7 +21,7 @@ jobs:
       - name: Ejecutar tests
         env:
           PYTHONPATH: ${{ github.workspace }}/backend
-        run: pytest tests/
+        run: pytest ../tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
