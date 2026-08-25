@@ -19,8 +19,7 @@ jobs:
           cd backend
           python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
-        env:
-          PYTHONPATH: ./backend
+        working-directory: ./backend
         run: pyTHON -m tests/
 
   frontend-lint:
