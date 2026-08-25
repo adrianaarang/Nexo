@@ -1,54 +1,56 @@
 # Backlog de NEXO
 
-> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-24 (rama de integración de alertas + Kanban).
+> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-26 (post-merges de Sprint 1; PR #30 con conflicto resuelto).
 > Referencia de prioridades: `docs/manifiesto.md` y `docs/roadmap.md`.
 
 ## Estado por módulo
 
 | Módulo | Prioridad | Rama(s) | PR | Dueño | Estado |
 |--------|-----------|---------|----|-------|--------|
-| Alertas oficiales | Núcleo (MVP) | `feature/alerts` | #19 **MERGED** (`1348ad7` → `feature/alerts`) | Grupo 2 (Juan, capitán) | Backend A1+A2 hechos (`get_alerts()` ~469 alertas, caché 15 min); A3/A4 (Javi) en curso; frontend `alertsApi.js`+`estadosAlertas.js` hecho. **Falta E2E (C3) + PR `feature/alerts`→`dev`** |
-| Mapa de necesidades | Núcleo (MVP) | `dev` + `feature/form-cards-elenadiaz1` | #18 abierto (bloqueado) | Grupo 1 + elenadiaz1 | En curso; **riesgo de solapamiento**. Bloqueado en integración: falta GET cargar necesidades, PATCH estado (`abierta→en_proceso→cubierta`), quitar `mockNeeds`, centralizar en `necesidadesApi.js` |
-| Voluntariado y donaciones | Núcleo (MVP) | `feature/donaciones-grupo3` | abierto | Grupo 3 | Solo frontend; **falta backend** donaciones (sin API definida) |
-| Registro de personas / "estoy bien" | Siguiente | `feature/personas/david` | #20 abierto | Grupo 4 | PR #20 añade backend "estoy bien" (`POST /api/personas/estoy-bien`); **falta 2 aprobaciones**. BD+seed+router ya en repo; falta frontend registro |
-| Modo offline (PWA) | Siguiente | — | — | Grupo 4 | Sin empezar; cola offline (`syncQueue.js`/`localDb.js`/`serviceWorker.js`) en TODO → G4 implementa |
-| Documentación y gobernanza | Transversal | `feature/docs` | por abrir | PM (Juan) | Manifiesto, convenciones, reparto, backlog, `formas-de-trabajo.md`, `faq.md`, `roles-y-tareas.md` en local; `docs/equipos.md` (composición de equipos) y `.github/workflows/setup-kanban.yml` (Kanban automático) añadidos en `feature/docs` |
+| Alertas oficiales | Núcleo (MVP) | `feature/alerts` | #30 **ABIERTO** (mergeable) | Grupo 2 (Juan, capitán) | Backend + pantalla + tests en verde (feature/alerts). PR #30 a `dev` abierto, 0/2 aprobaciones; conflicto con `dev` resuelto el 26/08. |
+| Mapa de necesidades | Núcleo (MVP) | `dev` | #18 **MERGED** | Grupo 1 + elenadiaz1 | En `dev`: backend + frontend conectados (datos reales). |
+| Voluntariado y donaciones | Núcleo (MVP) | `dev` | #24, #27, #29 **MERGED** | Grupo 3 | En `dev`: registro + disponibilidad + config/soporte. Falta conectar `donaciones.js` al backend real. |
+| Registro de personas / "estoy bien" | Siguiente | `dev` | #20 **MERGED** | Grupo 4 | En `dev`: backend "estoy bien" (45 tests). **Sprint 1**. |
+| Modo offline (PWA) | Siguiente | `dev` | #21 **MERGED** (backend) | Grupo 4 | Backend de sincronización en `dev`; falta UI offline en frontend. |
+| Documentación y gobernanza | Transversal | `feature/docs` | por abrir | PM (Juan) | README bilingüe, `equipos.md`, `equipos/grupo*-tareas.md`, `.github/workflows/setup-kanban.yml` en `feature/docs` (pendiente merge a `dev`). |
 
-## PRs en curso (2026-08-24)
+## PRs (2026-08-26)
 
-> Estado tras `git pull`/`fetch`. Se incluyen los PRs revisados por el PM.
-
-| PR | Título | Rama → destino | Estado | Revisores |
-|----|--------|----------------|--------|-----------|
-| #19 | fix(alertas): alinear contratos + robustecer GDACS | `juan/fix-alerts-integration` → `feature/alerts` | **MERGED** (`1348ad7`) | JCRbit, adrianaarang, jowel2701 |
-| #18 | Feature/form cards (mapa E2E) | `feature/form-cards-elenadiaz1` → `dev` | Abierto, **bloqueado**: falta GET/PATCH + quitar `mockNeeds`; necesita 2 aprobaciones | Gema-Villanueva, SiR0N |
-| #20 | feat(personas): add estoy bien backend | `feature/personas/david` → `dev` | Abierto; falta 2 aprobaciones | adryeli, Isabela-Tellez, Anasfady |
-| — | fix(alertas): CORS + apiClient para dev local | `juan/integrate-alerts-dev` → `feature/alerts` | **Por abrir** (branch lista en remoto) | Juan | Incluye `apiClient.js`→`127.0.0.1` y `config.py` CORS `127.0.0.1:5500`; Paso 1 de integración Sprint 1 |
-| — | feat(alertas): integración Sprint 1 (G2) a dev | `feature/alerts` → `dev` | **Por abrir** | Juan | Paso 2 de integración Sprint 1 (alertas a `dev`) |
+| PR | Título | Estado |
+|----|--------|--------|
+| #18 | Feature/form cards (mapa E2E) | **MERGED** a `dev` |
+| #19 / #26 / #28 | Alertas backend / fixes CORS+apiClient / refactor resiliente + stub PC | **MERGED** a `feature/alerts` |
+| #20 | feat(personas): add estoy bien backend | **MERGED** a `dev` |
+| #21 | feat(sync): offline synchronization backend (G4) | **MERGED** a `dev` |
+| #22 | Integración necesidadesApi.js | **MERGED** a `dev` |
+| #23 | fix(api): validation error format | **MERGED** a `dev` |
+| #24 | feat(voluntariado): volunteer module | **MERGED** a `dev` |
+| #25 | Añadir kanban del Equipo 1 | **MERGED** a `dev` |
+| #27 | chore(voluntariado): config and support | **MERGED** a `dev` |
+| #29 | feat(voluntariado): volunteer registration | **MERGED** a `dev` |
+| #30 | feat(alertas): integrate alerts module into dev (Sprint 1) | **ABIERTO**, mergeable (conflicto resuelto), 0/2 aprobaciones |
 
 ## Tablero / Kanban
 
 Los issues (epics por bloque/equipo) se crean **automáticamente** al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`, sin permisos extra). `Base común` y `Equipo 2` se cierran al crearse; el resto se cierra solo al mergear sus PR de integración si incluyen `Closes #<num>`. El tablero visual es un Project V2 personal del PM (agrupado por Label = equipo, columnas por Status). Composición de equipos en `docs/equipos.md`.
 
+> Nota: el tablero aún no existe porque `feature/docs` no se ha mergeado a `dev`.
+
 ## Objetivos MVP (de `docs/manifiesto.md`)
-- [ ] O1 Alertas GDACS con filtros y estados (núcleo del Grupo 2)
-- [ ] O2 Mapa de necesidades end-to-end
-- [ ] O3 Voluntariado/donaciones end-to-end
-- [ ] O4 E2E completo (frontend→API→BD) con CI verde
-- [ ] O5 PWA instalable con detección de conexión
+- [ ] O1 Alertas GDACS con filtros y estados (núcleo del Grupo 2) — feature/alerts listo, falta #30 a dev
+- [ ] O2 Mapa de necesidades end-to-end — en dev
+- [ ] O3 Voluntariado/donaciones end-to-end — backend en dev; falta UI donaciones
+- [ ] O4 E2E completo (frontend→API→BD) con CI verde — depende de #30 + CI en dev
+- [ ] O5 PWA instalable con detección de conexión — offline backend en dev
 
 ## Pendientes de gobernanza (PM)
-- [x] Decidir herramienta de backlog: **Trello** (1 tablero por grupo + general) — decidido
-- [ ] Convocar comisión de coordinación semanal (PM + SMs + Adriana)
-- [ ] Votar ADRs de decisiones cerradas (empezar por D1–D4 de Grupo 2) — `docs/adr/`
-- [ ] Activar CI también en `dev` (hoy solo corre en `main`) — responsabilidad de Adriana
-- [ ] README bilingüe por módulo (convenciones §19) — cada equipo en su PR
-- [ ] Preparar Demo Day (narrativa alerta→mapa→necesidad→recurso→resolución)
-- [ ] Revisar licencia MIT provisional académica antes de abrir código
-- [ ] **1er Sprint:** prever arranque lunes/martes (confirmar fecha en comisión)
-- [ ] **Tablas de datos por equipo:** cada equipo crea su tabla de prueba (voluntarios, alertas, donaciones, etc.); muestra en GitHub: usuarios, insumos, alertas
-- [ ] **Formas de trabajo:** documentadas en `docs/formas-de-trabajo.md`
-- [ ] **Roles y tareas:** pedir a cada Scrum Master que complete su sección en `docs/roles-y-tareas.md`
+- [ ] Activar CI también en `dev` (hoy solo corre en `main`) — responsabilidad de Adriana.
+- [ ] Votar la convención bilingüe (manifiesto la dejó "pendiente de votación").
+- [ ] Mergear `feature/docs → dev` (crea el tablero Kanban y deja README bilingüe oficial).
+- [ ] Cerrar la UI offline en el frontend (backend ya en `dev` vía #21).
+- [ ] Limpiar `feature/alerts-vanessa` (rama duplicada de alertas).
+- [ ] Preparar Demo Day (narrativa alerta→mapa→necesidad→recurso→resolución).
+- [x] Decidir herramienta de backlog: Trello — decidido.
 
 ## Abierto (por decidir)
 - Zonas/celdas del mapa aún no definidas.
@@ -56,7 +58,6 @@ Los issues (epics por bloque/equipo) se crean **automáticamente** al mergear `f
 - Estrategia de despliegue (solo local hoy; CI sin despliegue).
 
 ## Riesgos
-- **Necesidades:** 3 personas sobre el mismo módulo → conflictos. Mitigación: dueño de archivo (conv §20) y un responsable de merge dentro del grupo.
-- **Alertas:** #19 mergeado en `feature/alerts`; falta PR `feature/alerts`→`dev` para E2E completo.
-- **Donaciones:** sin backend definido.
+- **Alertas (#30):** único módulo núcleo fuera de `dev`; conseguir 2 aprobaciones (JCRbit, adrianaarang, vanessa, luis, joel). Conflicto con `dev` ya resuelto (merge de `dev` into `feature/alerts`, commit `da648ba`).
 - **CI:** solo en `main`; `dev` sin protección de CI verde.
+- **Rama duplicada:** `feature/alerts-vanessa` se solapa con `feature/alerts`.
