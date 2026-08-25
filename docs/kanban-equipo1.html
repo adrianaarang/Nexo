@@ -141,14 +141,14 @@ const personas = [
     rol: "Persona 5 — Formulario y tarjetas",
     archivo: "necesidadCard.js + mapaNecesidades.js (parte del formulario)",
     color: "amber",
-    estado: "en_proceso",
+    estado: "cubierta",
     tareas: [
-      "Formulario de reportar necesidad con los campos del contrato (titulo, tipo, descripcion, latitud, longitud, prioridad)",
-      "Validación del formulario en el cliente antes de enviar",
-      "necesidadCard.js: cómo se ve cada necesidad en la lista lateral",
-      "Botón de marcarla como cubierta desde la tarjeta",
-      "Conectar el formulario a crearNecesidad de Adriana",
-      "Conectar el botón de estado a actualizarEstadoNecesidad de Adriana"
+      { t: "Formulario de reportar necesidad con los campos del contrato (titulo, tipo, descripcion, latitud, longitud, prioridad)", hecha: true },
+      { t: "Validación del formulario en el cliente antes de enviar", hecha: true },
+      { t: "necesidadCard.js: cómo se ve cada necesidad en la lista lateral", hecha: true },
+      { t: "Botón de marcarla como cubierta desde la tarjeta", hecha: true },
+      { t: "Conectar el formulario a crearNecesidad de Adriana", hecha: true },
+      { t: "Conectar el botón de estado a actualizarEstadoNecesidad de Adriana", hecha: true }
     ]
   },
   {
@@ -159,12 +159,12 @@ const personas = [
     color: "blue",
     estado: "en_proceso",
     tareas: [
-      "Inicializar Leaflet en mapa.html",
-      "Array de necesidades inventadas para trabajar sin depender de la API",
-      "Marcadores con color según prioridad (baja/media/alta/critica)",
-      "Popup con título, tipo y descripción al hacer clic en un marcador",
-      "Filtro por tipo en el mapa",
-      "Sustituir el array inventado por necesidadesApi.js cuando esté lista"
+      { t: "Inicializar Leaflet en mapa.html", hecha: true },
+      { t: "Array de necesidades inventadas para trabajar sin depender de la API", hecha: true },
+      { t: "Marcadores con color según prioridad (baja/media/alta/critica)", hecha: true },
+      { t: "Popup con título, tipo y descripción al hacer clic en un marcador", hecha: true },
+      { t: "Filtro por tipo en el mapa", hecha: true },
+      { t: "Sustituir el array inventado por necesidadesApi.js cuando esté lista", hecha: false }
     ]
   },
   {
@@ -173,15 +173,15 @@ const personas = [
     rol: "Persona 3 — Conexión front-back",
     archivo: "frontend/js/core/mapa-necesidades/necesidadesApi.js",
     color: "coral",
-    estado: "en_proceso",
+    estado: "cubierta",
     tareas: [
-      "obtenerNecesidades con filtros tipo/estado",
-      "crearNecesidad",
-      "actualizarEstadoNecesidad",
-      "Manejo de errores 404, 409 y 422 (incluyendo el formato propio de FastAPI)",
-      "Enums espejo de schemas.py exportados para el frontend",
-      "Script de pruebas de integración end-to-end",
-      "Detectar y documentar el desajuste de la columna titulo en la base local"
+      { t: "obtenerNecesidades con filtros tipo/estado", hecha: true },
+      { t: "crearNecesidad", hecha: true },
+      { t: "actualizarEstadoNecesidad", hecha: true },
+      { t: "Manejo de errores 404, 409 y 422 (incluyendo el formato propio de FastAPI)", hecha: true },
+      { t: "Enums espejo de schemas.py exportados para el frontend", hecha: true },
+      { t: "Script de pruebas de integración end-to-end", hecha: true },
+      { t: "Detectar y documentar el desajuste de la columna titulo en la base local", hecha: true }
     ]
   },
   {
@@ -190,14 +190,14 @@ const personas = [
     rol: "Persona 2 — Endpoints",
     archivo: "backend/modules/necesidades/routes.py",
     color: "teal",
-    estado: "en_proceso",
+    estado: "cubierta",
     tareas: [
-      "GET /api/necesidades con filtros tipo y estado",
-      "POST /api/necesidades con status_code 201",
-      "PATCH /api/necesidades/{id}/estado",
-      "Formato de error {error, detalle} para 404",
-      "Formato de error {error, detalle} para 409 (transición inválida)",
-      "Conectar con los modelos reales de Elena (ya no datos inventados)"
+      { t: "GET /api/necesidades con filtros tipo y estado", hecha: true },
+      { t: "POST /api/necesidades con status_code 201", hecha: true },
+      { t: "PATCH /api/necesidades/{id}/estado", hecha: true },
+      { t: "Formato de error {error, detalle} para 404", hecha: true },
+      { t: "Formato de error {error, detalle} para 409 (transición inválida)", hecha: true },
+      { t: "Conectar con los modelos reales de Elena (ya no datos inventados)", hecha: true }
     ]
   },
   {
@@ -206,16 +206,16 @@ const personas = [
     rol: "Persona 1 — Base de datos y modelos",
     archivo: "backend/modules/necesidades/models.py + schemas.py",
     color: "purple",
-    estado: "en_proceso",
+    estado: "cubierta",
     tareas: [
-      "Definir schemas.py: NeedType, NeedPriority, NeedStatus y los alias en español",
-      "NeedCreate con validación de campos (longitud, rango de coordenadas, extra=forbid)",
-      "NeedStatusUpdate para el PATCH de estado",
-      "list_needs con filtro opcional por tipo y estado",
-      "get_need por id",
-      "create_need: INSERT y devolución del registro completo",
-      "update_need_status con transición controlada (abierta → en_proceso → cubierta) e idempotencia",
-      "Migración 001_init.sql con la tabla necesidades y sus columnas"
+      { t: "Definir schemas.py: NeedType, NeedPriority, NeedStatus y los alias en español", hecha: true },
+      { t: "NeedCreate con validación de campos (longitud, rango de coordenadas, extra=forbid)", hecha: true },
+      { t: "NeedStatusUpdate para el PATCH de estado", hecha: true },
+      { t: "list_needs con filtro opcional por tipo y estado", hecha: true },
+      { t: "get_need por id", hecha: true },
+      { t: "create_need: INSERT y devolución del registro completo", hecha: true },
+      { t: "update_need_status con transición controlada (abierta → en_proceso → cubierta) e idempotencia", hecha: true },
+      { t: "Migración 001_init.sql con la tabla necesidades y sus columnas", hecha: true }
     ]
   }
 ];
@@ -230,7 +230,6 @@ const fileIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" st
 
 const boardEl = document.getElementById("board");
 let totalTareas = 0;
-let totalHechas = 0;
 
 function actualizarResumen() {
   const marcadas = document.querySelectorAll(".task input:checked").length;
@@ -293,9 +292,9 @@ columnas.forEach(col => {
       totalTareas += 1;
 
       const li = document.createElement("li");
-      li.className = "task";
+      li.className = "task" + (tarea.hecha ? " done" : "");
       const id = `${persona.id}-${i}`;
-      li.innerHTML = `<input type="checkbox" id="${id}"><label for="${id}">${tarea}</label>`;
+      li.innerHTML = `<input type="checkbox" id="${id}" ${tarea.hecha ? "checked" : ""}><label for="${id}">${tarea.t}</label>`;
       const input = li.querySelector("input");
       input.addEventListener("change", () => {
         li.classList.toggle("done", input.checked);
