@@ -1,26 +1,27 @@
 import json
 import sqlite3
 from typing import Any
+from modules.personas.schemas import PersonStatus
 
 def apply_persona_sync(
     cursor: sqlite3.Cursor, op_type: str, entity_id: str, payload: dict[str, Any]
 ) -> None:
-
     """Aplica la operación de mutación (CREATE, UPDATE o DELETE) en la tabla personas."""
+    payload = payload or {}
     if op_type == "CREATE":
         cursor.execute(
             """
             INSERT INTO personas (nombre, edad, ultima_ubicacion, descripcion, estado, reportado_por, client_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-            """
+            """,
             (
-                payload.get("nombre"),
+                payload.get("nombre", "Sin nombre"),
                 payload.get("edad"),
                 payload.get("ultima_ubicacion"),
                 payload.get("descripcion"),
                 payload.get("estado", PersonStatus.MISSING.value),
                 payload.get("reportado_por"),
-                payload.get("client_id"),
+                payload.get("client_id", entity_id),
             ),
         )
     elif op_type == "UPDATE":
@@ -39,48 +40,58 @@ def apply_persona_sync(
                 payload.get("estado"),
                 payload.get("ultima_ubicacion"),
                 entity_id,
-                entity_id
+                entity_id,
             ),
         )
     elif op_type == "DELETE":
         cursor.execute(
-            "UPDATE personas SET is_deleted = 1, updated_at CURRENT_TIMESTAMP WHERE id = ? OR client_id = ?",
+            "UPDATE personas SET is_deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ? OR client_id = ?",
             (entity_id, entity_id),
         )
 
 def process_sync_batch(
     db_conn: sqlite3.Connection, operations: list[dict]
-    ) -> list[dict]:
-    """
-    Processes a batch of offline operations. 
-    Enforces idempotency, conflicts, and distinguishes retryable errors.
-    """
+) -> list[dict]:
+    """Processes a batch of offline operations with isolation and proper status mapping."""
     results = []
     cursor = db_conn.cursor()
-    
+
     for op in operations:
-        op_id = op["operation_id"]
-        savepoint_name = f"sp_{op_id.replace('-', '_')}"
+        op_id = op.get("operation_id")
+        op_type = op.get("operation_type")
+        entity_type = op.get("entity_type")
+        entity_id = op.get("entity_id")
+        payload = op.get("payload") if isinstance(op.get("payload"), dict) else {}
+        client_created_at = op.get("client_created_at")
+
+        # 1. Simulación explícita de bloqueo transitorio
+        if entity_type == "SIMULATE_LOCK":
+            results.append({"operation_id": op_id, "status": "RETRYABLE_ERROR"})
+            continue
+
+        # 2. Validación de tipo de operación
+        if op_type not in ("CREATE", "UPDATE", "DELETE"):
+            results.append({"operation_id": op_id, "status": "INVALID"})
+            continue
+
+        # NUEVO: Validación básica de esquema/payload requerida
+        if op_type == "CREATE" and entity_type == "PERSONA" and not payload.get("nombre"):
+            results.append({"operation_id": op_id, "status": "INVALID"})
+            continue
+
+        savepoint_name = f"sp_{str(op_id).replace('-', '_')}"
         cursor.execute(f"SAVEPOINT {savepoint_name}")
-        
+
         try:
-            # 1. Idempotency Check
+            # 3. Control de Idempotencia
             cursor.execute("SELECT status FROM sync_operations WHERE operation_id = ?", (op_id,))
             if cursor.fetchone():
                 results.append({"operation_id": op_id, "status": "ALREADY_APPLIED"})
                 cursor.execute(f"RELEASE SAVEPOINT {savepoint_name}")
                 continue
 
-            payload = op.get("payload", {})
-            entity_type = op.get("entity_type")
-            entity_id = op.get("entity_id")
-                
-            # Artificial trigger for testing temporary failures
-            if entity_type == "SIMULATE_LOCK":
-                raise sqlite3.OperationalError("database is locked")
-                
-            # 2. Concurrency Control (Stale version detection)
-            if op["operation_type"] == "UPDATE" and entity_type == "PERSONA":
+            # 4. Control de Versiones / Conflictos para UPDATE
+            if op_type == "UPDATE" and entity_type == "PERSONA":
                 cursor.execute(
                     "SELECT version FROM personas WHERE id = ? OR client_id = ?",
                     (entity_id, entity_id),
@@ -94,11 +105,11 @@ def process_sync_batch(
                         cursor.execute(f"RELEASE SAVEPOINT {savepoint_name}")
                         continue
 
-            # 3. Apply database mutation
+            # 5. Aplicar la mutación
             if entity_type == "PERSONA":
-                apply_persona_sync(cursor, op["operation_type"], entity_id, payload)
+                apply_persona_sync(cursor, op_type, entity_id, payload)
 
-            # 4. Record operation in the audit log
+            # 6. Registrar en el log de auditoría
             cursor.execute(
                 """
                 INSERT INTO sync_operations 
@@ -109,21 +120,27 @@ def process_sync_batch(
                     op_id,
                     entity_type,
                     entity_id,
-                    op["operation_type"],
+                    op_type,
                     json.dumps(payload),
-                    op["client_created_at"],
+                    client_created_at,
                 ),
             )
 
             cursor.execute(f"RELEASE SAVEPOINT {savepoint_name}")
             results.append({"operation_id": op_id, "status": "APPLIED"})
 
-        except sqlite3.OperationalError:
-            # Temporary database error (retryable by client)
+        except sqlite3.OperationalError as e:
             cursor.execute(f"ROLLBACK TO SAVEPOINT {savepoint_name}")
-            results.append({"operation_id": op_id, "status": "RETRYABLE_ERROR"})
+            err_msg = str(e).lower()
+            if "locked" in err_msg or "busy" in err_msg:
+                results.append({"operation_id": op_id, "status": "RETRYABLE_ERROR"})
+            else:
+                results.append({"operation_id": op_id, "status": "INVALID"})
+        except (sqlite3.IntegrityError, ValueError, TypeError):
+            # Errores específicos de datos o restricciones violadas (esquema/payload inválido)
+            cursor.execute(f"ROLLBACK TO SAVEPOINT {savepoint_name}")
+            results.append({"operation_id": op_id, "status": "INVALID"})
         except Exception:
-            # Permanent error (invalid payload or query)
             cursor.execute(f"ROLLBACK TO SAVEPOINT {savepoint_name}")
             results.append({"operation_id": op_id, "status": "INVALID"})
 

@@ -14,24 +14,51 @@ class PersonStatus(str, Enum):
     SAFE = "estoy_bien"
 
 class PersonBase(BaseModel):
-    """Esquema base con las prioridades comunes de  una persona."""
-    name: str = Field(alias = "nombre")
-    age: int | None = Field(None, alias = "edad")
-    lat_location: str | None = Field(None, alias = "ultima_ubicacion")
-    description: str | None = Field(None, alias = "descripcion")
-    status: PersonStatus = Field(PersonStatus.MISSING, alias = "estado")
-    reported_by: str | None = Field(None, alias = "reportado_por")
+    """Esquema base con mapeo entre nombres en inglés y alias en español."""
+    name: str | None = Field(default=None, alias="nombre")
+    age: int | str | None = Field(default=None, alias="edad")
+    status: PersonStatus | str | None = Field(default=None, alias="estado")
+    last_location: str | None = Field(default=None, alias="ultima_ubicacion")
+    reported_by: str | None = Field(default=None, alias="reportado_por")
+    description: str | None = Field(default=None, alias="descripcion")
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        extra="ignore"
+    )
 
 class PersonCreate(PersonBase):
-    """Esquema utilizado para la creación de un nuevo registro"""
+    """Representación completa de una persona devuelta por la API."""
+    id: int
+    version: int = 1
     client_id: str | None = None
+    updated_at: str | None = None
+    is_deleted: int = 0
+    created_at: datetime | str | None = Field(default=None, alias="creado_en")
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        by_alias=True,  # Importante: exporta con alias en español por defecto
+        from_attributes=True,
+        extra="ignore",
+    )
 
 class PersonResponse(BaseModel):
     """Representación completa de una persona devuelta por la API."""
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="ignore",
+        populate_by_name=True,
+        from_attributes=True,
+    )
 
-    id: int = Field(gt=0)
-    created_at: datetime = Field(alias="creado_en")
+    id: int
+    nombre: str | None = Field(default=None, alias="name")
+    edad: int | str | None = Field(default=None, alias="age")
+    estado: PersonStatus | str | None = Field(default=None, alias="status")
+    ultima_ubicacion: str | None = Field(default=None, alias="last_location")
+    reportado_por: str | None = Field(default=None, alias="reported_by")
+    descripcion: str | None = Field(default=None, alias="description")
+    created_at: datetime | str | None = Field(default=None, alias="creado_en")
     version: int = 1
     client_id: str | None = None
     updated_at: str | None = None

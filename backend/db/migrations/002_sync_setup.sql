@@ -1,5 +1,4 @@
-
---Sync Operation which we can track operation_id like timestamp UUID, server timestamp,etc..
+-- Sync Operation which we can track operation_id like timestamp UUID, server timestamp, etc..
 CREATE TABLE IF NOT EXISTS sync_operations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     operation_id TEXT NOT NULL UNIQUE,
@@ -14,6 +13,14 @@ CREATE TABLE IF NOT EXISTS sync_operations (
     error_message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Ampliación de personas con ALTER TABLE para columnas nuevas
+ALTER TABLE personas ADD COLUMN edad INTEGER;
+ALTER TABLE personas ADD COLUMN descripcion TEXT;
+ALTER TABLE personas ADD COLUMN version INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE personas ADD COLUMN client_id TEXT;
+ALTER TABLE personas ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE personas ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- Índices para optimizar la búsqueda frecuente por ID de operación y entidad
 CREATE INDEX IF NOT EXISTS idx_sync_operations_op_id ON sync_operations(operation_id);

@@ -22,7 +22,7 @@ def get_all_personas(search_q: str | None = None) -> list[dict[str, Any]]:
 
         if search_q:
             query += " AND (nombre LIKE ? OR ultima_ubicacion LIKE ?)"
-            params.extend([f"%{search_q}", f"%{search_q}"])
+            params.extend([f"%{search_q}%", f"%{search_q}%"])
 
         cursor.execute(query, params)
         rows = cursor.fetchall()

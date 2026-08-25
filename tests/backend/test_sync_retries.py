@@ -1,6 +1,6 @@
 import sqlite3
 import pytest
-from sync.services import process_sync_batch
+from backend.sync.services import process_sync_batch
 
 @pytest.fixture
 def db_conn():
