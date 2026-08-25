@@ -13,11 +13,12 @@ DATABASE_PATH = DATABASE_URL.replace("sqlite:///", "")
 
 BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))
 
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5500").split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5500,http://127.0.0.1:5500").split(",")
 
 GDACS_API_URL = os.getenv("GDACS_API_URL", "https://www.gdacs.org/xml/rss.xml")
 GDACS_CACHE_TTL_SECONDS = int(os.getenv("GDACS_CACHE_TTL_SECONDS", "900"))
 PROTECCION_CIVIL_API_URL = os.getenv("PROTECCION_CIVIL_API_URL", "")
+GDACS_CACHE_TTL_SECONDS = int(os.getenv("GDACS_CACHE_TTL_SECONDS", "900"))
 
 # Voluntariado: correo, admin y subida de archivos
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@nexo-dummy.local")
