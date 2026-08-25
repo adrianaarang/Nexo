@@ -1,54 +1,5 @@
 // Lógica del mapa de necesidades en tiempo real (módulo más votado).
-// TODO: implementar.
-// ==========================================
-// 1. DATOS MOCK (Inventados hasta integrar API)
-// ==========================================
-const mockNeeds = [
-  {
-    id: 1,
-    title: "Perishable food collection",
-    type: "Food",
-    priority: "high", // high | medium | low
-    description: "Urgent need for milk cartons and canned goods.",
-    latitude: 40.416775,
-    longitude: -3.70379,
-  },
-  {
-    id: 2,
-    title: "Winter warm clothing",
-    type: "Clothing",
-    priority: "medium",
-    description: "Coats and blankets for children and adults.",
-    latitude: 40.42,
-    longitude: -3.69,
-  },
-  {
-    id: 3,
-    title: "Volunteers for school support",
-    type: "Volunteering",
-    priority: "low",
-    description: "Math tutoring classes two afternoons a week.",
-    latitude: 40.41,
-    longitude: -3.715,
-  },
-  {
-    id: 4,
-    title: "Temporary emergency shelter",
-    type: "Shelter",
-    priority: "high",
-    description: "Space for a family affected by flooding.",
-    latitude: 40.43,
-    longitude: -3.7,
-  },
-];
-
-let loadedNeeds = [];
-
-// Array para guardar las referencias a los marcadores activos
-let markers = [];
-
-// ==========================================
-// 2. INICIALIZACIÓN DEL MAPA LEAFLET
+// 1. INICIALIZACIÓN DEL MAPA LEAFLET
 // ==========================================
 // Centrado por ejemplo en Madrid [Lat, Lng], Zoom 13
 const map = L.map("map").setView([40.416775, -3.70379], 13);
@@ -59,18 +10,37 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap contributors",
 }).addTo(map);
 
+// Array para guardar las referencias a los marcadores activos
+let markers = [];
+
+let loadedNeeds = [];
+
+// Importar las funciones de necesidadesApi.js
+import { obtenerNecesidades, configurarBaseUrl } from "./necesidadesApi.js";
+
+// CAMBIO: esta llamada no existía. Sin ella, obtenerNecesidades() usaba la
+// ruta relativa "/api/necesidades", que el navegador resolvía contra el
+// propio servidor del frontend (localhost:5500) en vez del backend
+// (localhost:8000) -> por eso daba 404 siempre.
+// TODO: mover esto a un archivo de configuración cuando haya entornos (dev/prod).
+configurarBaseUrl("http://localhost:8000/api/necesidades");
+
 // ==========================================
 // 3. FUNCIONES DE RENDERIZADO Y FILTRADO
 // ==========================================
 
 /**
- * Devuelve un icono de Leaflet con color CSS basado en la prioridad
+ * Devuelve un icono de Leaflet con color CSS basado en la prioridad.
+ * Los valores de prioridad vienen del backend en español:
+ * "baja" | "media" | "alta" | "critica" (ver schemas.py -> NeedPriority).
  */
-function getIconByPriority(priority) {
+function getIconByPriority(prioridad) {
   let priorityClass = "priority-low";
 
-  if (priority === "high") priorityClass = "priority-high";
-  else if (priority === "medium") priorityClass = "priority-medium";
+  // CAMBIO: antes comparaba contra "high"/"medium" (inglés), que nunca
+  // coincidían con los valores reales del backend -> todo caía en "low".
+  if (prioridad === "alta" || prioridad === "critica") priorityClass = "priority-high";
+  else if (prioridad === "media") priorityClass = "priority-medium";
 
   return L.divIcon({
     className: "", // Vaciamos para que no herede estilos grises/cuadrados por defecto de Leaflet
@@ -81,28 +51,36 @@ function getIconByPriority(priority) {
 }
 
 /**
- * Pinta la lista de necesidades recibida en el mapa
+ * Pinta la lista de necesidades recibida en el mapa.
+ * Los campos vienen del backend en español (ver schemas.py -> NeedResponse):
+ * titulo, tipo, descripcion, latitud, longitud, prioridad.
  */
 function renderMap(needsList) {
   // Limpiar marcadores anteriores
   clearMarkers();
 
   needsList.forEach((need) => {
-    const icon = getIconByPriority(need.priority);
+    // CAMBIO: need.priority -> need.prioridad
+    const icon = getIconByPriority(need.prioridad);
 
-    // Crear marcador con icono personalizado
-    const marker = L.marker([need.latitude, need.longitude], { icon: icon });
+    // CAMBIO: need.latitude/need.longitude -> need.latitud/need.longitud
+    // (con los nombres en inglés, Leaflet recibía "undefined, undefined")
+    const marker = L.marker([need.latitud, need.longitud], { icon: icon });
 
     // Configurar el Popup del marcador
     // Maquetación usando clases de tu sistema de diseño (components.css)
     const popupContent = `
       <div class="nexo-popup">
         <div style="margin-bottom: 8px;">
-          <span class="nexo-badge nexo-badge--${need.priority}">${need.priority}</span>
-          <span class="nexo-badge" style="background: var(--nexo-bg-alt); border-color: var(--nexo-border);">${need.type}</span>
+          <!-- CAMBIO: need.priority -> need.prioridad -->
+          <span class="nexo-badge nexo-badge--${need.prioridad}">${need.prioridad}</span>
+          <!-- CAMBIO: need.type -> need.tipo -->
+          <span class="nexo-badge" style="background: var(--nexo-bg-alt); border-color: var(--nexo-border);">${need.tipo}</span>
         </div>
-        <h3 style="color: #000; margin: 0 0 6px 0; font-size: 1rem;">${need.title}</h3>
-        <p style="color: #555; margin: 0; font-size: 0.85rem;">${need.description}</p>
+        <!-- CAMBIO: need.title -> need.titulo -->
+        <h3 style="color: #000; margin: 0 0 6px 0; font-size: 1rem;">${need.titulo}</h3>
+        <!-- CAMBIO: need.description -> need.descripcion -->
+        <p style="color: #555; margin: 0; font-size: 0.85rem;">${need.descripcion}</p>
       </div>
     `;
 
@@ -123,52 +101,41 @@ function clearMarkers() {
 }
 
 /**
- * Filtra las necesidades según la opción seleccionada en el menú desplegable
+ * Filtra las necesidades según la opción seleccionada en el menú desplegable.
+ * El <select id="typeFilter"> debe usar los valores reales del backend:
+ * agua | alimento | medicina | refugio | herramientas | transporte.
  */
 function applyFilter() {
   const selectedType = document.getElementById("typeFilter").value;
 
   if (selectedType === "all") {
-    renderMap(mockNeeds);
-  } else {
-    const filtered = mockNeeds.filter((n) => n.type === selectedType);
-    renderMap(filtered);
-  }
-}
-/*
-function applyFilter() {
-  const selectedType = document.getElementById('typeFilter').value;
-
-  if (selectedType === 'all') {
     renderMap(loadedNeeds);
   } else {
-    const filtered = loadedNeeds.filter(n => n.type === selectedType);
+    // CAMBIO: n.type -> n.tipo
+    const filtered = loadedNeeds.filter((n) => n.tipo === selectedType);
     renderMap(filtered);
   }
 }
-*/
 
 // ==========================================
 // 4. EVENTOS E INICIALIZACIÓN
 // ==========================================
+
 document.getElementById("typeFilter").addEventListener("change", applyFilter);
 
-// Carga inicial del mapa con todos los datos
-/*
-async function loadNeedsFromAPI() {
+// Carga inicial del mapa con todos los datos desde la API.
+// CAMBIO: se añadió "export" para poder llamarla otra vez desde fuera
+// (p. ej. al crear una necesidad nueva en mapa.html) y así refrescar los
+// marcadores sin recargar la página. Antes era una función privada del módulo.
+export async function loadNeedsFromAPI() {
   try {
-    const response = await fetch('https://api.your-server.com/needs');
-    const data = await response.json();
-    loadedNeeds = data; 
+    const response = await obtenerNecesidades(); // Usar la función de necesidadesApi.js
+    loadedNeeds = response;
 
     // Pintamos los marcadores en el mapa
     renderMap(loadedNeeds);
-
   } catch (error) {
     console.error("Error loading needs:", error);
   }
 }
-loadNeedsFromAPI()
-*/
-
-renderMap(mockNeeds);
+loadNeedsFromAPI();
