@@ -51,10 +51,12 @@
           <label for="typeFilter"><strong>Filtrar:</strong></label>
           <select id="typeFilter">
             <option value="all">Todos los tipos</option>
-            <option value="Food">Alimentos</option>
-            <option value="Clothing">Ropa</option>
-            <option value="Volunteering">Voluntariado</option>
-            <option value="Shelter">Alojamiento</option>
+            <option value="agua">Agua</option>
+            <option value="alimento">Alimento</option>
+            <option value="medicina">Medicina</option>
+            <option value="refugio">Refugio</option>
+            <option value="herramientas">Herramientas</option>
+            <option value="transporte">Transporte</option>
           </select>
         </div>
 
@@ -135,32 +137,44 @@
       crossorigin=""
     ></script>
 
-    <!-- Lógica de mapa y datos -->
-    <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
+    <!-- Lógica de mapa y datos (usa import, necesita type="module") -->
+    <script type="module" src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
 
     <!-- Conexión modular con tus Clases de Necesidades (E1) -->
     <script type="module">
       import { NeedFormController } from "../js/core/mapa-necesidades/formularioNecesidad.js";
       import { NeedCardComponent } from "../js/core/mapa-necesidades/necesidadCard.js";
+      import { loadNeedsFromAPI } from "../js/core/mapa-necesidades/mapaNecesidades.js";
+      import { actualizarEstadoNecesidad } from "../js/core/mapa-necesidades/necesidadesApi.js";
 
       const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
 
-      // 1. Instanciar el controlador del formulario sobre el form existente
-      const needForm = new NeedFormController("#form-nueva-necesidad", (nuevaNecesidad) => {
-        const necesidadConId = {
-          ...nuevaNecesidad,
-          id: Date.now().toString(),
-          status: "abierta"
-        };
+      // Llama a la API real para avanzar el estado. Se pasa como
+      // onStatusChange a cada NeedCardComponent; la tarjeta ya calcula
+      // el siguiente estado válido (abierta -> en_proceso -> cubierta),
+      // así que aquí solo hace falta reenviarlo al backend.
+      async function cambiarEstado(id, estadoActual, siguienteEstado) {
+        const necesidadActualizada = await actualizarEstadoNecesidad(id, siguienteEstado);
 
+        // Refrescar el mapa por si el color del marcador depende del estado.
+        await loadNeedsFromAPI();
+
+        return necesidadActualizada;
+      }
+
+      // 1. Instanciar el controlador del formulario sobre el form existente.
+      // nuevaNecesidad ya viene del backend (con id real y estado "abierta"),
+      // así que no hay que inventarle ni id ni estado aquí.
+      const needForm = new NeedFormController("#form-nueva-necesidad", async (nuevaNecesidad) => {
         // 2. Instanciar el componente Tarjeta (Objeto)
-        const tarjetaComponente = new NeedCardComponent(necesidadConId, (id, nuevoEstado) => {
-          console.log(`Estado de necesidad #${id} cambiado a: ${nuevoEstado}`);
-        });
+        const tarjetaComponente = new NeedCardComponent(nuevaNecesidad, cambiarEstado);
 
         // Insertar la tarjeta al inicio del panel lateral
         contenedorTarjetas.prepend(tarjetaComponente.getNode());
         needForm.reset();
+
+        // 3. Refrescar el mapa para que aparezca el nuevo marcador
+        await loadNeedsFromAPI();
       });
     </script>
   </body>
