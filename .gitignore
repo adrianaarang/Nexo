@@ -16,3 +16,6 @@ node_modules/
 # Logs
 backend/logs
 *.log
+
+# Documentos subidos por voluntarios
+backend/uploads/
