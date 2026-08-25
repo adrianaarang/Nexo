@@ -45,6 +45,7 @@ Nexo no es un producto comercial: es una solución cívica, sin ánimo de lucro 
 - `docs/equipos.md` — composición de los 4 equipos y mapeo a bloques del Kanban.
 - `docs/equipos/grupo1-tareas.md` — reparto del Grupo 1 (Mapa/Necesidades).
 - `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2.
+- `docs/equipos/grupo3-tareas.md` — reparto del Grupo 3 (Voluntariado y Donaciones).
 - `estructura/` — guías de estructura de archivos (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## Cómo arrancar
@@ -149,6 +150,7 @@ Nexo is not a commercial product: it is a civic, non-profit, academically origin
 - `docs/equipos.md` — composition of the 4 teams and mapping to Kanban blocks.
 - `docs/equipos/grupo1-tareas.md` — Group 1 (Needs Map) task split.
 - `docs/equipos/grupo2-tareas.md` — Group 2 meeting script and checklist.
+- `docs/equipos/grupo3-tareas.md` — Group 3 (Volunteering and donations) task split.
 - `estructura/` — file structure guides (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## How to run
