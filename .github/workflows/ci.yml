@@ -20,8 +20,8 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
         env:
-          PYTHONPATH: .
-        run: pytest tests/
+          PYTHONPATH: ./backend
+        run: pyTHON -m tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
