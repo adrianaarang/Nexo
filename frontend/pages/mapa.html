@@ -144,24 +144,36 @@
     <script type="module">
       import { NeedFormController } from "../js/core/mapa-necesidades/formularioNecesidad.js";
       import { NeedCardComponent } from "../js/core/mapa-necesidades/necesidadCard.js";
-      // Import para poder refrescar el mapa tras crear una necesidad
       import { loadNeedsFromAPI } from "../js/core/mapa-necesidades/mapaNecesidades.js";
+      import { actualizarEstadoNecesidad } from "../js/core/mapa-necesidades/necesidadesApi.js";
 
       const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
 
-      // El callback ahora es async porque al final llama a loadNeedsFromAPI() con await.
+      // Llama a la API real para avanzar el estado. Se pasa como
+      // onStatusChange a cada NeedCardComponent; la tarjeta ya calcula
+      // el siguiente estado válido (abierta -> en_proceso -> cubierta),
+      // así que aquí solo hace falta reenviarlo al backend.
+      async function cambiarEstado(id, estadoActual, siguienteEstado) {
+        const necesidadActualizada = await actualizarEstadoNecesidad(id, siguienteEstado);
+
+        // Refrescar el mapa por si el color del marcador depende del estado.
+        await loadNeedsFromAPI();
+
+        return necesidadActualizada;
+      }
+
+      // 1. Instanciar el controlador del formulario sobre el form existente.
+      // nuevaNecesidad ya viene del backend (con id real y estado "abierta"),
+      // así que no hay que inventarle ni id ni estado aquí.
       const needForm = new NeedFormController("#form-nueva-necesidad", async (nuevaNecesidad) => {
-        // nuevaNecesidad ya viene del backend con id real y estado "abierta",
-        // así que no hay que inventarle ni id ni estado aquí.
-        const tarjetaComponente = new NeedCardComponent(nuevaNecesidad, (id, nuevoEstado) => {
-          console.log(`Estado de necesidad #${id} cambiado a: ${nuevoEstado}`);
-        });
+        // 2. Instanciar el componente Tarjeta (Objeto)
+        const tarjetaComponente = new NeedCardComponent(nuevaNecesidad, cambiarEstado);
 
         // Insertar la tarjeta al inicio del panel lateral
         contenedorTarjetas.prepend(tarjetaComponente.getNode());
         needForm.reset();
 
-        // Refrescar el mapa para que aparezca el nuevo marcador
+        // 3. Refrescar el mapa para que aparezca el nuevo marcador
         await loadNeedsFromAPI();
       });
     </script>

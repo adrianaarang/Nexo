@@ -18,10 +18,8 @@ let loadedNeeds = [];
 // Importar las funciones de necesidadesApi.js
 import { obtenerNecesidades, configurarBaseUrl } from "./necesidadesApi.js";
 
-// CAMBIO: esta llamada no existía. Sin ella, obtenerNecesidades() usaba la
-// ruta relativa "/api/necesidades", que el navegador resolvía contra el
-// propio servidor del frontend (localhost:5500) en vez del backend
-// (localhost:8000) -> por eso daba 404 siempre.
+// El frontend (servido en un puerto, ej. 5500) y el backend (puerto 8000)
+// son orígenes distintos, así que hace falta apuntar explícitamente a la API.
 // TODO: mover esto a un archivo de configuración cuando haya entornos (dev/prod).
 configurarBaseUrl("http://localhost:8000/api/necesidades");
 
@@ -37,8 +35,6 @@ configurarBaseUrl("http://localhost:8000/api/necesidades");
 function getIconByPriority(prioridad) {
   let priorityClass = "priority-low";
 
-  // CAMBIO: antes comparaba contra "high"/"medium" (inglés), que nunca
-  // coincidían con los valores reales del backend -> todo caía en "low".
   if (prioridad === "alta" || prioridad === "critica") priorityClass = "priority-high";
   else if (prioridad === "media") priorityClass = "priority-medium";
 
@@ -60,11 +56,9 @@ function renderMap(needsList) {
   clearMarkers();
 
   needsList.forEach((need) => {
-    // CAMBIO: need.priority -> need.prioridad
     const icon = getIconByPriority(need.prioridad);
 
-    // CAMBIO: need.latitude/need.longitude -> need.latitud/need.longitud
-    // (con los nombres en inglés, Leaflet recibía "undefined, undefined")
+    // Crear marcador con icono personalizado
     const marker = L.marker([need.latitud, need.longitud], { icon: icon });
 
     // Configurar el Popup del marcador
@@ -72,14 +66,10 @@ function renderMap(needsList) {
     const popupContent = `
       <div class="nexo-popup">
         <div style="margin-bottom: 8px;">
-          <!-- CAMBIO: need.priority -> need.prioridad -->
           <span class="nexo-badge nexo-badge--${need.prioridad}">${need.prioridad}</span>
-          <!-- CAMBIO: need.type -> need.tipo -->
           <span class="nexo-badge" style="background: var(--nexo-bg-alt); border-color: var(--nexo-border);">${need.tipo}</span>
         </div>
-        <!-- CAMBIO: need.title -> need.titulo -->
         <h3 style="color: #000; margin: 0 0 6px 0; font-size: 1rem;">${need.titulo}</h3>
-        <!-- CAMBIO: need.description -> need.descripcion -->
         <p style="color: #555; margin: 0; font-size: 0.85rem;">${need.descripcion}</p>
       </div>
     `;
@@ -111,7 +101,6 @@ function applyFilter() {
   if (selectedType === "all") {
     renderMap(loadedNeeds);
   } else {
-    // CAMBIO: n.type -> n.tipo
     const filtered = loadedNeeds.filter((n) => n.tipo === selectedType);
     renderMap(filtered);
   }
@@ -124,13 +113,15 @@ function applyFilter() {
 document.getElementById("typeFilter").addEventListener("change", applyFilter);
 
 // Carga inicial del mapa con todos los datos desde la API.
-// CAMBIO: se añadió "export" para poder llamarla otra vez desde fuera
-// (p. ej. al crear una necesidad nueva en mapa.html) y así refrescar los
-// marcadores sin recargar la página. Antes era una función privada del módulo.
+// Se exporta para poder llamarla otra vez desde fuera (p. ej. al crear
+// una necesidad nueva) y así refrescar los marcadores sin recargar la página.
 export async function loadNeedsFromAPI() {
   try {
     const response = await obtenerNecesidades(); // Usar la función de necesidadesApi.js
-    loadedNeeds = response;
+
+    // Las necesidades "cubiertas" ya no aparecen en el mapa (siguen
+    // viéndose en la tarjeta de la lista lateral con su marca de check).
+    loadedNeeds = response.filter((need) => need.estado !== "cubierta");
 
     // Pintamos los marcadores en el mapa
     renderMap(loadedNeeds);

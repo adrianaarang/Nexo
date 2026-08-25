@@ -6,11 +6,29 @@
  * Los campos de needData vienen del backend en español
  * (ver schemas.py -> NeedResponse): titulo, tipo, descripcion,
  * prioridad, estado, latitud, longitud, id, creado_en.
+ *
+ * El backend solo permite avanzar el estado paso a paso, sin saltos
+ * ni retrocesos: abierta -> en_proceso -> cubierta (ver
+ * update_need_status en models.py). SIGUIENTE_ESTADO refleja esa
+ * misma regla aquí, para que el botón siempre pida el paso correcto
+ * y no un 409.
  */
+const SIGUIENTE_ESTADO = {
+  abierta: "en_proceso",
+  en_proceso: "cubierta",
+};
+
+const ETIQUETA_BOTON = {
+  abierta: "Marcar en proceso",
+  en_proceso: "Marcar cubierta",
+};
+
 export class NeedCardComponent {
   /**
    * @param {Object} needData - Datos de la necesidad
-   * @param {Function} [onStatusChange] - Callback para cambio de estado
+   * @param {Function} [onStatusChange] - Callback para cambio de estado.
+   *   Recibe (id, estadoActual, siguienteEstado) y debe devolver (o
+   *   resolver a) la necesidad ya actualizada por el backend.
    */
   constructor(needData, onStatusChange) {
     this.data = needData;
@@ -23,9 +41,6 @@ export class NeedCardComponent {
    */
   createDOMElement() {
     const card = document.createElement("article");
-
-    // CAMBIO: antes era this.data.priority (inglés) -> siempre undefined,
-    // por eso salía "baja" (el valor de respaldo) sin importar la prioridad real.
     const prioridad = (this.data.prioridad || "baja").toLowerCase();
 
     card.className = `nexo-card nexo-card--${prioridad}`;
@@ -33,41 +48,68 @@ export class NeedCardComponent {
 
     card.innerHTML = `
       <div class="nexo-card__header">
-        <!-- CAMBIO: this.data.title -> this.data.titulo (el backend no manda "title") -->
         <h3 class="nexo-card__title">${this.data.titulo}</h3>
         <span class="nexo-card__badge nexo-card__badge--${prioridad}">${prioridad}</span>
       </div>
-      <!-- CAMBIO: this.data.description -> this.data.descripcion -->
       <p class="nexo-card__desc">${this.data.descripcion || "Sin descripción."}</p>
       <div class="nexo-card__footer">
-        <!-- CAMBIO: this.data.type -> this.data.tipo -->
         <span class="nexo-card__type">🏷️ ${(this.data.tipo || "General").toUpperCase()}</span>
-        ${
-          /* CAMBIO: this.data.status -> this.data.estado (ese es el nombre
-             real del campo; "status" no existe en el contrato del backend) */
-          this.data.estado !== "cubierta"
-            ? `<button type="button" class="btn-cover" data-id="${this.data.id}">Marcar Cubierta</button>`
-            : '<span class="check-done">✓ Cubierta</span>'
-        }
+        <span class="nexo-card__estado-slot"></span>
       </div>
     `;
 
-    const btnCover = card.querySelector(".btn-cover");
-    if (btnCover) {
-      btnCover.addEventListener("click", () => {
-        if (typeof this.onStatusChange === "function") {
-          // OJO (sin cambiar todavía, solo dejo la nota): el backend solo
-          // permite abierta -> en_proceso -> cubierta, sin saltarse pasos
-          // (ver update_need_status en models.py). Si esta necesidad está
-          // "abierta", pedir "cubierta" directamente dará un 409 en cuanto
-          // conectéis esto a actualizarEstadoNecesidad. Habrá que decidir
-          // si el botón avanza un paso cada vez, o si mostráis dos botones.
-          this.onStatusChange(this.data.id, "cubierta");
-        }
-      });
-    }
+    this.renderEstado(card);
 
     return card;
+  }
+
+  /**
+   * Pinta la zona de estado/botón según this.data.estado actual.
+   * Separado en su propio método para poder repintarlo tras un cambio
+   * de estado sin reconstruir toda la tarjeta.
+   */
+  renderEstado(card) {
+    const slot = card.querySelector(".nexo-card__estado-slot");
+    const siguiente = SIGUIENTE_ESTADO[this.data.estado];
+
+    if (!siguiente) {
+      // No hay siguiente paso: ya está "cubierta" (o un estado desconocido).
+      slot.innerHTML = '<span class="check-done">✓ Cubierta</span>';
+      return;
+    }
+
+    const etiqueta = ETIQUETA_BOTON[this.data.estado];
+    slot.innerHTML = `<button type="button" class="btn-cover" data-id="${this.data.id}">${etiqueta}</button>`;
+
+    const btn = slot.querySelector(".btn-cover");
+    btn.addEventListener("click", async () => {
+      if (typeof this.onStatusChange !== "function") return;
+
+      btn.disabled = true;
+      btn.textContent = "Actualizando...";
+
+      try {
+        // El propio callback llama a actualizarEstadoNecesidad y nos
+        // devuelve la necesidad ya actualizada por el backend.
+        const necesidadActualizada = await this.onStatusChange(
+          this.data.id,
+          this.data.estado,
+          siguiente,
+        );
+
+        if (necesidadActualizada) {
+          this.data = necesidadActualizada;
+          this.renderEstado(card);
+        }
+      } catch (error) {
+        console.error("Error cambiando el estado de la necesidad:", error);
+        alert(
+          `No se pudo actualizar el estado: ${error.message} ${error.detalle ? `(${error.detalle})` : ""}`,
+        );
+        btn.disabled = false;
+        btn.textContent = etiqueta;
+      }
+    });
   }
 
   /**
@@ -77,7 +119,7 @@ export class NeedCardComponent {
     return this.element;
   }
 
-  // Métodos Estáticos para Estados UI (Punto 22) — sin cambios
+  // Métodos Estáticos para Estados UI (Punto 22)
   static renderLoading() {
     const el = document.createElement("div");
     el.className = "nexo-state nexo-state--loading";
