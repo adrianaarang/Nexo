@@ -80,7 +80,7 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 | Prioridad | Módulo | Carpeta | Estado (2026-08-26) |
 |---|---|---|---|
 | Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25) |
-| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 (G2) listo en `feature/alerts` (G2-only tras revertir #30 con #32); PR G2 → dev pendiente |
+| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | En `dev` (MERGED #34, G2-only tras revertir #30 con #32) |
 | Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
 | Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En `dev` (MERGED #20); Sprint 1 |
 | Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend en `dev` (#21); falta UI offline |
@@ -89,12 +89,12 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 
 ## Estado actual
 
-- **Base común:** Incompleta tras revertir #30: `dev` no arranca (falta `init_db`) ni conecta (CORS/`apiClient`). Stopgap en `fix/base-comun` → `dev` (4 archivos), pendiente de merge.
-- **Alertas oficiales (G2):** Sprint 1 (G2) completado en `feature/alerts`, reconstruido G2-only tras revertir #30 (#32). Pendiente integración a `dev` (PR G2 → dev). Base común separada a `fix/base-comun`.
-- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
-- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
+- **Base común:** Arreglada y en `dev` (MERGED #35, `fix/base-comun`): `dev` arranca (`init_db` idempotente) y conecta (CORS + `apiClient`).
+- **Alertas oficiales (G2):** Sprint 1 completado y en `dev` (MERGED #34, `feature/alerts`, G2-only tras revertir #30 con #32). Backend GDACS + fallback, filtros país ES→EN, frontend `alertas.html` y tests en verde.
+- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25, #37).
+- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29); falta conectar `donaciones.js` al backend real.
 - **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
-- **Kanban:** Los issues se crean automáticamente al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`). El tablero es un Project V2 personal del PM.
+- **Kanban:** Issues creados automáticamente vía `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`). Creados: #40 Base común (**CERRADO**), #41 Equipo 1, #42 Equipo 2 (**CERRADO**), #43 Equipo 3, #44 Equipo 4, #45 Futuro. El script se corrigió en #46 (pendiente de merge) para que el workflow funcione en CI. El tablero visual es un Project V2 personal del PM.
 
 ## Equipos
 
@@ -182,10 +182,10 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Modules
 
-| Priority | Module | Folder | Status (2026-08-25) |
+| Priority | Module | Folder | Status (2026-08-26) |
 |---|---|---|---|
 | Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25) |
-| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 (G2) done in `feature/alerts` (G2-only after reverting #30 with #32); G2 PR → dev pending |
+| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | In `dev` (MERGED #34, G2-only after reverting #30 with #32) |
 | Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired to backend |
 | Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In `dev` (MERGED #20); Sprint 1 |
 | Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
@@ -194,12 +194,12 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Current status
 
-- **Common base:** Incomplete after reverting #30: `dev` won't boot (missing `init_db`) or connect (CORS/`apiClient`). Stopgap in `fix/base-comun` → `dev` (4 files), pending merge.
-- **Official alerts (G2):** Sprint 1 (G2) completed in `feature/alerts`, rebuilt G2-only after reverting #30 (#32). Dev integration pending (G2 PR → dev). Common base split into `fix/base-comun`.
-- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
-- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
+- **Common base:** Fixed and in `dev` (MERGED #35, `fix/base-comun`): `dev` boots (`init_db` idempotent) and connects (CORS + `apiClient`).
+- **Official alerts (G2):** Sprint 1 completed and in `dev` (MERGED #34, `feature/alerts`, G2-only after reverting #30 with #32). GDACS backend + fallback, country filter ES→EN, `alertas.html` frontend and green tests.
+- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25, #37).
+- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29); UI `donaciones.js` still needs to be wired to the real backend.
 - **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
-- **Kanban:** Issues are auto-created when merging `feature/docs → dev` via `.github/workflows/setup-kanban.yml` (uses `GITHUB_TOKEN`). The board is a personal V2 Project owned by the PM.
+- **Kanban:** Issues are auto-created via `.github/workflows/setup-kanban.yml` (uses `GITHUB_TOKEN`). Created: #40 Common base (**CLOSED**), #41 Team 1, #42 Team 2 (**CLOSED**), #43 Team 3, #44 Team 4, #45 Future. The script was fixed in #46 (pending merge) so the workflow runs in CI. The board is a personal V2 Project owned by the PM.
 
 ## Teams
 
