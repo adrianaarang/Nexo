@@ -40,3 +40,19 @@ No modifica el repo remoto: es guion + checklist para usar en la reunión.
 
 ## C. Definition of Done (recordatorio)
 Implementado · pytest verde · no rompe otros módulos · revisado en PR · demostrable en demo.
+
+## D. Trazabilidad actual (entrega Sprint 1)
+
+**Módulo alertas (G2) — `feature/alerts` → `dev`**
+- PR solo con alcance G2: `backend/modules/alertas`, integraciones GDACS/Protección Civil, frontend `alertas-oficiales`, `alertas.html`, tests (`test_alertas.py` JCRbit, `alerts.test.js` Vanessa).
+- Fix de filtrado: `readFilters()` alinea claves con `getAlerts()` y se normaliza país ES→EN (GDACS).
+- Router ya cableado en `main.py`. Excluye `database.py` / `config.py` / `apiClient.js` / `.gitignore` (base común).
+- Estado: pendiente de merge por integradora.
+
+**Base común (stopgap G2, dev roto) — `fix/base-comun` → `dev`**
+- Motivo: tras revertir #30, `dev` no arranca (`init_db`) y el front no conecta (CORS / `apiClient`).
+- 4 archivos: `backend/db/database.py` (init_db idempotente), `backend/config.py` (CORS `127.0.0.1:5500`), `frontend/js/shared/apiClient.js` (API `127.0.0.1:8000`), `.gitignore` (tracking `*.db`).
+- Estado: pendiente de merge. Issue sugerido para base común:
+  - **Título:** `fix(base-comun): init_db, CORS y apiClient para arrancar dev`
+  - **Cuerpo:** PR de base comun con 4 cambios (database.py init_db idempotente; config.py CORS 127.0.0.1:5500; apiClient.js API 127.0.0.1:8000; .gitignore tracking *.db). Alcance: solo esos 4 archivos. Rama: `fix/base-comun` → `dev`.
+- Nota: sin comunicación con la integradora y entrega mañana; si no hay merge, el PR se mergea como parche de desbloqueo con esa justificación.
