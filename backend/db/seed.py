@@ -15,6 +15,7 @@ def seed() -> None:
     init_db()
     with get_cursor() as cursor:
         cursor.execute("DELETE FROM necesidades")
+        cursor.execute("DELETE FROM voluntario_documentos")
         cursor.execute("DELETE FROM voluntarios")
         cursor.execute("DELETE FROM donaciones")
         cursor.execute("DELETE FROM personas")
@@ -66,22 +67,34 @@ def seed() -> None:
         )
 
         cursor.executemany(
-            """INSERT INTO voluntarios (nombre, contacto, habilidades, disponibilidad)
-               VALUES (?, ?, ?, ?)""",
+            """INSERT INTO voluntarios
+               (nombre, contacto, habilidades, disponibilidad, estado, disponible)
+               VALUES (?, ?, ?, ?, ?, ?)""",
             [
                 (
                     "Laura Gómez",
                     "laura@example.com",
                     "sanitario, primeros auxilios",
                     "inmediata",
+                    "aprobado",
+                    1,
                 ),
                 (
                     "Marc Ferrer",
                     "marc@example.com",
                     "conductor, logística",
                     "fin de semana",
+                    "aprobado",
+                    1,
                 ),
-                ("Aixa Ruiz", "aixa@example.com", "cocina, organización", "inmediata"),
+                (
+                    "Aixa Ruiz",
+                    "aixa@example.com",
+                    "cocina, organización",
+                    "inmediata",
+                    "aprobado",
+                    0,
+                ),
             ],
         )
 
