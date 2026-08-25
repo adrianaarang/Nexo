@@ -36,9 +36,9 @@ function getContainer() {
 
 export function readFilters() {
   return {
-    type: document.getElementById("type-filter")?.value ?? "",
-    severity: document.getElementById("severity-filter")?.value ?? "",
-    country: document.getElementById("country-filter")?.value.trim() ?? "",
+    tipo: document.getElementById("type-filter")?.value ?? "",
+    severidad: document.getElementById("severity-filter")?.value ?? "",
+    pais: document.getElementById("country-filter")?.value.trim() ?? "",
   };
 }
 
