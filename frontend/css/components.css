@@ -179,9 +179,9 @@
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
 
-.prioridad-alta { background-color: var(--nexo-orange); }
-.prioridad-media { background-color: #f39c12; }
-.prioridad-baja { background-color: #2ecc71; }
+.priority-high { background-color: var(--nexo-orange, #e63946); }
+.priority-medium { background-color: #f39c12; }
+.priority-low { background-color: #2ecc71; }
 
 .contenedor-mapa-panel {
   display: grid;

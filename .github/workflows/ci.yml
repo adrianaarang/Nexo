@@ -17,8 +17,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           cd backend
-          pip install -r requirements.txt
-          pip install pytest
+          python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
         env:
           PYTHONPATH: backend
