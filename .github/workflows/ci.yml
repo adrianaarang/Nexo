@@ -20,8 +20,8 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
         env:
-          PYTHONPATH: ${{ github.workspace }}/backend
-        run: pytest ../tests/
+          PYTHONPATH: .
+        run: pytest tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
