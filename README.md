@@ -80,7 +80,7 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 | Prioridad | Módulo | Carpeta | Estado (2026-08-26) |
 |---|---|---|---|
 | Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25) |
-| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 listo en `feature/alerts`; PR #30 abierto y mergeable |
+| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 (G2) listo en `feature/alerts` (G2-only tras revertir #30 con #32); PR G2 → dev pendiente |
 | Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
 | Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En `dev` (MERGED #20); Sprint 1 |
 | Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend en `dev` (#21); falta UI offline |
@@ -89,8 +89,8 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 
 ## Estado actual
 
-- **Base común:** Completada. Índice, estilos, `apiClient.js`, arranque backend (`main.py`/`config.py`), BD y `seed.py`.
-- **Alertas oficiales (G2):** Sprint 1 completado y verificado en `feature/alerts` (API `/api/alertas` con GDACS + fallback, pantalla y tests en verde). Pendiente integración a `dev` (PR #30, abierto y mergeable tras resolver conflicto con `dev`).
+- **Base común:** Incompleta tras revertir #30: `dev` no arranca (falta `init_db`) ni conecta (CORS/`apiClient`). Stopgap en `fix/base-comun` → `dev` (4 archivos), pendiente de merge.
+- **Alertas oficiales (G2):** Sprint 1 (G2) completado en `feature/alerts`, reconstruido G2-only tras revertir #30 (#32). Pendiente integración a `dev` (PR G2 → dev). Base común separada a `fix/base-comun`.
 - **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
 - **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
 - **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
@@ -182,10 +182,10 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Modules
 
-| Priority | Module | Folder | Status (2026-08-26) |
+| Priority | Module | Folder | Status (2026-08-25) |
 |---|---|---|---|
 | Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25) |
-| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 done in `feature/alerts`; PR #30 open and mergeable |
+| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 (G2) done in `feature/alerts` (G2-only after reverting #30 with #32); G2 PR → dev pending |
 | Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired to backend |
 | Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In `dev` (MERGED #20); Sprint 1 |
 | Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
@@ -194,8 +194,8 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Current status
 
-- **Common base:** Done. Index, styles, `apiClient.js`, backend bootstrap (`main.py`/`config.py`), DB and `seed.py`.
-- **Official alerts (G2):** Sprint 1 completed and verified in `feature/alerts` (API `/api/alertas` with GDACS + fallback, screen and tests green). Dev integration pending (PR #30, open and mergeable after resolving the conflict with `dev`).
+- **Common base:** Incomplete after reverting #30: `dev` won't boot (missing `init_db`) or connect (CORS/`apiClient`). Stopgap in `fix/base-comun` → `dev` (4 files), pending merge.
+- **Official alerts (G2):** Sprint 1 (G2) completed in `feature/alerts`, rebuilt G2-only after reverting #30 (#32). Dev integration pending (G2 PR → dev). Common base split into `fix/base-comun`.
 - **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
 - **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
 - **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
