@@ -1,40 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mapa de necesidades — Nexo</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa de necesidades — Nexo</title>
 
-  <!-- CSS Globales -->
-  <link rel="stylesheet" href="../css/variables.css">
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/components.css">
+    <!-- CSS Globales -->
+    <link rel="stylesheet" href="../css/variables.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/components.css" />
 
-  <!-- Leaflet CSS -->
-  <link 
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-    crossorigin=""
-  />
-</head>
-<body>
 
-  <!-- Header -->
-  <header class="nexo-header">
-    <a href="../index.html" class="nexo-header__brand">
-      <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
-      Nexo
-    </a>
-    <nav class="nexo-nav">
-      <a href="mapa.html" class="active">Mapa</a>
-      <a href="alertas.html">Alertas</a>
-      <a href="voluntariado.html">Voluntariado</a>
-      <a href="donaciones.html">Donaciones</a>
-      <a href="personas.html">Personas</a>
-      <a href="estoy-bien.html">Estoy bien</a>
-    </nav>
-  </header>
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="../css/necesidades.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="nexo-header">
+      <a href="../index.html" class="nexo-header__brand">
+        <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
+        Nexo
+      </a>
+      <nav class="nexo-nav">
+        <a href="mapa.html" class="active">Mapa</a>
+        <a href="alertas.html">Alertas</a>
+        <a href="voluntariado.html">Voluntariado</a>
+        <a href="donaciones.html">Donaciones</a>
+        <a href="personas.html">Personas</a>
+        <a href="estoy-bien.html">Estoy bien</a>
+      </nav>
+    </header>
 
   <!-- Estructura Principal de 2 Columnas -->
   <main class="contenedor-mapa-panel">
@@ -47,13 +48,13 @@
         
         <!-- Filtro por tipo -->
         <div class="controles" style="margin-bottom: 12px;">
-          <label for="filtroTipo"><strong>Filtrar:</strong></label>
-          <select id="filtroTipo">
-            <option value="todos">Todos los tipos</option>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Voluntariado">Voluntariado</option>
-            <option value="Alojamiento">Alojamiento</option>
+          <label for="typeFilter"><strong>Filtrar:</strong></label>
+          <select id="typeFilter">
+            <option value="all">Todos los tipos</option>
+            <option value="Food">Alimentos</option>
+            <option value="Clothing">Ropa</option>
+            <option value="Volunteering">Voluntariado</option>
+            <option value="Shelter">Alojamiento</option>
           </select>
         </div>
 
@@ -65,52 +66,102 @@
       <!-- Formulario para agregar necesidades -->
       <section class="seccion-form">
         <h2>Reportar Necesidad</h2>
+
         <form id="form-nueva-necesidad">
-          <input type="text" id="input-titulo" placeholder="Título (ej. Agua potable)" required />
-          
-          <select id="select-tipo" required>
-            <option value="Alimentos">Alimentos</option>
-            <option value="Ropa">Ropa</option>
-            <option value="Medicina">Medicina / Salud</option>
-            <option value="Alojamiento">Alojamiento</option>
-            <option value="Voluntariado">Voluntariado</option>
+            <input
+              type="text"
+              id="input-titulo"
+              placeholder="Título (ej. Agua potable)"
+              required
+            />          
+
+            <select id="select-tipo" name="tipo">
+              <option value="agua">Agua</option>
+              <option value="alimento">Alimento</option>
+              <option value="medicina">Medicina</option>
+              <option value="refugio">Refugio</option>
+              <option value="herramientas">Herramientas</option>
+              <option value="transporte">Transporte</option>
+            </select>
+
+          <select id="select-prioridad" name="prioridad">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+            <option value="critica">Crítica</option>
           </select>
 
-          <select id="select-prioridad" required>
-            <option value="baja">Prioridad Baja</option>
-            <option value="media">Prioridad Media</option>
-            <option value="alta">Prioridad Alta</option>
-          </select>
-
-          <textarea id="textarea-desc" placeholder="Descripción detallada..."></textarea>
+          <textarea
+              id="textarea-desc"
+              placeholder="Descripción detallada..."
+          ></textarea>
 
           <div class="coords-group">
-            <input type="number" step="any" id="input-lat" placeholder="Latitud" required readonly />
-            <input type="number" step="any" id="input-lng" placeholder="Longitud" required readonly />
-            <button type="button" id="btn-usar-gps">📍 Usar mi ubicación</button>
-          </div>
+              <input
+                type="number"
+                step="any"
+                id="input-lat"
+                placeholder="Latitud"
+                required
+                readonly
+              />
+              <input
+                type="number"
+                step="any"
+                id="input-lng"
+                placeholder="Longitud"
+                required
+                readonly
+              />
+              <button type="button" id="btn-usar-gps">
+                📍 Usar mi ubicación
+              </button>
+            </div>
 
-          <button type="submit" class="btn-primario">Publicar Necesidad</button>
+            <button type="submit" class="btn-primario">
+              Publicar Necesidad
+            </button>
         </form>
       </section>
-
-      
-
     </aside>
 
     <!-- MAPA INTERACTIVO -->
-    <div id="mapa"></div>
+    <div id="map"></div>
 
-  </main>
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
 
-  <!-- Leaflet JS -->
-  <script 
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
-    crossorigin="">
-  </script>
+    <!-- Lógica de mapa y datos -->
+    <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
 
-  <!-- Lógica de mapa y datos -->
-  <script src="../js/core/mapa-necesidades/mapaNecesidades.js"></script>
-</body>
+    <!-- Conexión modular con tus Clases de Necesidades (E1) -->
+    <script type="module">
+      import { NeedFormController } from "../js/core/mapa-necesidades/formularioNecesidad.js";
+      import { NeedCardComponent } from "../js/core/mapa-necesidades/necesidadCard.js";
+
+      const contenedorTarjetas = document.getElementById("contenedor-tarjetas");
+
+      // 1. Instanciar el controlador del formulario sobre el form existente
+      const needForm = new NeedFormController("#form-nueva-necesidad", (nuevaNecesidad) => {
+        const necesidadConId = {
+          ...nuevaNecesidad,
+          id: Date.now().toString(),
+          status: "abierta"
+        };
+
+        // 2. Instanciar el componente Tarjeta (Objeto)
+        const tarjetaComponente = new NeedCardComponent(necesidadConId, (id, nuevoEstado) => {
+          console.log(`Estado de necesidad #${id} cambiado a: ${nuevoEstado}`);
+        });
+
+        // Insertar la tarjeta al inicio del panel lateral
+        contenedorTarjetas.prepend(tarjetaComponente.getNode());
+        needForm.reset();
+      });
+    </script>
+  </body>
 </html>

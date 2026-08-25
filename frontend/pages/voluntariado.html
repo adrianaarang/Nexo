@@ -1,12 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Voluntariado — Nexo</title>
-  <!-- Alta de voluntarios por habilidad. -->
-  <!-- TODO: enlazar css/js y montar el contenido de esta pantalla. -->
-</head>
-<body>
-  <!-- TODO: implementar -->
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voluntariado · Nexo</title>
+    <link rel="stylesheet" href="../css/variables.css" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/voluntariado.css" />
+  </head>
+  <body>
+    <div id="nexo-offline-banner" class="nexo-offline-banner">Sin conexión — tus acciones se guardarán y se enviarán al recuperar señal.</div>
+    <header class="nexo-header">
+      <a href="../index.html" class="nexo-header__brand">
+        <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
+        Nexo
+      </a>
+      <nav class="nexo-nav">
+        <a href="mapa.html">Mapa</a>
+        <a href="alertas.html">Alertas</a>
+        <a href="voluntariado.html">Voluntariado</a>
+        <a href="donaciones.html">Donaciones</a>
+        <a href="personas.html">Personas</a>
+        <a href="estoy-bien.html">Estoy bien</a>
+      </nav>
+    </header>
+    <main class="nexo-voluntarios" aria-labelledby="voluntarios-title">
+      <header class="nexo-voluntarios__header">
+        <div>
+          <p class="nexo-voluntarios__eyebrow">Red de apoyo</p>
+          <h1 id="voluntarios-title">Voluntariado</h1>
+          <p>Tu ayuda reconstruye vidas. Únete a la red de voluntarios.</p>
+        </div>
+        <button class="nexo-btn nexo-voluntarios__new-button" type="button" data-action="show-form">
+          Quiero ayudar
+        </button>
+      </header>
+
+      <section class="nexo-voluntarios__form-panel" data-volunteer-form-panel hidden aria-labelledby="volunteer-form-title">
+        <div class="nexo-voluntarios__section-heading">
+          <h2 id="volunteer-form-title">Ofrece tu ayuda</h2>
+          <button class="nexo-voluntarios__close-button" type="button" data-action="hide-form" aria-label="Cerrar formulario">×</button>
+        </div>
+        <p class="nexo-voluntarios__instructions">Para coordinar la ayuda de la forma más segura y efectiva, necesitamos conocer tu disponibilidad y habilidades. Por favor, rellena este formulario; la información solo se usará para la gestión de la emergencia.</p>
+        <form id="volunteer-form" class="nexo-form nexo-voluntarios__form" data-volunteer-form>
+          <label>Nombre
+            <input name="first_name" autocomplete="given-name" required maxlength="100" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ .,'’-][A-Za-zÀ-ÖØ-öø-ÿ]+)*" />
+          </label>
+          <label>Apellidos
+            <input name="last_name" autocomplete="family-name" required maxlength="150" pattern="[A-Za-zÀ-ÖØ-öø-ÿ]+([ .,'’-][A-Za-zÀ-ÖØ-öø-ÿ]+)*" />
+          </label>
+          <label>DNI
+            <input name="dni" autocomplete="off" required maxlength="9" pattern="[0-9]{8}[A-Za-z]" title="Introduce 8 números y una letra, sin espacios" />
+          </label>
+          <label>Fecha de nacimiento
+            <input name="birth_date" type="date" autocomplete="bday" required />
+          </label>
+          <label>Teléfono
+            <input name="phone" type="tel" autocomplete="tel" required maxlength="30" />
+          </label>
+          <label>Localidad donde puedes ayudar
+            <input name="locality" autocomplete="address-level2" required maxlength="120" />
+          </label>
+          <fieldset class="nexo-voluntarios__form-wide">
+            <legend>Tareas en las que puedes ayudar</legend>
+            <div class="nexo-voluntarios__options">
+              <label><input type="checkbox" name="tasks" value="donation_sorting" /> Clasificación de donaciones en almacén</label>
+              <label><input type="checkbox" name="tasks" value="supply_distribution" /> Reparto de alimentos y suministros</label>
+              <label><input type="checkbox" name="tasks" value="light_debris_cleanup" /> Limpieza y retirada de escombros ligeros</label>
+              <label><input type="checkbox" name="tasks" value="vulnerable_person_support" /> Acompañamiento a personas vulnerables o mayores</label>
+              <label><input type="checkbox" name="tasks" value="telephone_information" /> Atención telefónica e información</label>
+              <label><input type="checkbox" name="tasks" value="rescued_animal_care" /> Cuidado de animales rescatados</label>
+              <label><input type="checkbox" name="tasks" value="any_assigned_task" /> Cualquier tarea que se me asigne</label>
+            </div>
+          </fieldset>
+          <fieldset class="nexo-voluntarios__form-wide">
+            <legend>Certificaciones o acreditaciones</legend>
+            <div class="nexo-voluntarios__options nexo-voluntarios__certifications">
+              <label><input type="checkbox" name="certifications" value="doctor" /> Médico/a</label><label><input type="checkbox" name="certifications" value="nurse" /> Enfermero/a</label><label><input type="checkbox" name="certifications" value="nursing_assistant" /> Auxiliar de enfermería</label><label><input type="checkbox" name="certifications" value="psychologist" /> Psicólogo/a</label><label><input type="checkbox" name="certifications" value="first_aid" /> Socorrista / Primeros Auxilios</label><label><input type="checkbox" name="certifications" value="forklift_license" /> Carnet carretillero</label><label><input type="checkbox" name="certifications" value="food_handler" /> Carnet manipulador de alimentos</label><label><input type="checkbox" name="certifications" value="cook" /> Cocinero/a</label><label><input type="checkbox" name="certifications" value="driving_license_b" /> Carnet de conducir B</label><label><input type="checkbox" name="certifications" value="driving_license_c" /> Carnet de conducir C/C1</label><label><input type="checkbox" name="certifications" value="veterinarian" /> Veterinario/a</label><label><input type="checkbox" name="certifications" value="social_worker" /> Trabajador/a social</label><label><input type="checkbox" name="certifications" value="translator" /> Traductor/a</label>
+            </div>
+          </fieldset>
+          <fieldset class="nexo-voluntarios__form-wide">
+            <legend>Transporte</legend>
+            <div class="nexo-voluntarios__transport-options">
+              <label><input type="radio" name="transportation" value="own_vehicle" required /> Vehículo propio</label>
+              <label><input type="radio" name="transportation" value="needs_transport" required /> Necesita transporte</label>
+            </div>
+            <label class="nexo-voluntarios__vehicle-type" data-vehicle-type hidden>Tipo de vehículo
+              <select name="vehicle_type" disabled>
+                <option value="">Selecciona el tipo</option>
+                <option value="car">Turismo</option>
+                <option value="van">Furgoneta</option>
+                <option value="four_by_four">4x4</option>
+              </select>
+            </label>
+          </fieldset>
+          <section class="nexo-voluntarios__form-wide nexo-voluntarios__calendar-section" aria-labelledby="availability-title">
+            <h3 id="availability-title">Calendario de disponibilidad</h3>
+            <p>Marca cada hora concreta en la que puedes colaborar durante los próximos siete días.</p>
+            <div class="nexo-voluntarios__calendar-scroll">
+              <div class="nexo-voluntarios__calendar" data-availability-calendar></div>
+            </div>
+          </section>
+          <label class="nexo-voluntarios__form-wide">Información adicional
+            <input name="skills" placeholder="Ej.: idiomas, vehículo propio" maxlength="250" />
+          </label>
+          <div class="nexo-voluntarios__form-actions nexo-voluntarios__form-wide">
+            <button class="nexo-btn" type="submit">Ofrecer mi ayuda</button>
+            <p class="nexo-voluntarios__form-status" data-form-status role="status"></p>
+          </div>
+        </form>
+      </section>
+
+      <section class="nexo-voluntarios__directory" aria-labelledby="directory-title">
+        <div class="nexo-voluntarios__section-heading">
+          <div>
+            <h2 id="directory-title">Estado del voluntariado</h2>
+            <p>Coordinación actualiza la asignación para no sobrecargar a nadie.</p>
+          </div>
+          <label class="nexo-voluntarios__filter">Estado
+            <select data-status-filter aria-label="Filtrar voluntarios por estado">
+              <option value="">Todos los estados</option>
+              <option value="available">Disponible</option>
+              <option value="assigned">Asignado a tarea</option>
+              <option value="resting">No disponible / descansando</option>
+            </select>
+          </label>
+        </div>
+        <div class="nexo-voluntarios__list" data-volunteers-list aria-live="polite"></div>
+        <p class="nexo-voluntarios__empty" data-volunteers-empty hidden>No hay voluntarios con este estado.</p>
+      </section>
+    </main>
+    <script type="module" src="../js/app.js"></script>
+    <script type="module" src="../js/core/voluntariado-donaciones/voluntariado.js"></script>
+  </body>
 </html>
