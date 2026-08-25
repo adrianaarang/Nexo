@@ -157,14 +157,14 @@ const personas = [
     rol: "Persona 4 — El mapa",
     archivo: "mapa.html + mapaNecesidades.js (parte del mapa)",
     color: "blue",
-    estado: "en_proceso",
+    estado: "cubierta",
     tareas: [
       { t: "Inicializar Leaflet en mapa.html", hecha: true },
       { t: "Array de necesidades inventadas para trabajar sin depender de la API", hecha: true },
       { t: "Marcadores con color según prioridad (baja/media/alta/critica)", hecha: true },
       { t: "Popup con título, tipo y descripción al hacer clic en un marcador", hecha: true },
       { t: "Filtro por tipo en el mapa", hecha: true },
-      { t: "Sustituir el array inventado por necesidadesApi.js cuando esté lista", hecha: false }
+      { t: "Sustituir el array inventado por necesidadesApi.js cuando esté lista", hecha: true }
     ]
   },
   {
@@ -216,6 +216,90 @@ const personas = [
       { t: "create_need: INSERT y devolución del registro completo", hecha: true },
       { t: "update_need_status con transición controlada (abierta → en_proceso → cubierta) e idempotencia", hecha: true },
       { t: "Migración 001_init.sql con la tabla necesidades y sus columnas", hecha: true }
+    ]
+  },
+
+  {
+    id: "josema-punto-mapa",
+    nombre: "Josema",
+    rol: "Mejora: elegir punto en el mapa",
+    archivo: "mapa.html + mapaNecesidades.js + formularioNecesidad.js",
+    color: "blue",
+    estado: "abierta",
+    tareas: [
+      { t: "Permitir hacer clic en el mapa para fijar latitud/longitud (alternativa a usar la ubicación GPS)", hecha: false },
+      { t: "Mostrar un marcador temporal en el punto elegido antes de confirmar", hecha: false },
+      { t: "Rellenar input-lat/input-lng automáticamente al hacer clic", hecha: false },
+      { t: "Decidir con el equipo si GPS y clic en mapa conviven o si el clic sustituye al botón de ubicación", hecha: false }
+    ]
+  },
+
+  {
+    id: "elena-ia",
+    nombre: "Elena",
+    rol: "Cimiento de IA",
+    archivo: "backend/modules/ia/cliente_ia.py + schemas.py + routes.py",
+    color: "purple",
+    estado: "abierta",
+    tareas: [
+      { t: "generar_texto(prompt) — para los resúmenes y la comparación de texto", hecha: false },
+      { t: "clasificar_imagen(imagen_base64) — para la mejora de foto", hecha: false },
+      { t: "comparar_textos(texto1, texto2) — para la detección de duplicados", hecha: false },
+      { t: "Endpoint GET /api/ia/estado para confirmar que el cliente responde", hecha: false },
+      { t: "Publicar las firmas de las funciones cuanto antes para que las demás no esperen", hecha: false }
+    ]
+  },
+  {
+    id: "gema-ia",
+    nombre: "Gema",
+    rol: "Mejora C: resumen de situación",
+    archivo: "backend/modules/ia/resumen.py + panel.html + panelResumen.js",
+    color: "teal",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint GET /api/ia/resumen que recoge las necesidades y llama a generar_texto()", hecha: false },
+      { t: "Página nueva panel.html para el panel de coordinación", hecha: false },
+      { t: "panelResumen.js: pintar el resumen en texto + tarjetas de estadísticas", hecha: false }
+    ]
+  },
+  {
+    id: "adriana-ia",
+    nombre: "Adriana",
+    rol: "Mejora D: duplicados",
+    archivo: "backend/modules/ia/duplicados.py + necesidadesApi.js + formularioNecesidad.js",
+    color: "coral",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint POST /api/ia/duplicados/comprobar (texto + distancia)", hecha: false },
+      { t: "Nueva función comprobarDuplicados() en necesidadesApi.js", hecha: false },
+      { t: "Aviso en el formulario si hay una necesidad muy parecida cerca", hecha: false }
+    ]
+  },
+  {
+    id: "josema-ia",
+    nombre: "Josema",
+    rol: "Mejora B: mapa de calor",
+    archivo: "mapaCalor.js (+ clustering.py opcional)",
+    color: "blue",
+    estado: "abierta",
+    tareas: [
+      { t: "Capa de calor con Leaflet.heat a partir de loadedNeeds", hecha: false },
+      { t: "Botón para alternar entre marcadores normales y mapa de calor", hecha: false },
+      { t: "Opcional: clustering.py con DBSCAN para zonas críticas reales", hecha: false }
+    ]
+  },
+  {
+    id: "helen-ia",
+    nombre: "Helen",
+    rol: "Mejora A: foto → clasificación",
+    archivo: "backend/modules/ia/clasificar_foto.py + clasificadorFoto.js",
+    color: "amber",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint POST /api/ia/clasificar-foto usando clasificar_imagen()", hecha: false },
+      { t: "Input de foto en mapa.html", hecha: false },
+      { t: "clasificadorFoto.js: subir la foto y mostrar la sugerencia de la IA", hecha: false },
+      { t: "Autorrellenar tipo y prioridad si se acepta la sugerencia", hecha: false }
     ]
   }
 ];
