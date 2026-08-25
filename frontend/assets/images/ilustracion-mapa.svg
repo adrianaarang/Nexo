@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" fill="none">
+  <!-- terreno: curvas de nivel -->
+  <g stroke="#2E323B" stroke-width="2">
+    <path d="M40 330 Q160 260 280 310 T520 300"/>
+    <path d="M20 360 Q170 300 300 345 T540 330"/>
+    <path d="M60 300 Q180 235 300 280 T500 270"/>
+    <path d="M90 272 Q200 215 310 252 T480 244"/>
+  </g>
+  <!-- retícula de mapa -->
+  <g stroke="#22252C" stroke-width="1.5">
+    <path d="M120 60 L100 380"/>
+    <path d="M240 40 L230 390"/>
+    <path d="M370 45 L380 385"/>
+    <path d="M470 70 L495 370"/>
+    <path d="M60 130 L520 110"/>
+    <path d="M50 210 L530 195"/>
+  </g>
+  <!-- ruta -->
+  <path d="M110 340 C180 300 210 210 280 208 C350 206 380 150 430 128" stroke="#F2542D" stroke-width="3" stroke-dasharray="1 10" stroke-linecap="round"/>
+  <!-- pins secundarios -->
+  <g>
+    <circle cx="110" cy="340" r="7" fill="#101010" stroke="#9CA0A8" stroke-width="2.5"/>
+    <circle cx="280" cy="208" r="7" fill="#101010" stroke="#9CA0A8" stroke-width="2.5"/>
+  </g>
+  <!-- pin principal -->
+  <g>
+    <circle cx="430" cy="188" r="46" stroke="#F2542D" stroke-width="1.5" opacity="0.35"/>
+    <circle cx="430" cy="188" r="66" stroke="#F2542D" stroke-width="1" opacity="0.18"/>
+    <path d="M430 78 C400 78 378 100 378 128 C378 168 430 210 430 210 C430 210 482 168 482 128 C482 100 460 78 430 78 Z" fill="#F2542D"/>
+    <circle cx="430" cy="126" r="19" fill="#101010"/>
+  </g>
+</svg>

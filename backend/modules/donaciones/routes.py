@@ -1,4 +1,3 @@
-cat > modules/donaciones/routes.py << 'EOF'
 from fastapi import APIRouter, HTTPException
 from modules.donaciones import models
 from modules.donaciones.schemas import (
@@ -35,4 +34,3 @@ def update_donation_status(donation_id: int, change: DonationStatusUpdate):
     if donation is None:
         raise HTTPException(status_code=404, detail="Donación no encontrada")
     return donation
-EOF

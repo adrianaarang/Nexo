@@ -2,11 +2,166 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donaciones — Nexo</title>
-  <!-- Donaciones ofrecidas/solicitadas. -->
-  <!-- TODO: enlazar css/js y montar el contenido de esta pantalla. -->
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/donaciones.css">
 </head>
 <body>
-  <!-- TODO: implementar -->
+
+  <header class="nexo-header">
+    <a href="../index.html" class="nexo-header__brand">
+      <img src="../assets/logo/nexo-icon.png" alt="Nexo" />
+      Nexo
+    </a>
+    <nav class="nexo-nav">
+      <a href="mapa.html">Mapa</a>
+      <a href="alertas.html">Alertas</a>
+      <a href="voluntariado.html">Voluntariado</a>
+      <a href="donaciones.html" aria-current="page">Donaciones</a>
+      <a href="personas.html">Personas</a>
+      <a href="estoy-bien.html">Estoy bien</a>
+    </nav>
+  </header>
+
+  <main style="padding: 2.5rem 2rem 2rem; max-width: 1200px; margin: 0 auto;">
+
+    <div class="donaciones-layout">
+
+      <!-- Lista de donaciones -->
+      <section>
+        <h2 class="nexo-seccion-titulo">Donaciones activas</h2>
+
+        <div class="donaciones-filtros">
+
+          <div class="nexo-select" id="filtro-tipo" data-value="">
+            <button class="nexo-select__trigger" type="button">
+              <span class="nexo-select__label">Todas</span>
+              <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <ul class="nexo-select__menu">
+              <li data-value="" class="seleccionado">Todas</li>
+              <li data-value="ofrecida">Ofrecidas</li>
+              <li data-value="solicitada">Solicitadas</li>
+            </ul>
+          </div>
+
+          <div class="nexo-select" id="filtro-orden" data-value="recientes">
+            <button class="nexo-select__trigger" type="button">
+              <span class="nexo-select__label">Más recientes</span>
+              <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <ul class="nexo-select__menu">
+              <li data-value="recientes" class="seleccionado">Más recientes</li>
+              <li data-value="antiguos">Más antiguos</li>
+            </ul>
+          </div>
+
+          <div class="nexo-select" id="filtro-categoria" data-value="">
+            <button class="nexo-select__trigger" type="button">
+              <span class="nexo-select__label">Todas las categorías</span>
+              <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <ul class="nexo-select__menu">
+              <li data-value="" class="seleccionado">Todas las categorías</li>
+              <li data-value="Agua">Agua</li>
+              <li data-value="Comida">Comida</li>
+              <li data-value="Productos de higiene">Productos de higiene</li>
+              <li data-value="Ropa infantil">Ropa infantil</li>
+              <li data-value="Ropa de adultos">Ropa de adultos</li>
+              <li data-value="Mantas">Mantas</li>
+              <li data-value="Alojamiento temporal">Alojamiento temporal</li>
+              <li data-value="Combustible y/o baterías">Combustible y/o baterías</li>
+              <li data-value="Servicios de comunicación">Servicios de comunicación</li>
+              <li data-value="Medicamentos">Medicamentos</li>
+              <li data-value="Material de primeros auxilios">Material de primeros auxilios</li>
+              <li data-value="Artículos para bebés">Artículos para bebés</li>
+              <li data-value="Herramientas">Herramientas</li>
+              <li data-value="Transporte">Transporte</li>
+              <li data-value="Bebidas">Bebidas</li> 
+              <li data-value="Otros">Otros</li>  
+            </ul>
+          </div>
+
+        </div>
+
+        <p id="estado-lista" hidden></p>
+        <div id="lista-donaciones"></div>
+      </section>
+
+      <!-- Formulario sticky -->
+      <section class="donaciones-form-sticky">
+        <h2 class="nexo-seccion-titulo">Publicar donación</h2>
+
+        <form id="form-donacion" class="nexo-form">
+
+          <div class="nexo-form__campo">
+            <label>Tipo</label>
+            <div class="nexo-select nexo-select--form" id="tipo" data-value="ofrecida">
+              <button class="nexo-select__trigger" type="button">
+                <span class="nexo-select__label">Ofrezco recursos</span>
+                <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <ul class="nexo-select__menu">
+                <li data-value="ofrecida" class="seleccionado">Ofrezco recursos</li>
+                <li data-value="solicitada">Necesito recursos</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="nexo-form__campo">
+            <label>Categoría</label>
+            <div class="nexo-select nexo-select--form" id="recurso" data-value="">
+              <button class="nexo-select__trigger" type="button">
+                <span class="nexo-select__label" style="color: var(--nexo-text-muted, #9CA0A8);">Selecciona una categoría</span>
+                <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <ul class="nexo-select__menu">
+                <li data-value="Agua">Agua</li>
+                <li data-value="Comida">Comida</li>
+                <li data-value="Productos de higiene">Productos de higiene</li>
+                <li data-value="Ropa infantil">Ropa infantil</li>
+                <li data-value="Ropa de adultos">Ropa de adultos</li>
+                <li data-value="Mantas">Mantas</li>
+                <li data-value="Alojamiento temporal">Alojamiento temporal</li>
+                <li data-value="Combustible y/o baterías">Combustible y/o baterías</li>
+                <li data-value="Servicios de comunicación">Servicios de comunicación</li>
+                <li data-value="Medicamentos">Medicamentos</li>
+                <li data-value="Material de primeros auxilios">Material de primeros auxilios</li>
+                <li data-value="Artículos para bebés">Artículos para bebés</li>
+                <li data-value="Herramientas">Herramientas</li>
+                <li data-value="Bebidas">Bebidas</li> 
+                <li data-value="Otros">Otros</li>             
+              </ul>
+            </div>
+          </div>
+
+          <div class="nexo-form__campo">
+            <label for="descripcion">Descripción <span style="font-weight:400; text-transform:none; letter-spacing:0;">(máx. 1000 caracteres)</span></label>
+            <textarea id="descripcion" maxlength="1000" rows="4" placeholder="Especifica qué vas a donar, en qué estado está, dónde está disponible..."></textarea>
+            <span id="contador-desc" style="font-size:0.72rem; color: var(--nexo-text-muted, #9CA0A8); text-align:right; display:block;">0 / 1000</span>
+          </div>
+
+          <div class="nexo-form__campo">
+            <label for="cantidad">Cantidad <span style="font-weight:400; text-transform:none; letter-spacing:0;">(opcional)</span></label>
+            <input id="cantidad" type="text" placeholder="Ej. 10 litros, 5 cajas..." />
+          </div>
+
+          <div class="nexo-form__campo">
+            <label for="contacto">Contacto</label>
+            <input id="contacto" type="text" placeholder="Email o teléfono" required />
+          </div>
+
+          <button type="submit" class="nexo-btn">Publicar</button>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+
+  <script type="module" src="../js/core/voluntariado-donaciones/donaciones.js"></script>
 </body>
 </html>

@@ -1,4 +1,69 @@
-"""Endpoints de registro de personas y estado 'estoy bien' (siguiente prioridad).
+"""Endpoints de registro de personas (Equipo 4, siguiente prioridad).
 
-TODO: implementar.
+Este módulo recibe las peticiones HTTP relacionadas con personas. El acceso
+a la base de datos se delega en ``models.py`` y la validación de entrada y
+salida en ``schemas.py``.
+
+El listado y el registro general de personas siguen pendientes de la pareja
+responsable de Registro de Personas.
 """
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
+
+from modules.personas.models import mark_person_safe
+from modules.personas.schemas import PersonResponse, PersonSafeRequest
+
+
+router = APIRouter(
+    prefix="/api/personas",
+    tags=["personas"],
+)
+
+
+# TODO (Registro de Personas): implementar GET /api/personas.
+# TODO (Registro de Personas): implementar POST /api/personas.
+
+
+@router.post(
+    "/estoy-bien",
+    response_model=PersonResponse,
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "description": "Persona no encontrada",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "Persona no encontrada",
+                        "detalle": (
+                            "No existe una persona con el identificador 999."
+                        ),
+                    }
+                }
+            },
+        },
+    },
+)
+def mark_safe(request: PersonSafeRequest):
+    """Marca como segura una persona previamente registrada.
+
+    La operación recibe el identificador de una persona existente y delega
+    en ``models.py`` el cambio de estado a ``estoy_bien``.
+
+    Repetir la misma operación es válido e idempotente.
+    """
+
+    person = mark_person_safe(request.person_id)
+
+    if person is None:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "error": "Persona no encontrada",
+                "detalle": (
+                    f"No existe una persona con el identificador "
+                    f"{request.person_id}."
+                ),
+            },
+        )
+
+    return person

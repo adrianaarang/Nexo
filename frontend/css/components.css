@@ -1,2 +1,348 @@
-/* Estilos de componentes reutilizables (tarjetas, botones, formularios).
-   TODO: estilos pendientes. */
+/* Componentes reutilizables — rediseño minimalista sobre fondo oscuro. */
+
+/* ---------- Grid System ---------- */
+.nexo-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-lg);
+}
+
+.nexo-grid--equal {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 800px) {
+  .nexo-grid, 
+  .nexo-grid--equal { 
+    grid-template-columns: 1fr; 
+  }
+}
+
+/* ---------- Tarjetas ---------- */
+.nexo-card {
+  background: var(--nexo-bg-alt);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.nexo-card:hover {
+  border-color: var(--nexo-text-muted);
+}
+
+.nexo-card h3 {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nexo-white);
+}
+
+.nexo-card p {
+  color: var(--nexo-text-muted);
+  font-size: 0.92rem;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.nexo-card__meta {
+  font-size: 0.85rem;
+  color: var(--nexo-text-muted);
+  margin: 0 0 0.4rem 0;
+}
+
+.nexo-card__num {
+  color: var(--nexo-orange);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: var(--letter-wide);
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- Badges ---------- */
+.nexo-badge {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nexo-white);
+  border: 1px solid transparent;
+}
+
+.nexo-badge--alta { background: var(--nexo-orange); }
+.nexo-badge--media { background: transparent; border-color: var(--nexo-text-muted); color: var(--nexo-text); }
+.nexo-badge--baja { background: transparent; border-color: var(--nexo-border); color: var(--nexo-text-muted); }
+
+.nexo-badge--red { background: var(--nexo-orange); }
+.nexo-badge--orange { background: transparent; border-color: var(--nexo-orange); color: var(--nexo-orange); }
+.nexo-badge--green { background: transparent; border-color: var(--nexo-text-muted); color: var(--nexo-text); }
+
+/* ---------- Botones ---------- */
+.nexo-btn {
+  display: inline-block;
+  background: var(--nexo-white);
+  color: var(--nexo-black);
+  border: 1px solid var(--nexo-white);
+  border-radius: 999px;
+  padding: 0.8rem 2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: var(--letter-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.nexo-btn:hover {
+  background: var(--nexo-orange);
+  border-color: var(--nexo-orange);
+  color: var(--nexo-white);
+}
+
+.nexo-btn--secondary {
+  background: transparent;
+  color: var(--nexo-white);
+  border: 1px solid var(--nexo-text-muted);
+}
+
+.nexo-btn--secondary:hover {
+  border-color: var(--nexo-white);
+  background: transparent;
+  color: var(--nexo-white);
+}
+
+/* ---------- Formularios ---------- */
+.nexo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  max-width: 480px;
+}
+
+.nexo-form label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nexo-text-muted);
+}
+
+.nexo-form input,
+.nexo-form select,
+.nexo-form textarea {
+  padding: 0.7rem 0.9rem;
+  background: var(--nexo-bg-alt);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-md);
+  color: var(--nexo-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.nexo-form input:focus,
+.nexo-form select:focus,
+.nexo-form textarea:focus {
+  outline: none;
+  border-color: var(--nexo-orange);
+}
+
+/* ---------- Mapa y Controles ---------- */
+.controles {
+  margin-bottom: var(--space-md);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#mapa,
+#mapa-necesidades {
+  height: 500px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--nexo-border);
+}
+
+/* Marcadores integrados con el tema */
+.marcador-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--nexo-white);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+.priority-high { background-color: var(--nexo-orange, #e63946); }
+.priority-medium { background-color: #f39c12; }
+.priority-low { background-color: #2ecc71; }
+
+.contenedor-mapa-panel {
+  display: grid;
+ 
+  grid-template-columns: 380px 1fr; 
+  
+  height: calc(100vh - 65px); /* Ocupa el alto restante de la pantalla */
+  width: 100%;
+}
+
+/* ---------- Estoy bien ---------- */
+.nexo-estoy-bien {
+  text-align: center;
+  padding: var(--space-xl) var(--space-md);
+}
+
+.nexo-estoy-bien .nexo-btn {
+  font-size: 1rem;
+  padding: 1.4rem 3.5rem;
+}
+
+/* ---------- Hero con ilustración ---------- */
+.nexo-hero--split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.nexo-hero__art {
+  width: 100%;
+  max-width: 520px;
+  justify-self: end;
+  animation: nexo-float 7s ease-in-out infinite;
+}
+
+@keyframes nexo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@media (max-width: 900px) {
+  .nexo-hero--split { grid-template-columns: 1fr; }
+  .nexo-hero__art { justify-self: center; max-width: 380px; }
+}
+
+/* ---------- Slider ---------- */
+.nexo-slider {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--nexo-border);
+  background: var(--nexo-bg-alt);
+}
+
+.nexo-slider__track {
+  display: flex;
+  transition: transform 0.7s cubic-bezier(0.25, 0.9, 0.3, 1);
+}
+
+.nexo-slide {
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+  padding: var(--space-xl);
+}
+
+@media (max-width: 900px) {
+  .nexo-slide { grid-template-columns: 1fr; padding: var(--space-lg); }
+}
+
+.nexo-slide__label {
+  color: var(--nexo-orange);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: var(--letter-wide);
+  text-transform: uppercase;
+  margin: 0 0 0.75rem 0;
+}
+
+.nexo-slide__title {
+  font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.08;
+  margin: 0 0 1rem 0;
+  color: var(--nexo-white);
+}
+
+.nexo-slide__text {
+  color: var(--nexo-text-muted);
+  font-size: 0.98rem;
+  max-width: 30rem;
+  margin: 0 0 1.75rem 0;
+}
+
+.nexo-slide__art {
+  width: 100%;
+  max-width: 440px;
+  justify-self: center;
+}
+
+.nexo-slider__controls {
+  position: absolute;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
+  display: flex;
+  gap: 0.6rem;
+  z-index: 5;
+}
+
+.nexo-slider__btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--nexo-text-muted);
+  background: transparent;
+  color: var(--nexo-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.nexo-slider__btn:hover {
+  border-color: var(--nexo-orange);
+  background: var(--nexo-orange);
+}
+
+.nexo-slider__dots {
+  position: absolute;
+  left: var(--space-lg);
+  bottom: var(--space-lg);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 5;
+}
+
+.nexo-slider__dot {
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--nexo-border);
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  padding: 0;
+}
+
+.nexo-slider__dot .fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: var(--nexo-orange);
+}
+
+.nexo-slider__dot.active .fill {
+  width: 100%;
+  transition: width 6s linear;
+}
+
+.nexo-slider__dot.done .fill { width: 100%; }

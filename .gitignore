@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 venv/
 .env
-
+.venv
 # Base de datos local
 *.db
 *.sqlite3
@@ -14,4 +14,8 @@ node_modules/
 .vscode/
 
 # Logs
+backend/logs
 *.log
+
+# Documentos subidos por voluntarios
+backend/uploads/

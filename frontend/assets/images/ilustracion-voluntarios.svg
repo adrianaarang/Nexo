@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" fill="none">
+  <!-- círculo de comunidad -->
+  <circle cx="280" cy="210" r="150" stroke="#2E323B" stroke-width="2"/>
+  <circle cx="280" cy="210" r="196" stroke="#22252C" stroke-width="1.5" stroke-dasharray="3 10"/>
+  <!-- figuras alrededor (cabeza + hombros, line art) -->
+  <g stroke="#9CA0A8" stroke-width="3" stroke-linecap="round">
+    <g>
+      <circle cx="280" cy="52" r="16"/>
+      <path d="M254 96 Q280 74 306 96"/>
+    </g>
+    <g>
+      <circle cx="130" cy="140" r="16"/>
+      <path d="M104 184 Q130 162 156 184"/>
+    </g>
+    <g>
+      <circle cx="430" cy="140" r="16"/>
+      <path d="M404 184 Q430 162 456 184"/>
+    </g>
+    <g>
+      <circle cx="150" cy="315" r="16"/>
+      <path d="M124 359 Q150 337 176 359"/>
+    </g>
+    <g>
+      <circle cx="410" cy="315" r="16"/>
+      <path d="M384 359 Q410 337 436 359"/>
+    </g>
+  </g>
+  <!-- conexiones al centro -->
+  <g stroke="#F2542D" stroke-width="2" stroke-dasharray="1 8" stroke-linecap="round" opacity="0.9">
+    <path d="M280 110 L280 168"/>
+    <path d="M168 168 L232 196"/>
+    <path d="M392 168 L328 196"/>
+    <path d="M182 300 L238 246"/>
+    <path d="M378 300 L322 246"/>
+  </g>
+  <!-- corazón central -->
+  <g>
+    <circle cx="280" cy="212" r="42" fill="#F2542D"/>
+    <path d="M280 232 C270 222 258 214 258 202 C258 194 264 189 271 189 C276 189 279 192 280 195 C281 192 284 189 289 189 C296 189 302 194 302 202 C302 214 290 222 280 232 Z" fill="#101010"/>
+  </g>
+</svg>
