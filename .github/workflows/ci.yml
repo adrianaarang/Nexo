@@ -19,7 +19,6 @@ jobs:
           cd backend
           python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
-        working-directory: ./backend
         env:
           PYTHONPATH: ${{ github.workspace }}/backend
         run: pytest tests/
