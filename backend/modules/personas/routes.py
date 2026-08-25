@@ -49,7 +49,7 @@ def mark_safe_endpoint(request: PersonSafeRequest):
     """Marca como segura una persona previamente registrada."""
     person_id = getattr(request, "person_id", None) or getattr(request, "id_persona", None)
     
-    # Debe llamar a la función que monkeypatch intercepta en las pruebas
+    # Debe llamar a la función que monkeypatch intercepta en las pruebas  
     person = _models_mark_safe(person_id)
     
     if person is None:
