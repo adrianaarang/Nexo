@@ -1,0 +1,23 @@
+name: Setup Kanban
+
+# Crea el Kanban (labels + milestones + issues epics) al mergear a dev.
+# Usa GITHUB_TOKEN (permiso de issues implicito en CI): no requiere autorizacion extra.
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  kanban:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Crear issues del Kanban
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: bash scripts/setup-kanban.sh

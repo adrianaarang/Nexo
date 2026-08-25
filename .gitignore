@@ -17,5 +17,6 @@ node_modules/
 backend/logs
 *.log
 
+docs/equipos/grupo2-alertas.md
 # Documentos subidos por voluntarios
 backend/uploads/
