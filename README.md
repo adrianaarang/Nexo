@@ -6,7 +6,27 @@ App comunitaria de respuesta a emergencias y desastres naturales: mapa de necesi
 
 Alcance decidido por votación de equipo — ver `docs/decisiones-encuesta.md` y `docs/roadmap.md`.
 
-## Estructura
+## ¿Qué es Nexo? (Visión de producto)
+
+Nexo es una aplicación comunitaria de respuesta ante emergencias y desastres naturales. Ante un terremoto, una inundación o un incendio, la información está fragmentada: los afectados no saben dónde pedir ayuda, los voluntarios no ven dónde se les necesita y las autoridades no tienen un canal ciudadano en tiempo real. Nexo reúne esas tres miradas en una sola pantalla:
+
+- un **mapa de necesidades** vivo, donde cualquiera publica y ve qué falta en cada zona;
+- **alertas oficiales** verificadas (GDACS) con filtros por país y tipo;
+- un módulo de **voluntariado y donaciones** para coordinar apoyo;
+- un **registro de personas ("estoy bien")** que cierra la incertidumbre sobre familiares y vecinos.
+
+El objetivo es reducir el tiempo entre "algo pasa" y "alguien recibe ayuda".
+
+## Propuesta de valor y modelo de impacto (Negocio)
+
+Nexo no es un producto comercial: es una solución cívica, sin ánimo de lucro y de origen académico. Su "modelo de negocio" es el impacto:
+
+- **Para afectados:** visibilidad y un canal para pedir ayuda concreta (agua, refugio, transporte) en su zona.
+- **Para voluntarios y donantes:** un mapa donde ver necesidades reales y coordinar apoyo, evitando la duplicación de esfuerzos.
+- **Para ONG y protección civil:** un canal ciudadano de datos en tiempo real para priorizar recursos.
+- **Sostenibilidad:** proyecto académico con licencia MIT provisional; el código abierto y la red mesh/satélite son el horizonte para que cualquier comunidad lo despliegue sin coste.
+
+## Estructura (Técnico)
 
 - `frontend/` — HTML, CSS y JS (PWA).
 - `backend/` — API en Python (FastAPI).
@@ -56,23 +76,23 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 
 ## Módulos
 
-| Prioridad | Módulo | Carpeta | Estado |
+| Prioridad | Módulo | Carpeta | Estado (2026-08-26) |
 |---|---|---|---|
-| Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En progreso (PR #18 abierto) |
-| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 hecho en `feature/alerts` (pendiente integración a `dev`) |
-| Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En progreso (frontend en dev; backend pendiente) |
-| Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En progreso (PR #20 abierto) |
-| Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Pendiente (Sprint 2) |
+| Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25) |
+| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 listo en `feature/alerts`; PR #30 abierto y mergeable |
+| Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
+| Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En `dev` (MERGED #20); Sprint 1 |
+| Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend en `dev` (#21); falta UI offline |
 | Futuro | Red mesh / satélite / Mesh/satellite network | `infra/mesh-satelite` | Roadmap futuro |
 | Futuro | Código abierto / Open source | `LICENSE`, `CONTRIBUTING.md` | Roadmap futuro |
 
 ## Estado actual
 
 - **Base común:** Completada. Índice, estilos, `apiClient.js`, arranque backend (`main.py`/`config.py`), BD y `seed.py`.
-- **Alertas oficiales (G2):** Sprint 1 completado y verificado en `feature/alerts` (API `/api/alertas` con GDACS + fallback, pantalla y tests en verde). Pendiente integración a `dev` (PR `feature/alerts` → `dev`).
-- **Mapa (G1):** En progreso. PR #18 abierto y bloqueado (faltan GET/PATCH, quitar mock, centralizar en `necesidadesApi.js`).
-- **Voluntariado/Donaciones (G3):** En progreso. Frontend en `dev`; backend pendiente. PR #27 (config/soporte) en revisión.
-- **Personas/Offline (G4):** En progreso. PR #20 abierto (backend estoy-bien listo, 45 tests).
+- **Alertas oficiales (G2):** Sprint 1 completado y verificado en `feature/alerts` (API `/api/alertas` con GDACS + fallback, pantalla y tests en verde). Pendiente integración a `dev` (PR #30, abierto y mergeable tras resolver conflicto con `dev`).
+- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
+- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
+- **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
 - **Kanban:** Los issues se crean automáticamente al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`). El tablero es un Project V2 personal del PM.
 
 ## Equipos
@@ -90,7 +110,27 @@ Community app for emergency and natural-disaster response: real-time needs map, 
 
 Scope decided by team vote — see `docs/decisiones-encuesta.md` and `docs/roadmap.md`.
 
-## Structure
+## What is Nexo? (Product vision)
+
+Nexo is a community app for responding to emergencies and natural disasters. During an earthquake, flood or fire, information is fragmented: those affected don't know where to ask for help, volunteers can't see where they are needed, and authorities lack a real-time citizen channel. Nexo brings those three views together on a single screen:
+
+- a live **needs map**, where anyone posts and sees what is missing in each area;
+- verified **official alerts** (GDACS) with filters by country and type;
+- a **volunteering and donations** module to coordinate support;
+- a **person registry ("I'm safe")** that closes the uncertainty about family and neighbours.
+
+The goal is to shorten the time between "something happens" and "someone gets help".
+
+## Value proposition and impact model (Business)
+
+Nexo is not a commercial product: it is a civic, non-profit, academically originated solution. Its "business model" is impact:
+
+- **For those affected:** visibility and a channel to request concrete help (water, shelter, transport) in their area.
+- **For volunteers and donors:** a map to see real needs and coordinate support, avoiding duplicated effort.
+- **For NGOs and civil protection:** a real-time citizen data channel to prioritise resources.
+- **Sustainability:** an academic project under a provisional MIT licence; open source and the mesh/satellite network are the horizon so any community can deploy it at no cost.
+
+## Structure (Technical)
 
 - `frontend/` — HTML, CSS and JS (PWA).
 - `backend/` — Python API (FastAPI).
@@ -140,23 +180,23 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Modules
 
-| Priority | Module | Folder | Status |
+| Priority | Module | Folder | Status (2026-08-26) |
 |---|---|---|---|
-| Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In progress (PR #18 open) |
-| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 done in `feature/alerts` (dev integration pending) |
-| Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In progress (frontend in dev; backend pending) |
-| Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In progress (PR #20 open) |
-| Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Pending (Sprint 2) |
+| Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25) |
+| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 done in `feature/alerts`; PR #30 open and mergeable |
+| Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired to backend |
+| Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In `dev` (MERGED #20); Sprint 1 |
+| Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
 | Future | Mesh/satellite network | `infra/mesh-satelite` | Future roadmap |
 | Future | Open source | `LICENSE`, `CONTRIBUTING.md` | Future roadmap |
 
 ## Current status
 
 - **Common base:** Done. Index, styles, `apiClient.js`, backend bootstrap (`main.py`/`config.py`), DB and `seed.py`.
-- **Official alerts (G2):** Sprint 1 completed and verified in `feature/alerts` (API `/api/alertas` with GDACS + fallback, screen and tests green). Dev integration pending (PR `feature/alerts` → `dev`).
-- **Map (G1):** In progress. PR #18 open and blocked (missing GET/PATCH, remove mock, centralize in `necesidadesApi.js`).
-- **Volunteering/Donations (G3):** In progress. Frontend in `dev`; backend pending. PR #27 (config/support) under review.
-- **Persons/Offline (G4):** In progress. PR #20 open (estoy-bien backend ready, 45 tests).
+- **Official alerts (G2):** Sprint 1 completed and verified in `feature/alerts` (API `/api/alertas` with GDACS + fallback, screen and tests green). Dev integration pending (PR #30, open and mergeable after resolving the conflict with `dev`).
+- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
+- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
+- **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
 - **Kanban:** Issues are auto-created when merging `feature/docs → dev` via `.github/workflows/setup-kanban.yml` (uses `GITHUB_TOKEN`). The board is a personal V2 Project owned by the PM.
 
 ## Teams
