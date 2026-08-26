@@ -73,24 +73,21 @@ def _split_legacy_name(nombre: str) -> tuple[str, str]:
     first, _, last = cleaned.partition(" ")
     return first.strip(), last.strip()
 
-
 def _resolve_coordination_status(row: dict[str, Any]) -> str:
     coordination_status = (row.get("coordination_status") or "").strip()
-    is_available = bool(row.get("disponible", 0))
 
-    if coordination_status == CoordinationStatus.ASSIGNED.value:
-        return CoordinationStatus.ASSIGNED.value
-    if coordination_status == CoordinationStatus.RESTING.value:
-        return CoordinationStatus.RESTING.value
-    if coordination_status == CoordinationStatus.AVAILABLE.value and not is_available:
-        return CoordinationStatus.RESTING.value
     if coordination_status in {
         CoordinationStatus.AVAILABLE.value,
         CoordinationStatus.ASSIGNED.value,
         CoordinationStatus.RESTING.value,
     }:
         return coordination_status
-    return CoordinationStatus.AVAILABLE.value if is_available else CoordinationStatus.RESTING.value
+
+    return (
+        CoordinationStatus.AVAILABLE.value
+        if bool(row.get("disponible", 0))
+        else CoordinationStatus.RESTING.value
+    )
 
 
 def _to_frontend_dict(row: dict[str, Any]) -> dict[str, Any]:
