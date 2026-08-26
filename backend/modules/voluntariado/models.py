@@ -328,7 +328,8 @@ def create_volunteer_pending_from_frontend(
     legacy_name = f"{data.first_name} {data.last_name}".strip()
     legacy_skills = (data.skills or "").strip()
     availability_slots = [
-        {"starts_at": slot.starts_at} for slot in data.availability_slots
+    {"starts_at": slot.starts_at.isoformat()}
+    for slot in data.availability_slots
     ]
     availability = _availability_summary(availability_slots)
 
@@ -353,7 +354,7 @@ def create_volunteer_pending_from_frontend(
                 data.first_name,
                 data.last_name,
                 data.dni,
-                data.birth_date,
+                data.birth_date.isoformat(),
                 data.phone,
                 data.locality,
                 json.dumps([task.value for task in data.tasks]),
