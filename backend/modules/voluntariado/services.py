@@ -75,12 +75,20 @@ def register_volunteer(
     reject_url = (
         f"{BASE_URL}/api/voluntarios/{volunteer['id']}/rechazar?token={admin_token}"
     )
-    email_service.send_admin_new_volunteer_email(
-        volunteer=volunteer,
-        documents=stored_documents,
-        approve_url=approve_url,
-        reject_url=reject_url,
-    )
+    
+    try:
+        email_service.send_admin_new_volunteer_email(
+            volunteer=volunteer,
+            documents=stored_documents,
+            approve_url=approve_url,
+            reject_url=reject_url,
+        )
+    except Exception:
+        logger.exception(
+            "No se pudo enviar el correo administrativo del voluntario %s. "
+            "La solicitud permanece registrada.",
+            volunteer["id"],
+        )
 
     return _build_registration_response(volunteer)
 
@@ -105,19 +113,19 @@ def register_volunteer_from_frontend(
     reject_url = (
         f"{BASE_URL}/api/voluntarios/{volunteer['id']}/rechazar?token={admin_token}"
     )
-try:
-    email_service.send_admin_new_volunteer_email(
-        volunteer=models.get_volunteer(volunteer["id"]),
-        documents=[],
-        approve_url=approve_url,
-        reject_url=reject_url,
-    )
-except Exception:
-    logger.exception(
-        "No se pudo enviar el correo administrativo del voluntario %s. "
-        "La solicitud permanece registrada.",
-        volunteer["id"],
-    )
+    try:
+        email_service.send_admin_new_volunteer_email(
+            volunteer=models.get_volunteer(volunteer["id"]),
+            documents=[],
+            approve_url=approve_url,
+            reject_url=reject_url,
+        )
+    except Exception:
+        logger.exception(
+            "No se pudo enviar el correo administrativo del voluntario %s. "
+            "La solicitud permanece registrada.",
+            volunteer["id"],
+        )
 
     return volunteer
 
@@ -208,6 +216,7 @@ def update_availability(
         volunteer_id,
         volunteer_token,
     )
+
     if volunteer is None:
         return None
 
