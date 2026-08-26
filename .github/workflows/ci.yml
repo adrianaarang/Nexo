@@ -20,7 +20,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: Ejecutar tests
         working-directory: ./backend
-        run: pyTHON -m tests/
+        run: python -m tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
