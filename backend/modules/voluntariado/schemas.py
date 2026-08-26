@@ -3,7 +3,7 @@
 Los nombres de Python siguen la convención técnica en inglés. Los alias en
 español conservan el contrato JSON ya compartido con el equipo de frontend.
 """
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Self
 
@@ -70,7 +70,7 @@ class AvailabilitySlot(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    starts_at: str = Field(min_length=10, max_length=30)
+    starts_at: datetime
 
 
 def _validate_dni(value: str) -> str:
@@ -91,7 +91,7 @@ class VolunteerFrontendCreate(BaseModel):
     first_name: str = Field(min_length=2, max_length=100)
     last_name: str = Field(min_length=2, max_length=150)
     dni: str = Field(min_length=9, max_length=9)
-    birth_date: str = Field(min_length=10, max_length=10)
+    birth_date: date
     phone: str = Field(min_length=3, max_length=30)
     locality: str = Field(min_length=2, max_length=120)
     tasks: list[VolunteerTask] = Field(min_length=1)
@@ -115,12 +115,45 @@ class VolunteerFrontendCreate(BaseModel):
             return _validate_dni(value)
         return value
 
+    @field_validator("birth_date")
+    @classmethod
+    def validate_birth_date(cls, value: date) -> date:
+        if value > date.today():
+            raise ValueError("La fecha de nacimiento no puede estar en el futuro.")
+        return value
+
+    @field_validator("availability_slots")
+    @classmethod
+    def validate_availability_slots(
+        cls,
+        slots: list[AvailabilitySlot],
+    ) -> list[AvailabilitySlot]:
+        for slot in slots:
+            starts_at = slot.starts_at
+
+            if starts_at.tzinfo is None:
+                current_time = datetime.now()
+            else:
+                current_time = datetime.now(starts_at.tzinfo)
+
+            if starts_at < current_time:
+                raise ValueError(
+                    "Las franjas de disponibilidad no pueden estar en el pasado."
+                )
+
+        return slots
+
     @model_validator(mode="after")
     def validate_vehicle_type(self) -> Self:
-        if self.transportation == TransportationType.OWN_VEHICLE and self.vehicle_type is None:
+        if (
+            self.transportation == TransportationType.OWN_VEHICLE
+            and self.vehicle_type is None
+        ):
             raise ValueError("vehicle_type es obligatorio con own_vehicle.")
+
         if self.transportation == TransportationType.NEEDS_TRANSPORT:
             self.vehicle_type = None
+
         return self
 
 
