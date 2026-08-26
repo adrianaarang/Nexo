@@ -2,7 +2,7 @@
 # Crea el Kanban de NEXO (labels, milestones e issues epics) de forma idempotente.
 # Se ejecuta en CI al mergear a dev (usa GITHUB_TOKEN, sin permisos extra).
 # Tambien es ejecutable en local:  REPO=adrianaarang/Nexo gh auth login && bash scripts/setup-kanban.sh
-set -uo pipefail
+set -o pipefail
 REPO="${REPO:-adrianaarang/Nexo}"
 
 label() {
@@ -26,11 +26,12 @@ issue() {
   local cmd=(gh issue create -R "$REPO" -t "$title" -b "$body" -l "$labels")
   [ -n "$ms" ] && cmd+=(-m "$ms")
   [ -n "$assignee" ] && cmd+=(-a "$assignee")
-  local out
-  out=$("${cmd[@]}" --json number --jq .number)
-  echo "creado #$out: $title"
-  if [ "$close" = "closed" ]; then
-    gh issue close "$out" -R "$REPO" \
+  local out num
+  out=$("${cmd[@]}" 2>&1)
+  num=$(printf '%s' "$out" | grep -oE '/issues/[0-9]+' | head -1 | grep -oE '[0-9]+')
+  echo "creado #${num:-?}: $title"
+  if [ "$close" = "closed" ] && [ -n "$num" ]; then
+    gh issue close "$num" -R "$REPO" \
       -c "Cerrado automaticamente por setup-kanban: trabajo ya completado en su rama." >/dev/null 2>&1 || true
     echo "  -> cerrado (done)"
   fi
