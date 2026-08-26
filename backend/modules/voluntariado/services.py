@@ -1,5 +1,6 @@
 """Orquestación de negocio del módulo de voluntariado."""
 import secrets
+import logging
 from typing import Any
 
 from fastapi import UploadFile
@@ -8,7 +9,7 @@ from config import BASE_URL
 from modules.voluntariado import email_service, models
 from modules.voluntariado.file_service import validate_and_store_documents
 from modules.voluntariado.schemas import VolunteerCreate, VolunteerFrontendCreate, VolunteerStatus
-
+logger = logging.getLogger(__name__)
 
 def _build_document_response(document: dict[str, Any]) -> dict[str, Any]:
     return {
@@ -104,11 +105,18 @@ def register_volunteer_from_frontend(
     reject_url = (
         f"{BASE_URL}/api/voluntarios/{volunteer['id']}/rechazar?token={admin_token}"
     )
+try:
     email_service.send_admin_new_volunteer_email(
         volunteer=models.get_volunteer(volunteer["id"]),
         documents=[],
         approve_url=approve_url,
         reject_url=reject_url,
+    )
+except Exception:
+    logger.exception(
+        "No se pudo enviar el correo administrativo del voluntario %s. "
+        "La solicitud permanece registrada.",
+        volunteer["id"],
     )
 
     return volunteer
