@@ -180,7 +180,7 @@ class VolunteerFrontendRegistrationResponse(VolunteerFrontendResponse):
     """Respuesta del registro JSON con datos personales adicionales."""
 
     dni: str
-    birth_date: str
+    birth_date: date
     phone: str
 
 
