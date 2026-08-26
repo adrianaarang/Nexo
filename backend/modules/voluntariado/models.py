@@ -182,8 +182,8 @@ def list_volunteers_for_frontend(
         parameters.append(f"%{skill.strip().lower()}%")
         
     if is_available is not None:
-    conditions.append("disponible = ?")
-    parameters.append(1 if is_available else 0)
+        conditions.append("disponible = ?")
+        parameters.append(1 if is_available else 0)
     
     if coordination_status is not None:
         conditions.append("coordination_status = ?")
