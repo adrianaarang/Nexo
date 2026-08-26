@@ -57,12 +57,14 @@ def _normalize_uploads(documentos: list[UploadFile] | None) -> list[UploadFile]:
 def get_volunteers(
     coordination_status: str | None = Query(default=None, alias="status"),
     skill: str | None = Query(default=None, alias="habilidad"),
+    is_available: bool | None = Query(default=None, alias="disponible"),
 ):
     """Devuelve voluntarios aprobados visibles en la app."""
 
     return list_volunteers_for_frontend(
         coordination_status=coordination_status,
         skill=skill,
+        is_available=is_available,
     )
 
 
