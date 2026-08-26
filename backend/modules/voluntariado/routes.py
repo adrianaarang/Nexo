@@ -3,6 +3,8 @@
 Este archivo recibe las peticiones HTTP relacionadas con voluntarios.
 La lógica de negocio vive en services.py y el acceso a datos en models.py.
 """
+import json
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -111,18 +113,26 @@ async def create_new_volunteer(request: Request):
     """Registra una solicitud pendiente (JSON frontend o multipart legacy)."""
 
     content_type = request.headers.get("content-type", "")
+
     if "application/json" in content_type:
         try:
-            payload = VolunteerFrontendCreate.model_validate(await request.json())
-        except ValidationError as exc:
+            raw_payload = await request.json()
+            payload = VolunteerFrontendCreate.model_validate(raw_payload)
+        except (
+            json.JSONDecodeError,
+            UnicodeDecodeError,
+            ValidationError,
+        ) as exc:
             return _error_response(
                 status.HTTP_422_UNPROCESSABLE_ENTITY,
                 "Datos de registro no válidos",
                 str(exc),
             )
+
         return services.register_volunteer_from_frontend(payload)
 
     form = await request.form()
+
     try:
         volunteer_data = VolunteerCreate(
             nombre=form.get("nombre"),
@@ -138,6 +148,7 @@ async def create_new_volunteer(request: Request):
         )
 
     uploads: list[UploadFile] = []
+
     for value in form.getlist("documentos"):
         if isinstance(value, UploadFile) and value.filename:
             uploads.append(value)
