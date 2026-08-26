@@ -172,6 +172,7 @@ def list_volunteers(
 def list_volunteers_for_frontend(
     coordination_status: str | None = None,
     skill: str | None = None,
+    is_available: bool | None = None,
 ) -> list[dict[str, Any]]:
     """Lista voluntarios aprobados en el contrato del frontend."""
 
@@ -182,6 +183,11 @@ def list_volunteers_for_frontend(
     if skill is not None:
         conditions.append("LOWER(habilidades) LIKE ?")
         parameters.append(f"%{skill.strip().lower()}%")
+        
+    if is_available is not None:
+    conditions.append("disponible = ?")
+    parameters.append(1 if is_available else 0)
+    
     if coordination_status is not None:
         conditions.append("coordination_status = ?")
         parameters.append(coordination_status)
