@@ -6,8 +6,12 @@ archivo salvo para registrar un router nuevo si crean un módulo.
 
 uvicorn main:app --reload --port 8000
 """
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Obtener la ruta del directorio base del Backend
+BASE_DIR = Path(__file__).resolve().parent
 
 # Inicializar la configuración de logs antes de importar otros módulos 
 from middleware.logging_config import setup_logging
@@ -47,10 +51,8 @@ app.include_router(donaciones_router)      # Equipo 3 — núcleo
 app.include_router(personas_router)        # Equipo 4 — siguiente prioridad
 app.include_router(sync_router)            # Equipo 4 — siguiente prioridad (modo offline)
 
-# Se llama al cargar el módulo (no solo en un evento de startup) para que
-# también funcione con TestClient en los tests.
+# Inicializar la base de datos (ejecuta esquemas y migraciones automáticamente)
 init_db()
-
 
 @app.get("/api/health")
 def health():
