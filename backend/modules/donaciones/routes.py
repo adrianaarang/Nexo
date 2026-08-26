@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from modules.donaciones import models
 from modules.donaciones.schemas import (
     DonationCreate,
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/donaciones", tags=["donaciones"])
 
 
 @router.get("", response_model=list[DonationResponse])
-def list_donations(donation_type: DonationType | None = None):
+def list_donations(donation_type: DonationType | None = Query(default=None, alias="tipo")):
     return models.list_donations(donation_type=donation_type)
 
 
