@@ -180,7 +180,6 @@ volunteerForm.addEventListener('submit', async (event) => {
       vehicle_type: formData.get('vehicle_type') || null,
       availability_slots: getAvailabilitySlots(formData),
       skills: formData.get('skills'),
-      status: 'available',
     });
     volunteerForm.reset();
     updateVehicleTypeVisibility();
