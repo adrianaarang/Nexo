@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanban · Módulo de necesidades · Nexo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-page:#F4F5F1;
+    --surface:#FFFFFF;
+    --surface-muted:#EEF0EA;
+    --ink:#16231F;
+    --ink-soft:#4B534D;
+    --ink-mute:#868C84;
+    --border:#DFE2D9;
+    --border-strong:#C9CDC0;
+
+    --amber-bg:#FBEFDA; --amber-fg:#7A4E0B; --amber-line:#E2A33D;
+    --blue-bg:#E4EFFA;  --blue-fg:#0F4C81;  --blue-line:#3E7CB1;
+    --teal-bg:#DFF3EA;  --teal-fg:#0B5B45;  --teal-line:#1E9E76;
+
+    --purple-bg:#EEEDFE; --purple-fg:#3C3489;
+    --coral-bg:#FAECE7;  --coral-fg:#712B13;
+    --amber2-bg:#FAEEDA; --amber2-fg:#633806;
+
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg-page);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{max-width:1180px;margin:0 auto;padding:48px 32px 80px}
+
+  .masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap}
+  .masthead-left p.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);margin:0 0 8px}
+  .masthead-left h1{font-family:var(--font-display);font-weight:600;font-size:30px;margin:0;color:var(--ink)}
+  .masthead-left p.sub{font-size:14px;color:var(--ink-soft);margin:8px 0 0;max-width:480px;line-height:1.5}
+
+  .overall{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 22px}
+  .ring{position:relative;width:56px;height:56px;flex-shrink:0}
+  .ring svg{transform:rotate(-90deg)}
+  .ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:600;font-size:14px}
+  .overall-label{font-size:12px;color:var(--ink-mute);font-family:var(--font-mono)}
+  .overall-value{font-family:var(--font-display);font-weight:600;font-size:15px;color:var(--ink)}
+
+  .board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+  @media (max-width:860px){.board{grid-template-columns:1fr}}
+
+  .col{display:flex;flex-direction:column;gap:14px}
+  .col-head{display:flex;align-items:center;gap:10px;padding:2px 4px 6px;border-bottom:2px solid var(--line, var(--border-strong))}
+  .col-dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+  .col-title{font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:.01em;color:var(--ink)}
+  .col-count{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--ink-mute);background:var(--surface-muted);border-radius:20px;padding:2px 9px}
+
+  .col[data-col="abierta"]{--line:var(--amber-line)}
+  .col[data-col="en_proceso"]{--line:var(--blue-line)}
+  .col[data-col="cubierta"]{--line:var(--teal-line)}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px 18px;transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease}
+  .card:hover{transform:translateY(-2px);border-color:var(--border-strong);box-shadow:0 6px 20px rgba(22,35,31,.06)}
+
+  .card-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+  .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:600;font-size:13px;flex-shrink:0}
+  .avatar.purple{background:var(--purple-bg);color:var(--purple-fg)}
+  .avatar.teal{background:var(--teal-bg);color:var(--teal-fg)}
+  .avatar.coral{background:var(--coral-bg);color:var(--coral-fg)}
+  .avatar.blue{background:var(--blue-bg);color:var(--blue-fg)}
+  .avatar.amber{background:var(--amber2-bg);color:var(--amber2-fg)}
+
+  .person{font-size:14.5px;font-weight:600;margin:0;color:var(--ink)}
+  .role{font-size:12px;color:var(--ink-soft);margin:1px 0 0}
+
+  .file{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);background:var(--surface-muted);border-radius:7px;padding:3px 8px;margin-bottom:12px;max-width:100%}
+  .file svg{flex-shrink:0;opacity:.65}
+  .file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .task{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+  .task label{cursor:pointer}
+  .task.done label{color:var(--ink-mute);text-decoration:line-through}
+
+  .task input{appearance:none;-webkit-appearance:none;width:16px;height:16px;margin-top:2px;flex-shrink:0;border:1.5px solid var(--border-strong);border-radius:5px;cursor:pointer;position:relative;transition:background .15s, border-color .15s}
+  .task input:checked{background:var(--teal-line);border-color:var(--teal-line)}
+  .task input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(40deg)}
+
+  .progress-row{display:flex;align-items:center;gap:8px;margin-top:14px}
+  .progress{flex:1;height:5px;background:var(--surface-muted);border-radius:3px;overflow:hidden}
+  .progress-bar{height:100%;border-radius:3px;background:var(--border-strong);transition:width .25s ease, background .25s ease}
+  .progress-label{font-family:var(--font-mono);font-size:11px;color:var(--ink-mute);min-width:32px;text-align:right}
+
+  .footnote{font-size:12px;color:var(--ink-mute);margin-top:32px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="masthead">
+    <div class="masthead-left">
+      <p class="eyebrow">Nexo · Equipo 1</p>
+      <h1>Módulo de necesidades</h1>
+      <p class="sub">Reparto de tareas entre Elena, Gema, Adriana, Josema y Helen, siguiendo los estados de la propia app.</p>
+    </div>
+    <div class="overall">
+      <div class="ring">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <circle cx="28" cy="28" r="24" fill="none" stroke="#EEF0EA" stroke-width="6"/>
+          <circle id="ring-progress" cx="28" cy="28" r="24" fill="none" stroke="#1E9E76" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+        </svg>
+        <div class="ring-pct" id="ring-pct">0%</div>
+      </div>
+      <div>
+        <p class="overall-label">Progreso del equipo</p>
+        <p class="overall-value" id="overall-count">0 / 0 tareas</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <p class="footnote">Los checks son tu seguimiento visual y no se guardan al recargar la página.</p>
+
+</div>
+
+<script>
+const personas = [
+  {
+    id: "helen",
+    nombre: "Helen",
+    rol: "Persona 5 — Formulario y tarjetas",
+    archivo: "necesidadCard.js + mapaNecesidades.js (parte del formulario)",
+    color: "amber",
+    estado: "cubierta",
+    tareas: [
+      { t: "Formulario de reportar necesidad con los campos del contrato (titulo, tipo, descripcion, latitud, longitud, prioridad)", hecha: true },
+      { t: "Validación del formulario en el cliente antes de enviar", hecha: true },
+      { t: "necesidadCard.js: cómo se ve cada necesidad en la lista lateral", hecha: true },
+      { t: "Botón de marcarla como cubierta desde la tarjeta", hecha: true },
+      { t: "Conectar el formulario a crearNecesidad de Adriana", hecha: true },
+      { t: "Conectar el botón de estado a actualizarEstadoNecesidad de Adriana", hecha: true }
+    ]
+  },
+  {
+    id: "josema",
+    nombre: "Josema",
+    rol: "Persona 4 — El mapa",
+    archivo: "mapa.html + mapaNecesidades.js (parte del mapa)",
+    color: "blue",
+    estado: "cubierta",
+    tareas: [
+      { t: "Inicializar Leaflet en mapa.html", hecha: true },
+      { t: "Array de necesidades inventadas para trabajar sin depender de la API", hecha: true },
+      { t: "Marcadores con color según prioridad (baja/media/alta/critica)", hecha: true },
+      { t: "Popup con título, tipo y descripción al hacer clic en un marcador", hecha: true },
+      { t: "Filtro por tipo en el mapa", hecha: true },
+      { t: "Sustituir el array inventado por necesidadesApi.js cuando esté lista", hecha: true }
+    ]
+  },
+  {
+    id: "adriana",
+    nombre: "Adriana",
+    rol: "Persona 3 — Conexión front-back",
+    archivo: "frontend/js/core/mapa-necesidades/necesidadesApi.js",
+    color: "coral",
+    estado: "cubierta",
+    tareas: [
+      { t: "obtenerNecesidades con filtros tipo/estado", hecha: true },
+      { t: "crearNecesidad", hecha: true },
+      { t: "actualizarEstadoNecesidad", hecha: true },
+      { t: "Manejo de errores 404, 409 y 422 (incluyendo el formato propio de FastAPI)", hecha: true },
+      { t: "Enums espejo de schemas.py exportados para el frontend", hecha: true },
+      { t: "Script de pruebas de integración end-to-end", hecha: true },
+      { t: "Detectar y documentar el desajuste de la columna titulo en la base local", hecha: true }
+    ]
+  },
+  {
+    id: "gema",
+    nombre: "Gema",
+    rol: "Persona 2 — Endpoints",
+    archivo: "backend/modules/necesidades/routes.py",
+    color: "teal",
+    estado: "cubierta",
+    tareas: [
+      { t: "GET /api/necesidades con filtros tipo y estado", hecha: true },
+      { t: "POST /api/necesidades con status_code 201", hecha: true },
+      { t: "PATCH /api/necesidades/{id}/estado", hecha: true },
+      { t: "Formato de error {error, detalle} para 404", hecha: true },
+      { t: "Formato de error {error, detalle} para 409 (transición inválida)", hecha: true },
+      { t: "Conectar con los modelos reales de Elena (ya no datos inventados)", hecha: true }
+    ]
+  },
+  {
+    id: "elena",
+    nombre: "Elena",
+    rol: "Persona 1 — Base de datos y modelos",
+    archivo: "backend/modules/necesidades/models.py + schemas.py",
+    color: "purple",
+    estado: "cubierta",
+    tareas: [
+      { t: "Definir schemas.py: NeedType, NeedPriority, NeedStatus y los alias en español", hecha: true },
+      { t: "NeedCreate con validación de campos (longitud, rango de coordenadas, extra=forbid)", hecha: true },
+      { t: "NeedStatusUpdate para el PATCH de estado", hecha: true },
+      { t: "list_needs con filtro opcional por tipo y estado", hecha: true },
+      { t: "get_need por id", hecha: true },
+      { t: "create_need: INSERT y devolución del registro completo", hecha: true },
+      { t: "update_need_status con transición controlada (abierta → en_proceso → cubierta) e idempotencia", hecha: true },
+      { t: "Migración 001_init.sql con la tabla necesidades y sus columnas", hecha: true }
+    ]
+  },
+
+  {
+    id: "josema-punto-mapa",
+    nombre: "Josema",
+    rol: "Mejora: elegir punto en el mapa",
+    archivo: "mapa.html + mapaNecesidades.js + formularioNecesidad.js",
+    color: "blue",
+    estado: "abierta",
+    tareas: [
+      { t: "Permitir hacer clic en el mapa para fijar latitud/longitud (alternativa a usar la ubicación GPS)", hecha: false },
+      { t: "Mostrar un marcador temporal en el punto elegido antes de confirmar", hecha: false },
+      { t: "Rellenar input-lat/input-lng automáticamente al hacer clic", hecha: false },
+      { t: "Decidir con el equipo si GPS y clic en mapa conviven o si el clic sustituye al botón de ubicación", hecha: false }
+    ]
+  },
+
+  {
+    id: "elena-ia",
+    nombre: "Elena",
+    rol: "Cimiento de IA",
+    archivo: "backend/modules/ia/cliente_ia.py + schemas.py + routes.py",
+    color: "purple",
+    estado: "abierta",
+    tareas: [
+      { t: "generar_texto(prompt) — para los resúmenes y la comparación de texto", hecha: false },
+      { t: "clasificar_imagen(imagen_base64) — para la mejora de foto", hecha: false },
+      { t: "comparar_textos(texto1, texto2) — para la detección de duplicados", hecha: false },
+      { t: "Endpoint GET /api/ia/estado para confirmar que el cliente responde", hecha: false },
+      { t: "Publicar las firmas de las funciones cuanto antes para que las demás no esperen", hecha: false }
+    ]
+  },
+  {
+    id: "gema-ia",
+    nombre: "Gema",
+    rol: "Mejora C: resumen de situación",
+    archivo: "backend/modules/ia/resumen.py + panel.html + panelResumen.js",
+    color: "teal",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint GET /api/ia/resumen que recoge las necesidades y llama a generar_texto()", hecha: false },
+      { t: "Página nueva panel.html para el panel de coordinación", hecha: false },
+      { t: "panelResumen.js: pintar el resumen en texto + tarjetas de estadísticas", hecha: false }
+    ]
+  },
+  {
+    id: "adriana-ia",
+    nombre: "Adriana",
+    rol: "Mejora D: duplicados",
+    archivo: "backend/modules/ia/duplicados.py + necesidadesApi.js + formularioNecesidad.js",
+    color: "coral",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint POST /api/ia/duplicados/comprobar (texto + distancia)", hecha: false },
+      { t: "Nueva función comprobarDuplicados() en necesidadesApi.js", hecha: false },
+      { t: "Aviso en el formulario si hay una necesidad muy parecida cerca", hecha: false }
+    ]
+  },
+  {
+    id: "josema-ia",
+    nombre: "Josema",
+    rol: "Mejora B: mapa de calor",
+    archivo: "mapaCalor.js (+ clustering.py opcional)",
+    color: "blue",
+    estado: "abierta",
+    tareas: [
+      { t: "Capa de calor con Leaflet.heat a partir de loadedNeeds", hecha: false },
+      { t: "Botón para alternar entre marcadores normales y mapa de calor", hecha: false },
+      { t: "Opcional: clustering.py con DBSCAN para zonas críticas reales", hecha: false }
+    ]
+  },
+  {
+    id: "helen-ia",
+    nombre: "Helen",
+    rol: "Mejora A: foto → clasificación",
+    archivo: "backend/modules/ia/clasificar_foto.py + clasificadorFoto.js",
+    color: "amber",
+    estado: "abierta",
+    tareas: [
+      { t: "Endpoint POST /api/ia/clasificar-foto usando clasificar_imagen()", hecha: false },
+      { t: "Input de foto en mapa.html", hecha: false },
+      { t: "clasificadorFoto.js: subir la foto y mostrar la sugerencia de la IA", hecha: false },
+      { t: "Autorrellenar tipo y prioridad si se acepta la sugerencia", hecha: false }
+    ]
+  }
+];
+
+const columnas = [
+  { key: "abierta", titulo: "Abierta" },
+  { key: "en_proceso", titulo: "En proceso" },
+  { key: "cubierta", titulo: "Cubierta" }
+];
+
+const fileIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
+
+const boardEl = document.getElementById("board");
+let totalTareas = 0;
+
+function actualizarResumen() {
+  const marcadas = document.querySelectorAll(".task input:checked").length;
+  const pct = totalTareas ? Math.round((marcadas / totalTareas) * 100) : 0;
+  document.getElementById("overall-count").textContent = `${marcadas} / ${totalTareas} tareas`;
+  document.getElementById("ring-pct").textContent = pct + "%";
+  const circ = 2 * Math.PI * 24;
+  document.getElementById("ring-progress").style.strokeDashoffset = circ - (circ * pct / 100);
+}
+
+columnas.forEach(col => {
+  const colEl = document.createElement("div");
+  colEl.className = "col";
+  colEl.dataset.col = col.key;
+
+  const personasCol = personas.filter(p => p.estado === col.key);
+
+  const head = document.createElement("div");
+  head.className = "col-head";
+  head.innerHTML = `<span class="col-dot"></span><span class="col-title">${col.titulo}</span><span class="col-count">${personasCol.length}</span>`;
+  colEl.appendChild(head);
+
+  personasCol.forEach(persona => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const initials = persona.nombre.slice(0, 2).toUpperCase();
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="avatar ${persona.color}">${initials}</div>
+        <div>
+          <p class="person">${persona.nombre}</p>
+          <p class="role">${persona.rol}</p>
+        </div>
+      </div>
+      <span class="file">${fileIcon}<span>${persona.archivo}</span></span>
+      <ul class="tasks"></ul>
+      <div class="progress-row">
+        <div class="progress"><div class="progress-bar" style="width:0%"></div></div>
+        <span class="progress-label">0%</span>
+      </div>
+    `;
+
+    const list = card.querySelector(".tasks");
+    const bar = card.querySelector(".progress-bar");
+    const label = card.querySelector(".progress-label");
+    const barColor = col.key === "cubierta" ? "var(--teal-line)" : col.key === "en_proceso" ? "var(--blue-line)" : "var(--amber-line)";
+
+    function actualizarBarra() {
+      const total = persona.tareas.length;
+      const hechas = list.querySelectorAll("input:checked").length;
+      const pct = Math.round((hechas / total) * 100);
+      bar.style.width = pct + "%";
+      bar.style.background = barColor;
+      label.textContent = pct + "%";
+      actualizarResumen();
+    }
+
+    persona.tareas.forEach((tarea, i) => {
+      totalTareas += 1;
+
+      const li = document.createElement("li");
+      li.className = "task" + (tarea.hecha ? " done" : "");
+      const id = `${persona.id}-${i}`;
+      li.innerHTML = `<input type="checkbox" id="${id}" ${tarea.hecha ? "checked" : ""}><label for="${id}">${tarea.t}</label>`;
+      const input = li.querySelector("input");
+      input.addEventListener("change", () => {
+        li.classList.toggle("done", input.checked);
+        actualizarBarra();
+      });
+      list.appendChild(li);
+    });
+
+    actualizarBarra();
+    colEl.appendChild(card);
+  });
+
+  boardEl.appendChild(colEl);
+});
+
+actualizarResumen();
+</script>
+
+</body>
+</html>
