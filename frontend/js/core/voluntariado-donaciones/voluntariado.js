@@ -184,7 +184,6 @@ volunteerForm.addEventListener('submit', async (event) => {
     volunteerForm.reset();
     updateVehicleTypeVisibility();
     formStatus.textContent = 'Solicitud enviada. Un administrador la revisará antes de publicarla.';
-    setFormVisible(false);
   } catch (error) {
     formStatus.textContent = error.message;
   } finally {
