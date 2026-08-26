@@ -3,30 +3,30 @@
 Este módulo recibe las peticiones HTTP relacionadas con personas. El acceso
 a la base de datos se delega en ``models.py`` y la validación de entrada y
 salida en ``schemas.py``.
-
-El listado y el registro general de personas siguen pendientes de la pareja
-responsable de Registro de Personas.
 """
-from fastapi import APIRouter,  Query,status
+
+from fastapi import APIRouter, Query, status
 from fastapi.responses import JSONResponse
 
 from modules.personas import models
-from modules.personas.models import mark_person_safe as _models_mark_safe
+from modules.personas.models import mark_person_safe
 from modules.personas.schemas import (
     PersonCreate,
     PersonResponse,
-    PersonSafeRequest
-)  
+    PersonSafeRequest,
+)
 
 router = APIRouter(
     prefix="/api/personas",
     tags=["personas"],
 )
 
+
 @router.get("/", response_model=list[PersonResponse])
 def list_personas(q: str | None = Query(None)):
-    """Obtiene el listado de personas activas con opción de filtro por búsqueda"""
+    """Obtiene el listado de personas activas con opción de filtro."""
     return models.get_all_personas(search_q=q)
+
 
 @router.post(
     "/estoy-bien",
@@ -47,20 +47,23 @@ def list_personas(q: str | None = Query(None)):
 )
 def mark_safe_endpoint(request: PersonSafeRequest):
     """Marca como segura una persona previamente registrada."""
-    person_id = getattr(request, "person_id", None) or getattr(request, "id_persona", None)
-    
-    # Debe llamar a la función que monkeypatch intercepta en las pruebas  
-    person = _models_mark_safe(person_id)
-    
+
+    person = mark_person_safe(request.person_id)
+
     if person is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "error": "Persona no encontrada",
-                "detalle": f"No existe una persona con el identificador {person_id}.",
+                "detalle": (
+                    f"No existe una persona con el identificador "
+                    f"{request.person_id}."
+                ),
             },
         )
+
     return person
+
 
 @router.post(
     "/",
@@ -68,18 +71,25 @@ def mark_safe_endpoint(request: PersonSafeRequest):
     status_code=status.HTTP_201_CREATED,
 )
 def create_persona(payload: PersonCreate):
-    return models.create_persona(payload.model_dump(by_alias=True))
+    return models.create_persona(
+        payload.model_dump(by_alias=True)
+    )
 
 
 @router.get("/{persona_id}", response_model=PersonResponse)
 def get_persona(persona_id: int):
     person = models.get_persona_by_id(persona_id)
+
     if person is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
                 "error": "Persona no encontrada",
-                "detalle": f"No existe una persona con el identificador {persona_id}",
+                "detalle": (
+                    f"No existe una persona con el identificador "
+                    f"{persona_id}"
+                ),
             },
         )
+
     return person
