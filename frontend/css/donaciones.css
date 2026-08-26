@@ -26,7 +26,7 @@
 }
 
 .nexo-select__trigger:hover,
-.nexo-select.abierto .nexo-select__trigger {
+.nexo-select.nexo-select--abierto .nexo-select__trigger {
   border-color: var(--nexo-orange, #F2542D);
 }
 
@@ -38,7 +38,7 @@
   transition: transform 0.22s ease;
 }
 
-.nexo-select.abierto .nexo-select__chevron {
+.nexo-select.nexo-select--abierto .nexo-select__chevron {
   transform: rotate(180deg);
 }
 
@@ -62,7 +62,7 @@
   transform-origin: top center;
 }
 
-.nexo-select.abierto .nexo-select__menu {
+.nexo-select.nexo-select--abierto .nexo-select__menu {
   display: block;
   animation: dropdown-open 0.2s ease forwards;
 }
@@ -80,9 +80,17 @@
   color: var(--nexo-text, #F5F5F3);
 }
 
-.nexo-select__menu li.seleccionado {
+.nexo-select__menu li.nexo-select__opcion--activa {
   color: var(--nexo-orange, #F2542D);
   font-weight: 700;
+}
+
+.nexo-select__label--placeholder {
+  color: var(--nexo-text-muted, #9CA0A8);
+}
+
+.nexo-select__trigger--error {
+  border-color: var(--nexo-orange, #F2542D);
 }
 
 /* --- Variante para formulario (más grande) --- */
@@ -136,6 +144,12 @@
 }
 
 /* --- Layout principal --- */
+.donaciones-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2rem;
+}
+
 .donaciones-layout {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -254,21 +268,21 @@
 }
 
 .donacion-led--activa .donacion-led__punto {
-  background: #4CAF50;
-  box-shadow: 0 0 6px #4CAF50, 0 0 12px rgba(76,175,80,0.4);
+  background: var(--nexo-green, #4CAF50);
+  box-shadow: 0 0 6px var(--nexo-green, #4CAF50), 0 0 12px rgba(76,175,80,0.4);
 }
 
 .donacion-led--activa {
-  color: #4CAF50;
+  color: var(--nexo-green, #4CAF50);
 }
 
 .donacion-led--entregada .donacion-led__punto {
-  background: #F2542D;
-  box-shadow: 0 0 6px #F2542D, 0 0 12px rgba(242,84,45,0.4);
+  background: var(--nexo-orange, #F2542D);
+  box-shadow: 0 0 6px var(--nexo-orange, #F2542D), 0 0 12px rgba(242,84,45,0.4);
 }
 
 .donacion-led--entregada {
-  color: #F2542D;
+  color: var(--nexo-orange, #F2542D);
 }
 
 /* --- Formulario --- */
@@ -289,6 +303,19 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--nexo-text-muted, #9CA0A8);
+}
+
+.nexo-form__campo-nota {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.donaciones-contador {
+  display: block;
+  color: var(--nexo-text-muted, #9CA0A8);
+  font-size: 0.72rem;
+  text-align: right;
 }
 
 /* --- Botón publicar --- */
