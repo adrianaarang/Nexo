@@ -256,8 +256,12 @@ def reject_volunteer_from_api(volunteer_id: int):
         )
     return result
 
+@router.patch(
+    "/{volunteer_id}",
+    response_model=VolunteerFrontendResponse,
+    dependencies=[Depends(requiere_clave_organizador)],
+)
 
-@router.patch("/{volunteer_id}", response_model=VolunteerFrontendResponse)
 def update_volunteer_coordination_status(
     volunteer_id: int,
     update: VolunteerCoordinationUpdate,
