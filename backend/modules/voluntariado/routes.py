@@ -3,17 +3,19 @@
 Este archivo recibe las peticiones HTTP relacionadas con voluntarios.
 La lógica de negocio vive en services.py y el acceso a datos en models.py.
 """
+import json
+
 from fastapi import (
     APIRouter,
     Depends,
-    File,
-    Form,
     Header,
     Query,
+    Request,
     UploadFile,
     status,
 )
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 
 from middleware.auth import requiere_clave_organizador
 from modules.voluntariado.file_service import InvalidVolunteerDocument
@@ -21,14 +23,18 @@ from modules.voluntariado.models import (
     InvalidVolunteerTransition,
     get_volunteer_documents,
     list_pending_volunteers,
-    list_volunteers,
+    list_volunteers_for_frontend,
+    update_coordination_status,
 )
 from modules.voluntariado.schemas import (
     VolunteerActionResponse,
     VolunteerAvailabilityUpdate,
+    VolunteerCoordinationUpdate,
     VolunteerCreate,
+    VolunteerFrontendCreate,
+    VolunteerFrontendRegistrationResponse,
+    VolunteerFrontendResponse,
     VolunteerPendingResponse,
-    VolunteerRegistrationResponse,
     VolunteerResponse,
 )
 from modules.voluntariado import services
@@ -49,14 +55,19 @@ def _normalize_uploads(documentos: list[UploadFile] | None) -> list[UploadFile]:
     return [upload for upload in documentos if upload.filename]
 
 
-@router.get("", response_model=list[VolunteerResponse])
+@router.get("", response_model=list[VolunteerFrontendResponse])
 def get_volunteers(
+    coordination_status: str | None = Query(default=None, alias="status"),
     skill: str | None = Query(default=None, alias="habilidad"),
     is_available: bool | None = Query(default=None, alias="disponible"),
 ):
     """Devuelve voluntarios aprobados visibles en la app."""
 
-    return list_volunteers(skill=skill, is_available=is_available)
+    return list_volunteers_for_frontend(
+        coordination_status=coordination_status,
+        skill=skill,
+        is_available=is_available,
+    )
 
 
 @router.get(
@@ -87,36 +98,65 @@ def get_pending_volunteers():
 
 @router.post(
     "",
-    response_model=VolunteerRegistrationResponse,
     status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_201_CREATED: {
+            "content": {
+                "application/json": {
+                    "schema": VolunteerFrontendRegistrationResponse.model_json_schema()
+                }
+            }
+        }
+    },
 )
-async def create_new_volunteer(
-    nombre: str = Form(...),
-    contacto: str = Form(...),
-    habilidades: str = Form(...),
-    disponibilidad: str = Form(default="inmediata"),
-    documentos: list[UploadFile] = File(default=[]),
-):
-    """Registra una solicitud pendiente con documentación opcional."""
+async def create_new_volunteer(request: Request):
+    """Registra una solicitud pendiente (JSON frontend o multipart legacy)."""
+
+    content_type = request.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        try:
+            raw_payload = await request.json()
+            payload = VolunteerFrontendCreate.model_validate(raw_payload)
+        except (
+            json.JSONDecodeError,
+            UnicodeDecodeError,
+            ValidationError,
+        ) as exc:
+            return _error_response(
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
+                "Datos de registro no válidos",
+                str(exc),
+            )
+
+        return services.register_volunteer_from_frontend(payload)
+
+    form = await request.form()
 
     try:
         volunteer_data = VolunteerCreate(
-            nombre=nombre,
-            contacto=contacto,
-            habilidades=habilidades,
-            disponibilidad=disponibilidad,
+            nombre=form.get("nombre"),
+            contacto=form.get("contacto"),
+            habilidades=form.get("habilidades"),
+            disponibilidad=form.get("disponibilidad") or "inmediata",
         )
-    except Exception as exc:
+    except ValidationError as exc:
         return _error_response(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             "Datos de registro no válidos",
             str(exc),
         )
 
+    uploads: list[UploadFile] = []
+
+    for value in form.getlist("documentos"):
+        if isinstance(value, UploadFile) and value.filename:
+            uploads.append(value)
+
     try:
         return services.register_volunteer(
             volunteer_data=volunteer_data,
-            documents=_normalize_uploads(documentos),
+            documents=uploads,
         )
     except InvalidVolunteerDocument as exc:
         return _error_response(
@@ -226,6 +266,39 @@ def reject_volunteer_from_api(volunteer_id: int):
             "La solicitud ya no está pendiente de validación.",
         )
     return result
+
+@router.patch(
+    "/{volunteer_id}",
+    response_model=VolunteerFrontendResponse,
+    dependencies=[Depends(requiere_clave_organizador)],
+)
+
+def update_volunteer_coordination_status(
+    volunteer_id: int,
+    update: VolunteerCoordinationUpdate,
+):
+    """Actualiza el estado operativo de coordinación de un voluntario."""
+
+    try:
+        updated = update_coordination_status(
+            volunteer_id=volunteer_id,
+            status=update.status.value,
+        )
+    except InvalidVolunteerTransition:
+        return _error_response(
+            status.HTTP_409_CONFLICT,
+            "Operación no permitida",
+            "Solo los voluntarios aprobados pueden cambiar su estado operativo.",
+        )
+
+    if updated is None:
+        return _error_response(
+            status.HTTP_404_NOT_FOUND,
+            "Voluntario no encontrado",
+            f"No existe un voluntario aprobado con el identificador {volunteer_id}.",
+        )
+
+    return updated
 
 
 @router.patch("/{volunteer_id}/disponible", response_model=VolunteerResponse)
