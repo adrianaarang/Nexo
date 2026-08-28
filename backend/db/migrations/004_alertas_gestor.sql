@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS alertas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    -- nivel_riesgo replica los valores cerrados de schemas.RiskLevel también en BD.
+    -- nivel_riesgo replica los valores cerrados de schemas.RiskLevelEnum también en BD.
     nivel_riesgo TEXT NOT NULL CHECK (nivel_riesgo IN ('bajo', 'medio', 'alto')),
     -- zona se guarda como GeoJSON Polygon serializado en texto (MVP sin PostGIS).
     zona TEXT NOT NULL,

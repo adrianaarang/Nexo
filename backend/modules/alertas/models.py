@@ -15,10 +15,6 @@ from db.database import get_cursor
 from modules.alertas.schemas import AlertCreate, AlertUpdate
 
 
-class AlertNotFound(LookupError):
-    """Permite que la capa de rutas traduzca un id inexistente a HTTP 404."""
-
-
 def _row_to_dict(row: Row | None) -> dict[str, Any] | None:
     """Convierte una fila SQLite en diccionario sin exponer el cursor."""
 

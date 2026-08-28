@@ -28,7 +28,7 @@ class EventTypeEnum(str, Enum):
     OTRO = "otro"
 
 
-class RiskLevel(str, Enum):
+class RiskLevelEnum(str, Enum):
     """Nivel de riesgo asignado por el gestor a una alerta de crisis."""
 
     BAJO = "bajo"
@@ -36,18 +36,10 @@ class RiskLevel(str, Enum):
     ALTO = "alto"
 
 
-class AlertStatus(str, Enum):
-    """Estado de una alerta del gestor según el contrato que consume el mapa."""
-
-    INACTIVE = "inactive"
-    ACTIVE = "active"
-    ALTO_RIESGO = "alto_riesgo"
-
-
 class AlertCreate(BaseModel):
     """Cuerpo de la petición para crear una alerta del gestor."""
 
-    nivel_riesgo: RiskLevel = Field(
+    nivel_riesgo: RiskLevelEnum = Field(
         ...,
         description="Nivel de riesgo de la alerta (bajo, medio, alto).",
     )
@@ -74,7 +66,7 @@ class AlertUpdate(BaseModel):
     Todos los campos son opcionales; solo se modifican los presentes.
     """
 
-    nivel_riesgo: Optional[RiskLevel] = None
+    nivel_riesgo: Optional[RiskLevelEnum] = None
     zona: Optional[Dict[str, Any]] = None
     titulo: Optional[str] = Field(default=None, max_length=300)
     descripcion: Optional[str] = Field(default=None, max_length=2000)
@@ -117,7 +109,7 @@ class AlertResponse(BaseModel):
     enlace: Optional[str] = Field(default=None)
 
     # Campos propios de las alertas del gestor
-    nivel_riesgo: Optional[RiskLevel] = Field(default=None)
+    nivel_riesgo: Optional[RiskLevelEnum] = Field(default=None)
     zona: Optional[Dict[str, Any]] = Field(default=None)
     activa: Optional[bool] = Field(default=None)
     gestor_token: Optional[str] = Field(
