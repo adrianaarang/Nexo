@@ -52,22 +52,34 @@
 - Creada en `001_init.sql`; **solapa con `sync_operations`** → decidir deprecar.
 
 ## Relaciones
-- `voluntario_documentos` N:1 `voluntarios`.
+
+> **Solo existe 1 FK real en toda la BD:** `voluntario_documentos.voluntario_id → voluntarios.id`
+> (ON DELETE CASCADE, en `002_voluntario_validacion.sql`). El resto son relaciones de
+> **lógica de negocio**, no restricciones SQL (por diseño de sincronización offline).
+
+- **FK real:** `voluntario_documentos` N:1 `voluntarios` (`voluntario_id` → `voluntarios.id`).
+- `ayudas` (módulo) agrupa `donaciones` y `voluntarios` — criterio de negocio, **sin FK ni tabla nueva**.
+- `alertas` desbloquea `necesidades`/`ayudas` por **solape de `zona` (GeoJSON)** vs coordenadas — lógica, no FK.
 - `sync_operations` referencia cualquier entidad por `(entity_type, entity_id)` — relación
-  débil/polimórfica, sin FK estricta (por diseño de sync offline).
-- `ayudas` (módulo) agrupa `donaciones` y `voluntarios` (sin FK nueva; es un criterio de negocio).
-- `alertas` (gestor) es independiente en BD, pero por **lógica de activación** desbloquea
-  `necesidades` y `ayudas` cuya zona/coordenadas caen dentro de su `zona` cuando `status = alto_riesgo`.
+  débil/polimórfica, **sin FK estricta** (texto, no entero).
 - Contratos hacia el mapa (no persistidos): `alerta→mapa {id, risk_level, status, zone}`,
   `necesidad→mapa {id, type, latitude, longitude, status}`,
   `ayuda→mapa {id, type, category, latitude, longitude, status}`.
 
+### Correcciones sobre el DSL previo (dbdiagram.io / Gemini)
+El DSL generado por Gemini contenía relaciones **inexistentes**; no deben registrarse como FK:
+1. `DONACIONES.id - VOLUNTARIOS.id` → **falso**; `donaciones` no tiene FK (es agrupación lógica de Ayudas).
+2. `ALERTAS.id < NECESIDADES.id` → **falso**; la activación es por `zona`, no por `id`.
+3. `PERSONAS.reportado_por > VOLUNTARIOS.id` → **falso**; `reportado_por` es `TEXT` libre, no FK.
+4. `SYNC_OPERATIONS.entity_id > NECESIDADES.id` → **falso**; `entity_id` es `TEXT` polimórfico.
+5. `database_type: 'PostgreSQL'` → **erróneo**; la BD real es **SQLite**.
+
 ## Diagrama (Mermaid)
 
-> Render del modelo (generado en dbdiagram.io):
+> Render del modelo (corregido, generado desde el bloque Mermaid de arriba):
 > ![Modelo ER Nexo](NEXO_Emergencias_Y_Ayudas.svg)
 > - [Versión PNG](NEXO_Emergencias_Y_Ayudas.png)
-> - [Fuente dbdiagram.io (editable)](NEXO_Emergencias_Y_Ayudas.dbdiagram.html)
+> - [Fuente dbdiagram.io corregida (DSL arriba) — el `.html` adjunto es un export previo, reexportar desde el DSL](NEXO_Emergencias_Y_Ayudas.dbdiagram.html)
 
 ```mermaid
 erDiagram
@@ -135,14 +147,114 @@ erDiagram
         int id PK
         string operation_id
         string entity_type
-        int entity_id
+        string entity_id
         string operation_type
         string status
         string payload
     }
+    AYUDAS {
+        string modulo "no es tabla: agrupa DONACIONES + VOLUNTARIOS"
+    }
 
-    VOLUNTARIO_DOCUMENTOS }o--|| VOLUNTARIOS : "pertenece a"
-    NECESIDADES }|..|{ ALERTAS : "zona activa desbloquea"
+    VOLUNTARIO_DOCUMENTOS }o--|| VOLUNTARIOS : "voluntario_id (unica FK real)"
+    AYUDAS }o..|| DONACIONES : "recurso/servicio"
+    AYUDAS }o..|| VOLUNTARIOS : "tiempo/voluntariado"
+    NECESIDADES }|..|{ ALERTAS : "zona activa desbloquea (logica)"
+    SYNC_OPERATIONS }o..o{ NECESIDADES : "polimorfica"
+    SYNC_OPERATIONS }o..o{ VOLUNTARIOS : "polimorfica"
+    SYNC_OPERATIONS }o..o{ DONACIONES : "polimorfica"
+    SYNC_OPERATIONS }o..o{ ALERTAS : "polimorfica"
+    SYNC_OPERATIONS }o..o{ PERSONAS : "polimorfica"
+```
+
+### DSL corregido para dbdiagram.io (fuente editable)
+
+```sql
+Project Sistema_Emergencias_Y_Ayudas {
+  database_type: 'SQLite'
+  Note: 'Modelo ER corregido - 1 sola FK real (voluntario_documentos.voluntario_id)'
+}
+
+Table NECESIDADES {
+  id integer [primary key]
+  titulo varchar
+  tipo varchar
+  descripcion varchar
+  latitud real
+  longitud real
+  prioridad varchar
+  estado varchar
+  creado_en varchar
+}
+Table VOLUNTARIOS {
+  id integer [primary key]
+  nombre varchar
+  contacto varchar
+  habilidades varchar
+  disponibilidad varchar
+  estado varchar
+  disponible integer
+  admin_token varchar
+  volunteer_token varchar
+}
+Table VOLUNTARIO_DOCUMENTOS {
+  id integer [primary key]
+  voluntario_id integer [ref: > V.VOLUNTARIOS.id]
+  nombre_original varchar
+  ruta varchar
+  tipo_mime varchar
+}
+Table DONACIONES {
+  id integer [primary key]
+  tipo varchar
+  recurso varchar
+  cantidad varchar
+  contacto varchar
+}
+Table ALERTAS {
+  id integer [primary key]
+  nivel_riesgo varchar
+  zona varchar
+  activa integer
+  gestor_token varchar
+  titulo varchar
+  descripcion varchar
+  tipo varchar
+  fuente varchar
+  latitud real
+  longitud real
+  creado_en varchar
+}
+Table PERSONAS {
+  id integer [primary key]
+  nombre varchar
+  estado varchar
+  ultima_ubicacion varchar
+  reportado_por varchar
+  version integer
+  client_id varchar
+  is_deleted integer
+}
+Table SYNC_OPERATIONS {
+  id integer [primary key]
+  operation_id varchar
+  entity_type varchar
+  entity_id varchar
+  operation_type varchar
+  status varchar
+  payload varchar
+}
+Table AYUDAS {
+  modulo varchar [note: 'no es tabla: agrupa DONACIONES + VOLUNTARIOS']
+}
+
+// UNICA FK REAL:
+Ref: VOLUNTARIO_DOCUMENTOS.voluntario_id > VOLUNTARIOS.id
+// Relaciones LOGICAS (no FK):
+Ref: AYUDAS.modulo - DONACIONES.id [note: 'logica: donaciones = recurso/servicio']
+Ref: AYUDAS.modulo - VOLUNTARIOS.id [note: 'logica: voluntarios = tiempo']
+Ref: ALERTAS.zona - NECESIDADES.id [note: 'logica por zona GeoJSON, no por id']
+// SYNC es polimorfico por (entity_type, entity_id): no es FK a una tabla
 ```
 
 > `AYUDAS` es un módulo de negocio (no tabla): agrupa `DONACIONES` y `VOLUNTARIOS`.
