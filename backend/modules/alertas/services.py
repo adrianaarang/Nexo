@@ -1,10 +1,12 @@
 """Business logic, data aggregation, and query filtering for alerts."""
 
+import json
 from datetime import datetime, timezone
 import logging
 from typing import Any, Dict, List, Optional
 
 from integrations import gdacs_client, gdacs_mock, proteccion_civil_client
+from modules.alertas import models
 
 logger = logging.getLogger(__name__)
 
@@ -109,3 +111,104 @@ def list_filtered_alerts(
 
     filtered_alerts.sort(key=extract_sorting_key, reverse=True)
     return filtered_alerts
+
+
+# ---------------------------------------------------------------------------
+# Alertas del gestor (persistidas en la tabla `alertas`)
+# ---------------------------------------------------------------------------
+
+SEVERITY_TO_RISK = {"red": "alto", "orange": "medio", "green": "bajo"}
+
+
+def _parse_zona(raw: Any) -> Optional[Dict[str, Any]]:
+    """Convierte el GeoJSON guardado como texto en dict, o None si no es válido."""
+
+    if not raw:
+        return None
+    if isinstance(raw, dict):
+        return raw
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, dict) else None
+    except (json.JSONDecodeError, TypeError):
+        return None
+
+
+def gestor_row_to_response(row: Dict[str, Any], include_token: bool = False) -> Dict[str, Any]:
+    """Convierte una fila SQLite de alerta del gestor en el formato de respuesta.
+
+    Calcula ``status`` (inactive/active/alto_riesgo) y expone ``risk_level`` /
+    ``zone`` para el contrato del mapa. El ``gestor_token`` solo se incluye
+    cuando ``include_token`` es True (creación y consulta individual).
+    """
+
+    zona = _parse_zona(row.get("zona"))
+    activa = bool(row.get("activa"))
+    nivel = row.get("nivel_riesgo")
+
+    if activa and nivel == "alto":
+        estado = "alto_riesgo"
+    elif activa:
+        estado = "active"
+    else:
+        estado = "inactive"
+
+    return {
+        "id": str(row.get("id")),
+        "fuente": row.get("fuente") or "gestor",
+        "tipo": row.get("tipo"),
+        "titulo": row.get("titulo") or "",
+        "descripcion": row.get("descripcion") or "",
+        "severidad": None,
+        "pais": None,
+        "lat": row.get("latitud"),
+        "lon": row.get("longitud"),
+        "fecha": None,
+        "enlace": None,
+        "nivel_riesgo": nivel,
+        "zona": zona,
+        "activa": activa,
+        "gestor_token": row.get("gestor_token") if include_token else None,
+        "risk_level": nivel,
+        "status": estado,
+        "zone": zona,
+    }
+
+
+def _enrich_gdacs_item(item: Dict[str, Any]) -> Dict[str, Any]:
+    """Añade risk_level/status/zone a una alerta externa para el contrato del mapa."""
+
+    enriched = dict(item)
+    sev = (item.get("severidad") or "").lower()
+    enriched["risk_level"] = SEVERITY_TO_RISK.get(sev)
+    enriched["status"] = "active"
+    enriched["zone"] = None
+    return enriched
+
+
+def combined_alerts(
+    tipo: Optional[str] = None,
+    severidad: Optional[str] = None,
+    pais: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Une alertas externas (GDACS/PC) y alertas del gestor en una sola lista.
+
+    Las alertas externas se filtran por los parámetros recibidos; las del
+    gestor se filtran solo por ``tipo`` cuando aplique.
+    """
+
+    gdacs = list_filtered_alerts(tipo=tipo, severidad=severidad, pais=pais)
+    result = [_enrich_gdacs_item(item) for item in gdacs]
+
+    try:
+        gestor_rows = models.list_alerts()
+    except Exception as exc:  # Tabla aún no existe o BD no accesible
+        logger.warning("No se pudieron leer alertas del gestor: %s", exc)
+        gestor_rows = []
+
+    for row in gestor_rows:
+        if tipo and (row.get("tipo") or "") != tipo:
+            continue
+        result.append(gestor_row_to_response(row))
+
+    return result
