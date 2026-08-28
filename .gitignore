@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 venv/
 .env
-
+.venv
 # Base de datos local
 *.db
 *.sqlite3
@@ -17,5 +17,6 @@ node_modules/
 backend/logs
 *.log
 
+docs/equipos/grupo2-alertas.md
 # Documentos subidos por voluntarios
 backend/uploads/

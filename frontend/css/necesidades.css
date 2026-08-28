@@ -1,174 +1,251 @@
 /* ==========================================================================
-   E1: LAYOUT GENERAL DEL MAPA Y PANEL LATERAL
+   NECESIDADES (Equipo 1) — pantalla del mapa, panel lateral, formulario
+   simplificado y tarjetas.
+
+   Rediseño: se usan solo las variables de marca definidas en variables.css
+   (--nexo-*). El layout general de 2 columnas (.contenedor-mapa-panel) y
+   los estilos base de tarjeta/badge/botón/formulario (.nexo-card,
+   .nexo-badge, .nexo-btn, .nexo-form) ya viven en components.css (base
+   común); aquí solo se añade lo específico de esta pantalla.
    ========================================================================== */
 
-.contenedor-mapa-panel {
-  display: flex;
-  height: calc(100vh - 65px); /* Ajuste según la altura de tu header */
-  width: 100%;
-  overflow: hidden;
-  background-color: #0f172a;
-}
-
-/* Panel Lateral Izquierdo */
+/* ---------- Panel lateral ---------- */
 .panel-lateral {
-  width: 420px;
   min-width: 320px;
-  background-color: #1e293b;
-  border-right: 1px solid #334155;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
+  gap: var(--space-md);
+  padding: var(--space-md);
   overflow-y: auto;
-  z-index: 2;
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
+  background: var(--nexo-bg);
+  border-right: 1px solid var(--nexo-border);
 }
 
-/* Contenedor del Mapa */
-#mapa, #map {
-  flex: 1;
+#map {
+  width: 100%;
   height: 100%;
-  z-index: 1;
+}
+
+/* ---------- Secciones del panel (lista y formulario) ---------- */
+.seccion-form,
+.seccion-lista {
+  background: var(--nexo-bg-alt);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.seccion-form h2,
+.seccion-lista h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--nexo-white);
+  margin: 0 0 var(--space-sm) 0;
+  border-bottom: 1px solid var(--nexo-border);
+  padding-bottom: var(--space-sm);
+}
+
+/* ---------- Filtro por categoría ---------- */
+.controles select#typeFilter {
+  padding: 0.5rem 0.75rem;
+  background: var(--nexo-bg);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-md);
+  color: var(--nexo-text);
+  font-size: 0.85rem;
 }
 
 /* ==========================================================================
-   ESTILOS BEM-LITE: FORMULARIO DE NECESIDADES (.nexo-form)
+   FORMULARIO SIMPLIFICADO: botones de categoría cerrada
    ========================================================================== */
-
-.seccion-form, .seccion-lista {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.seccion-form h2, .seccion-lista h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #f8fafc;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #334155;
-  padding-bottom: 8px;
-}
 
 #form-nueva-necesidad {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
+}
+
+.nexo-categorias {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.nexo-categoria-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.25rem;
+  background: var(--nexo-bg);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-md);
+  color: var(--nexo-text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.nexo-categoria-btn__emoji {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.nexo-categoria-btn:hover {
+  border-color: var(--nexo-text-muted);
+  color: var(--nexo-text);
+}
+
+.nexo-categoria-btn.is-selected {
+  border-color: var(--nexo-orange);
+  background: rgba(242, 84, 45, 0.12);
+  color: var(--nexo-white);
+}
+
+@media (max-width: 420px) {
+  .nexo-categorias {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 #form-nueva-necesidad input,
-#form-nueva-necesidad select,
 #form-nueva-necesidad textarea {
   width: 100%;
-  padding: 10px 12px;
-  background-color: #1e293b;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  color: #f8fafc;
-  font-size: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--nexo-bg);
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-md);
+  color: var(--nexo-text);
+  font-size: 0.88rem;
   box-sizing: border-box;
 }
 
 #form-nueva-necesidad input:focus,
-#form-nueva-necesidad select:focus,
 #form-nueva-necesidad textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: var(--nexo-orange);
 }
 
-.coords-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.direccion-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.coords-group #btn-usar-gps {
-  grid-column: span 2;
-  background: #334155;
-  color: #94a3b8;
-  border: 1px dashed #475569;
-  padding: 8px;
-  border-radius: 6px;
+.direccion-group #btn-usar-gps {
+  background: transparent;
+  color: var(--nexo-text-muted);
+  border: 1px dashed var(--nexo-border);
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-size: 0.82rem;
 }
 
-.btn-primario, .nexo-btn--primary {
-  background-color: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
-  padding: 10px 16px;
+.direccion-group #btn-usar-gps:hover {
+  border-color: var(--nexo-orange);
+  color: var(--nexo-text);
+}
+
+.nexo-hint {
+  color: var(--nexo-text-muted);
+  font-size: 0.75rem;
+  margin: -0.2rem 0 0 0;
+}
+
+.btn-primario,
+.nexo-btn--primary {
+  background: var(--nexo-orange);
+  color: var(--nexo-white);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 0.7rem 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: opacity 0.2s ease;
 }
 
 .btn-primario:hover {
-  background-color: #1d4ed8;
+  opacity: 0.9;
 }
 
 /* ==========================================================================
-   ESTILOS BEM-LITE: TARJETAS DE NECESIDAD (.nexo-card)
+   TARJETAS DE NECESIDAD (.nexo-card, extendiendo la base de components.css)
    ========================================================================== */
 
 #contenedor-tarjetas {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
   max-height: 400px;
   overflow-y: auto;
   padding-right: 4px;
 }
 
 .nexo-card {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-  border-left: 4px solid #94a3b8; /* Prioridad por defecto */
-  border-radius: 6px;
-  padding: 12px;
+  border-left: 4px solid var(--nexo-text-muted); /* Prioridad por defecto */
+  padding: var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+  margin-bottom: 0;
 }
 
-/* Variación por Prioridad */
-.nexo-card--critica, .nexo-card--high { border-left-color: #ef4444; }
-.nexo-card--media, .nexo-card--medium   { border-left-color: #f59e0b; }
-.nexo-card--baja, .nexo-card--low       { border-left-color: #10b981; }
+/* Variación por prioridad */
+.nexo-card--critica,
+.nexo-card--alta { border-left-color: var(--nexo-orange); }
+.nexo-card--media { border-left-color: var(--nexo-teal); }
+.nexo-card--baja { border-left-color: var(--nexo-text-muted); }
 
 .nexo-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .nexo-card__title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #f8fafc;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--nexo-white);
   margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .nexo-card__badge {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
+  font-size: 0.68rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
   text-transform: uppercase;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.nexo-card__badge--critica, .nexo-card__badge--high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-.nexo-card__badge--media, .nexo-card__badge--medium   { background: rgba(245, 158, 11, 0.2); color: #fde68a; }
-.nexo-card__badge--baja, .nexo-card__badge--low       { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.nexo-card__badge--critica,
+.nexo-card__badge--alta { background: rgba(242, 84, 45, 0.18); color: var(--nexo-orange); }
+.nexo-card__badge--media { background: rgba(23, 162, 160, 0.18); color: var(--nexo-teal); }
+.nexo-card__badge--baja { background: rgba(156, 160, 168, 0.18); color: var(--nexo-text-muted); }
 
 .nexo-card__desc {
-  font-size: 0.85rem;
-  color: #cbd5e1;
+  font-size: 0.82rem;
+  color: var(--nexo-text-muted);
   margin: 0;
-  line-height: 1.4;
+}
+
+.nexo-card__address {
+  font-size: 0.78rem;
+  color: var(--nexo-text-muted);
+  margin: 0;
 }
 
 .nexo-card__footer {
@@ -176,57 +253,103 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.75rem;
-  color: #94a3b8;
-  border-top: 1px solid #334155;
-  padding-top: 6px;
+  color: var(--nexo-text-muted);
+  border-top: 1px solid var(--nexo-border);
+  padding-top: 0.4rem;
 }
 
-/* Ajustes visuales para Popup de Leaflet */
+.nexo-card__type {
+  font-weight: 600;
+}
+
+.nexo-card__estado-slot .btn-cover {
+  background: transparent;
+  border: 1px solid var(--nexo-orange);
+  color: var(--nexo-orange);
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nexo-card__estado-slot .btn-cover:hover {
+  background: var(--nexo-orange);
+  color: var(--nexo-white);
+}
+
+.nexo-card__estado-slot .btn-cover:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.nexo-card__estado-slot .check-done {
+  color: var(--nexo-teal);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+/* Estados de carga / vacío / error de la lista lateral (regla 22) */
+.nexo-state {
+  text-align: center;
+  color: var(--nexo-text-muted);
+  padding: var(--space-md);
+  font-size: 0.85rem;
+}
+
+.nexo-state--error { color: var(--nexo-orange); }
+
+/* ==========================================================================
+   MAPA: marcador provisional del clic-para-ubicar
+   ========================================================================== */
+
+.marcador-borrador {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: transparent;
+  border: 3px dashed var(--nexo-orange);
+  box-shadow: 0 0 0 4px rgba(242, 84, 45, 0.15);
+}
+
+/* Ajustes visuales para popup de Leaflet, con la paleta de marca */
 .leaflet-popup-content-wrapper {
-  background: #1e293b !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155;
-  border-radius: 8px;
+  background: var(--nexo-bg-alt) !important;
+  color: var(--nexo-text) !important;
+  border: 1px solid var(--nexo-border);
+  border-radius: var(--radius-lg);
 }
 
 .leaflet-popup-tip {
-  background: #1e293b !important;
-}
-
-/* Adaptación Móvil */
-@media (max-width: 768px) {
-  .contenedor-mapa-panel {
-    flex-direction: column-reverse;
-  }
-  .panel-lateral {
-    width: 100%;
-    height: 50vh;
-  }
-  #mapa, #map {
-    height: 50vh;
-  }
-}
-/* Corrección de legibilidad para Popup de Leaflet */
-.leaflet-popup-content-wrapper, 
-.leaflet-popup-content {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border-radius: 8px;
-  padding: 8px;
+  background: var(--nexo-bg-alt) !important;
 }
 
 .leaflet-popup-content h3,
 .leaflet-popup-content .nexo-card__title {
-  color: #ffffff !important;
-  font-weight: 600;
+  color: var(--nexo-white) !important;
+  font-weight: 700;
 }
 
 .leaflet-popup-content p,
 .leaflet-popup-content .nexo-card__desc {
-  color: #cbd5e1 !important;
+  color: var(--nexo-text-muted) !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  color: #94a3b8 !important;
+  color: var(--nexo-text-muted) !important;
 }
 
+/* ---------- Adaptación móvil (mobile-first, regla 22) ---------- */
+@media (max-width: 768px) {
+  .contenedor-mapa-panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: 50vh 1fr;
+  }
+  .panel-lateral {
+    width: 100%;
+    height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--nexo-border);
+  }
+}
