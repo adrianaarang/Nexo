@@ -25,7 +25,7 @@
 **Abierto**
 - **Trello vs GitHub Projects:** decidido → **Trello** (un tablero por grupo + uno general).
 
-## Grupo 4 — Personas / Offline (dudas generales)
+## Personas / Offline (dudas generales)
 
 **Decisiones / estado**
 1. **Guía `personas.html`:** no hay guía específica; seguir el patrón de `index.html` y la lógica
