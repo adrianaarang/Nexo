@@ -1,7 +1,6 @@
 /**
  * ==========================================
  * NEXO - MARCADORES DE NECESIDADES
- * Persona 4
  * ==========================================
  */
 
@@ -29,7 +28,6 @@ const NOMBRES_NECESIDADES = {
 
 /**
  * Crea el marcador.
- *
  * El emoji indica el tipo.
  * El color indica la intensidad.
  */
@@ -68,8 +66,7 @@ function crearIconoNecesidad(
 
 
 /**
- * Devuelve el nombre legible
- * de la necesidad.
+ * Devuelve el nombre legible de la necesidad.
  */
 
 function obtenerNombreNecesidad(tipo) {

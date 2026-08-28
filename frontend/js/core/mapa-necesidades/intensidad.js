@@ -1,7 +1,6 @@
 /**
  * ==========================================
  * NEXO - INTENSIDAD DE NECESIDADES
- * Persona 4
  * ==========================================
  *
  * 0 - 5   → Verde
@@ -31,8 +30,7 @@ const INTENSIDADES = {
 
 
 /**
- * Determina el color según
- * la cantidad de necesidades.
+    Determina el color según la cantidad de necesidades.
  */
 
 function obtenerIntensidad(cantidad) {

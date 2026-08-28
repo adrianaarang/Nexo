@@ -1,7 +1,6 @@
 /**
  * ==========================================
  * NEXO - POPUPS DE NECESIDADES
- * Persona 4
  * ==========================================
  */
 
@@ -27,10 +26,8 @@ function crearPopupNecesidad(
 
 
     /*
-     * Si el mock tiene quantity,
-     * usamos esa cantidad.
-     *
-     * Si no existe, mostramos 1.
+     * Si el mock tiene quantity, se usa esa cantidad.
+     * Si no existe, se muestra 1.
      */
 
     const cantidad =
