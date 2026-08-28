@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
-# Crea el Kanban de NEXO (labels, milestones e issues epics) de forma idempotente.
-# Se ejecuta en CI al mergear a dev (usa GITHUB_TOKEN, sin permisos extra).
-# Tambien es ejecutable en local:  REPO=adrianaarang/Nexo gh auth login && bash scripts/setup-kanban.sh
-set -uo pipefail
+# Crea/actualiza el Kanban de NEXO (labels, milestones e issues epics) de forma idempotente.
+# Se ejecuta en CI al mergear a dev (usa GITHUB_TOKEN, sin permisos extra) y tambien en local:
+#   REPO=adrianaarang/Nexo gh auth login && bash scripts/setup-kanban.sh
+#
+# Comportamiento:
+#   - Si un issue con el mismo titulo ya existe, se ACTUALIZA su cuerpo y labels (mantiene trazabilidad).
+#   - Los issues de Sprint 2 se cierran solos al mergear el PR de integracion de cada grupo si este
+#     incluye "Closes #<num>".
+#   - Al crearse, los issues de Sprint 1 obsoletos (#41, #43, #44) se cierran con un comentario de
+#     trazabilidad hacia su equivalente de Sprint 2.
+set -o pipefail
 REPO="${REPO:-adrianaarang/Nexo}"
+
+LAST_ISSUE_NUM=""
 
 label() {
   local name="$1" desc="$2" color="$3"
@@ -15,85 +24,110 @@ milestone() {
   gh api "repos/$REPO/milestones" -f title="$title" -f description="$desc" >/dev/null 2>&1 || true
 }
 
+# Crea el issue si no existe; si existe, actualiza cuerpo+labels. Guarda el numero en LAST_ISSUE_NUM.
 issue() {
   local title="$1" body="$2" labels="$3" ms="$4" assignee="$5" close="$6"
-  local n
-  n=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq 'length' 2>/dev/null || echo 0)
-  if [ -n "$n" ] && [ "$n" != "0" ]; then
-    echo "skip (ya existe): $title"
+  local found existing
+  found=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq 'length' 2>/dev/null || echo 0)
+  if [ -n "$found" ] && [ "$found" != "0" ]; then
+    existing=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq '.[0].number' 2>/dev/null || true)
+    LAST_ISSUE_NUM="$existing"
+    # Actualiza para mantener trazabilidad (idempotente: no falla si no cambia).
+    gh issue edit "$existing" -R "$REPO" -b "$body" -l "$labels" >/dev/null 2>&1 || true
+    echo "skip (ya existe #${existing:-?}, actualizado): $title"
     return
   fi
   local cmd=(gh issue create -R "$REPO" -t "$title" -b "$body" -l "$labels")
   [ -n "$ms" ] && cmd+=(-m "$ms")
   [ -n "$assignee" ] && cmd+=(-a "$assignee")
-  local out
-  out=$("${cmd[@]}" --json number --jq .number)
-  echo "creado #$out: $title"
-  if [ "$close" = "closed" ]; then
-    gh issue close "$out" -R "$REPO" \
+  local out num
+  out=$("${cmd[@]}" 2>&1)
+  num=$(printf '%s' "$out" | grep -oE '/issues/[0-9]+' | head -1 | grep -oE '[0-9]+')
+  LAST_ISSUE_NUM="$num"
+  echo "creado #${num:-?}: $title"
+  if [ "$close" = "closed" ] && [ -n "$num" ]; then
+    gh issue close "$num" -R "$REPO" \
       -c "Cerrado automaticamente por setup-kanban: trabajo ya completado en su rama." >/dev/null 2>&1 || true
     echo "  -> cerrado (done)"
   fi
 }
 
+close_s1() {
+  local num="$1" newnum="$2" mod="$3"
+  [ -z "$newnum" ] && return
+  gh issue close "$num" -R "$REPO" \
+    -c "Sprint 1 obsoleto: el modulo pasa a **$mod** en Sprint 2. Trazabilidad -> issue #$newnum." \
+    >/dev/null 2>&1 || true
+  echo "cerrado S1 #$num -> #$newnum ($mod)"
+}
+
 # ---- Labels (sirven tambien como agrupacion por equipo en el tablero) ----
 label "base-comun" "Base comun (pre-reparto)" "0E8A16"
-label "equipo-1"   "Equipo 1 - Mapa de necesidades" "1F6FEB"
-label "equipo-2"   "Equipo 2 - Alertas oficiales" "D93F0B"
-label "equipo-3"   "Equipo 3 - Voluntariado y donaciones" "6F42C1"
-label "equipo-4"   "Equipo 4 - Personas y modo offline" "2088FF"
+label "equipo-1"   "Equipo 1 - Necesidades" "1F6FEB"
+label "equipo-2"   "Equipo 2 - Alertas + activacion de crisis" "D93F0B"
+label "equipo-3"   "Equipo 3 - Ayudas (donacion + voluntariado)" "6F42C1"
+label "equipo-4"   "Equipo 4 - Mapa + Interfaz principal" "2088FF"
 label "futuro"     "Horizonte futuro - Resilience OS" "BFD4F2"
 label "kanban"     "Creado por setup-kanban (idempotente)" "CCCCCC"
 
 # ---- Milestones ----
 milestone "Sprint 1 (MVP)" "MVP end-to-end demo"
-milestone "Sprint 2" "Decisiones + offline + cache + Proteccion Civil"
+milestone "Sprint 2" "Reparto final 27/08: Necesidades, Alertas, Ayudas, Mapa"
 
-# ---- Issues (epics) ----
-issue "Base comun - revision previa al reparto" \
-"Revisar antes del reparto (manifiesto docs/manifiesto.md):
-- [ ] index.html, menu, logo, estilos generales
-- [ ] apiClient.js (cliente comun de API)
-- [ ] main.py/config.py + BD (necesidades, voluntarios, donaciones, personas)
-- [ ] seed.py
-- [ ] Visto bueno de 1 persona por equipo (sin PR todavia)" \
-"base-comun,kanban" "Sprint 1 (MVP)" "adrianaarang" "closed"
+# ---- Issues (epics) Sprint 2 ----
+issue "Equipo 1 - Necesidades" \
+"Frontend pages/mapa.html (formulario) + js/core/mapa-necesidades/. Backend modules/necesidades/ (estados, categorias, intensidad).
+- [ ] Categorias (8): agua, alimentos, medicinas, ropa, higiene, refugio, transporte, otros
+- [ ] Estados: abierta -> en_proceso -> cubierta
+- [ ] Intensidad por conteo (verde/naranja/rojo) en el mapa
+- [ ] Contrato JSON hacia el mapa: {id, type, latitude, longitude, status}
+- [ ] pytest + JS tests verdes
+- [ ] Detalle en docs/equipos/grupo1-tareas.md
+Al mergear el PR de integracion del grupo, incluir 'Closes #<num>' para cerrar este issue." \
+"equipo-1,kanban" "Sprint 2" "SiR0N"
+E1="$LAST_ISSUE_NUM"
 
-issue "Equipo 1 - Mapa de necesidades" \
-"Frontend pages/mapa.html + js/core/mapa-necesidades/. Backend modules/necesidades/ (crear, listar, estado abierta->cubierta).
-- [ ] Pagina mapa.html + estilos base
-- [ ] Mapa, tarjeta de necesidad, llamadas API
-- [ ] Backend CRUD + cambio de estado
-- [ ] pytest verde + integrado en dev
-- [ ] Decision: prioridad de necesidad; filtro por tipo" \
-"equipo-1,kanban" "Sprint 1 (MVP)" "SiR0N"
+issue "Equipo 2 - Alertas + activacion de crisis" \
+"Backend modules/alertas/ (Juan) + frontend alertas-oficiales (Javi) + crisis.js/mapa (Luis) + integraciones GDACS/Proteccion Civil (Vanessa).
+- [ ] Backend gestor: crear, activar, alto-riesgo, desactivar (rama alerts, Juan)
+- [ ] Contrato mapa: {id, risk_level, status, zone}
+- [ ] ALTO RIESGO desbloquea necesidades/ayudas en la zona
+- [ ] Frontend alertas.html + crisis.js (activacion)
+- [ ] Integracion GDACS + Proteccion Civil
+- [ ] Detalle en docs/equipos/grupo2-tareas.md
+Al mergear el PR de integracion del grupo, incluir 'Closes #<num>'." \
+"equipo-2,kanban" "Sprint 2" "juandelaf1"
+E2="$LAST_ISSUE_NUM"
 
-issue "Equipo 2 - Alertas oficiales" \
-"Frontend pages/alertas.html + js/core/alertas-oficiales/. Backend modules/alertas/ + integrations/ (GDACS + fallback mock).
-- [ ] Backend GDACS + fallback (Sprint 1 casi listo en feature/alerts)
-- [ ] Frontend alertas.html + alerts.js (crearTarjeta) + alertsApi.js
-- [ ] PR feature/alerts -> dev
-- [ ] Decision (Sprint 2): vacio sin alertas; cache GDACS
-- [ ] Hueco Proteccion Civil (TODO)" \
-"equipo-2,kanban" "Sprint 1 (MVP)" "juandelaf1" "closed"
+issue "Equipo 3 - Ayudas (donacion + voluntariado)" \
+"Frontend donaciones.html/voluntariado.html + js/core/voluntariado-donaciones/. Backend modules/donaciones/ + modules/voluntariado/.
+- [ ] Unificar en modulo 'Ayudas': 3 tipos (recursos, servicios, tiempo/voluntariado con nombre+DNI)
+- [ ] Contrato JSON hacia el mapa: {id, type, category, latitude, longitude, status}
+- [ ] Reusar logica de voluntariado/donaciones de Sprint 1
+- [ ] pytest + JS tests verdes
+- [ ] Detalle en docs/equipos/grupo3-tareas.md
+Al mergear el PR de integracion del grupo, incluir 'Closes #<num>'." \
+"equipo-3,kanban" "Sprint 2" "LauraSilRu"
+E3="$LAST_ISSUE_NUM"
 
-issue "Equipo 3 - Voluntariado y donaciones" \
-"Frontend voluntariado.html, donaciones.html + js/core/voluntariado-donaciones/. Backend modules/voluntariado/ + modules/donaciones/.
-- [ ] Paginas voluntariado y donaciones
-- [ ] Backend voluntariado/ y donaciones/
-- [ ] pytest verde + integrado
-- [ ] Decision: marcar donacion cubierta; auto-asignacion de voluntario" \
-"equipo-3,kanban" "Sprint 1 (MVP)" "LauraSilRu"
-
-issue "Equipo 4 - Personas y modo offline" \
-"Frontend personas.html, estoy-bien.html + js/siguiente/ (registro + offline). Backend modules/personas/ + sync/.
-- [ ] Backend registro + endpoint estoy-bien (Sprint 1)
-- [ ] Frontend registro + offline
-- [ ] Decision (Sprint 2): duplicados persona desaparecida; probar offline (modo avion)" \
-"equipo-4,kanban" "Sprint 1 (MVP)" "Isabela-Tellez"
+issue "Equipo 4 - Mapa + Interfaz principal" \
+"Frontend pages/mapa.html + js/core/mapa-necesidades/mapaNecesidades.js (consumo de alertas y necesidades). Interfaz principal.
+- [ ] Consumir alertas (risk_level/status/zone) y necesidades (type/status) via contratos
+- [ ] Resaltar zona de alerta ALTO RIESGO en el mapa
+- [ ] Intensidad por conteo (verde/naranja/rojo)
+- [ ] Interfaz principal/navegacion
+- [ ] Detalle en docs/equipos/grupo4-tareas.md
+Al mergear el PR de integracion del grupo, incluir 'Closes #<num>'." \
+"equipo-4,kanban" "Sprint 2" "Isabela-Tellez"
+E4="$LAST_ISSUE_NUM"
 
 issue "Futuro - Resilience OS" \
 "Horizonte 'A definir' (manifiesto §7): simulador what-if, indice de resiliencia, puntos de fallo, presupuesto, stress tests, equidad, Resilience API / Climate OS." \
 "futuro,kanban" "" ""
+
+# Cierre con trazabilidad de los issues de Sprint 1 obsoletos.
+close_s1 41 "$E1" "Equipo 1 - Necesidades"
+close_s1 43 "$E3" "Equipo 3 - Ayudas (donacion + voluntariado)"
+close_s1 44 "$E4" "Equipo 4 - Mapa + Interfaz principal"
 
 echo "Kanban: issues procesados."

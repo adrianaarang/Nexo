@@ -1,6 +1,6 @@
 # Backlog de NEXO
 
-> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-25 (Sprint 1: #30 revertido con #32; abiertos #56 feature/alerts, fix/base-comun y feature/docs).
+> Mantenido por el Product Manager (Juan). Última actualización: 2026-08-28 (reparto Sprint 2 final 27/08; Kanban regenerado en `feature/docs`).
 > Referencia de prioridades: `docs/manifiesto.md` y `docs/roadmap.md`.
 
 ## Estado por módulo
@@ -34,11 +34,27 @@
 | `fix/base-comun`→dev | fix(base-comun): init_db, CORS and apiClient to boot dev | **ABIERTO** (base común; dev roto tras #30) |
 | `feature/docs`→dev | docs: general project status and Sprint 1 traceability | **ABIERTO** (crea tablero Kanban) |
 
-## Tablero / Kanban
+## Tablero / Kanban (Sprint 2)
 
-Los issues (epics por bloque/equipo) se crean **automáticamente** al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`, sin permisos extra). `Base común` y `Equipo 2` se cierran al crearse; el resto se cierra solo al mergear sus PR de integración si incluyen `Closes #<num>`. El tablero visual es un Project V2 personal del PM (agrupado por Label = equipo, columnas por Status). Composición de equipos en `docs/equipos.md`.
+En Sprint 2 el Kanban se regenera con `scripts/setup-kanban.sh` (idempotente) al mergear
+`feature/docs → dev` (workflow `.github/workflows/setup-kanban.yml`, usa `GITHUB_TOKEN`). Crea
+los epics por equipo (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) y **cierra con
+trazabilidad** los issues de Sprint 1 obsoletos (#41, #43, #44) hacia su equivalente de Sprint 2.
+Cada epic se cierra al mergear el PR de integración del grupo si incluye `Closes #<num>`. El
+tablero visual es un Project V2 personal del PM (agrupado por Label = equipo, columnas por Status).
+Composición de equipos en `docs/equipos.md`.
 
-> Nota: el tablero aún no existe porque `feature/docs` no se ha mergeado a `dev`.
+Mapeo Sprint 2 (reparto final 27/08):
+
+| Equipo | Módulo | Rama sugerida | Estado |
+|--------|--------|---------------|--------|
+| Equipo 1 | Necesidades | `feature/necesidades/*` | Por hacer |
+| Equipo 2 | Alertas + activación de crisis | `alerts` (backend hecho) | Backend en `alerts`; falta front (Javi) + GDACS/PC (Vanessa) |
+| Equipo 3 | Ayudas (donación + voluntariado) | `feature/ayudas/*` | Por hacer |
+| Equipo 4 | Mapa + Interfaz principal | `feature/mapa/*` | Por hacer |
+
+> Los issues de Sprint 1 (#41 Equipo 1, #43 Equipo 3, #44 Equipo 4) se cierran al crear los de
+> Sprint 2, con un comentario de trazabilidad hacia el nuevo issue.
 
 ## Objetivos MVP (de `docs/manifiesto.md`)
 - [ ] O1 Alertas GDACS con filtros y estados (núcleo del Grupo 2) — feature/alerts (G2) listo, falta PR #56 a dev; base común en fix/base-comun
@@ -72,7 +88,7 @@ Nota: sin respuesta de la integradora y entrega mañana; si no hay merge de `fix
 - [ ] Limpiar `feature/alerts-vanessa` (rama duplicada de alertas).
 - [ ] Preparar Demo Day (narrativa alerta→mapa→necesidad→recurso→resolución).
 - [x] Decidir herramienta de backlog: Trello — decidido.
-- [ ] Reparto de tareas del Grupo 4 pendiente (falta `docs/equipos/grupo4-tareas.md`).
+- [x] Reparto de tareas del Grupo 4 — creado `docs/equipos/grupo4-tareas.md` en Sprint 2.
 
 ## Abierto (por decidir)
 - Zonas/celdas del mapa aún no definidas.

@@ -43,9 +43,10 @@ Nexo no es un producto comercial: es una solución cívica, sin ánimo de lucro 
 - `docs/faq.md` — preguntas frecuentes y decisiones curadas (Grupo 2 y Grupo 4).
 - `docs/backlog.md` — estado por módulo y pendientes de gobernanza (mantenido por el PM).
 - `docs/equipos.md` — composición de los 4 equipos y mapeo a bloques del Kanban.
-- `docs/equipos/grupo1-tareas.md` — reparto del Grupo 1 (Mapa/Necesidades).
-- `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2.
-- `docs/equipos/grupo3-tareas.md` — reparto del Grupo 3 (Voluntariado y Donaciones).
+- `docs/equipos/grupo1-tareas.md` — reparto del Grupo 1 (Necesidades).
+- `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2 (Alertas + activación).
+- `docs/equipos/grupo3-tareas.md` — reparto del Grupo 3 (Ayudas: donación + voluntariado).
+- `docs/equipos/grupo4-tareas.md` — reparto del Grupo 4 (Mapa + Interfaz principal).
 - `estructura/` — guías de estructura de archivos (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## Cómo arrancar
@@ -94,7 +95,7 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 - **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
 - **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
 - **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
-- **Kanban:** Los issues se crean automáticamente al mergear `feature/docs → dev` mediante `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`). El tablero es un Project V2 personal del PM.
+- **Kanban:** En Sprint 2 el tablero se regenera con `scripts/setup-kanban.sh` (idempotente) al mergear `feature/docs → dev`. Crea los epics por equipo (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) y cierra con trazabilidad los issues de Sprint 1 (#41, #43, #44). Cada epic se cierra al mergear el PR del grupo con `Closes #<num>`. El tablero es un Project V2 personal del PM.
 
 ## Equipos
 
@@ -148,9 +149,10 @@ Nexo is not a commercial product: it is a civic, non-profit, academically origin
 - `docs/faq.md` — FAQ and curated decisions (Group 2 and Group 4).
 - `docs/backlog.md` — per-module status and governance pending items (maintained by PM).
 - `docs/equipos.md` — composition of the 4 teams and mapping to Kanban blocks.
-- `docs/equipos/grupo1-tareas.md` — Group 1 (Needs Map) task split.
-- `docs/equipos/grupo2-tareas.md` — Group 2 meeting script and checklist.
-- `docs/equipos/grupo3-tareas.md` — Group 3 (Volunteering and donations) task split.
+- `docs/equipos/grupo1-tareas.md` — Group 1 (Necesidades) task split.
+- `docs/equipos/grupo2-tareas.md` — Group 2 meeting script and checklist (Alertas + activación).
+- `docs/equipos/grupo3-tareas.md` — Group 3 (Ayudas: donation + volunteering) task split.
+- `docs/equipos/grupo4-tareas.md` — Group 4 (Mapa + Interfaz principal) task split.
 - `estructura/` — file structure guides (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## How to run
@@ -199,7 +201,7 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 - **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
 - **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
 - **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
-- **Kanban:** Issues are auto-created when merging `feature/docs → dev` via `.github/workflows/setup-kanban.yml` (uses `GITHUB_TOKEN`). The board is a personal V2 Project owned by the PM.
+- **Kanban:** In Sprint 2 the board is regenerated with `scripts/setup-kanban.sh` (idempotent) when merging `feature/docs → dev`. It creates the per-team epics (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) and closes the obsolete Sprint 1 issues (#41, #43, #44) with traceability. Each epic closes when the team's PR is merged with `Closes #<num>`. The board is a personal V2 Project owned by the PM.
 
 ## Teams
 
