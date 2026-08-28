@@ -64,7 +64,7 @@ plazo, ser la capa abierta de coordinación ("Resilience API / Climate OS").
 | Product Manager | **Juan** | Alcance, priorización, **backlog**, gobernanza, comunicación |
 | Scrum Masters por equipo | Josema · Laura S.R. · Isabela Téllez · Juan | Proceso, bloqueos, dailies/retros |
 | Integradora / repo owner | **Adriana** | Base común, **integración, CI, PRs, demo global** |
-| Equipo 1 / 2 / 3 / 4 | Mapa · Alertas · Voluntariado/Donaciones · Personas/Offline | Vertical completa de su módulo (frontend + backend) |
+| Equipo 1 / 2 / 3 / 4 | Necesidades · Alertas · Ayudas · Mapa/Interfaz | Vertical completa de su módulo (frontend + backend) |
 
 **Gobernanza:** comisión de coordinación semanal (PM + SMs + Integradora); lo estratégico en
 asamblea. Marco: convenciones del proyecto (idioma técnico en inglés / UI en español).

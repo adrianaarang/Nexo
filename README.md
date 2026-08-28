@@ -43,9 +43,10 @@ Nexo no es un producto comercial: es una solución cívica, sin ánimo de lucro 
 - `docs/faq.md` — preguntas frecuentes y decisiones curadas (Grupo 2 y Grupo 4).
 - `docs/backlog.md` — estado por módulo y pendientes de gobernanza (mantenido por el PM).
 - `docs/equipos.md` — composición de los 4 equipos y mapeo a bloques del Kanban.
-- `docs/equipos/grupo1-tareas.md` — reparto del Grupo 1 (Mapa/Necesidades).
-- `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2.
-- `docs/equipos/grupo3-tareas.md` — reparto del Grupo 3 (Voluntariado y Donaciones).
+- `docs/equipos/grupo1-tareas.md` — reparto del Grupo 1 (Necesidades).
+- `docs/equipos/grupo2-tareas.md` — guion de reunión y checklist del Grupo 2 (Alertas + activación).
+- `docs/equipos/grupo3-tareas.md` — reparto del Grupo 3 (Ayudas: donación + voluntariado).
+- `docs/equipos/grupo4-tareas.md` — reparto del Grupo 4 (Mapa + Interfaz principal).
 - `estructura/` — guías de estructura de archivos (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## Cómo arrancar
@@ -80,68 +81,21 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 | Prioridad | Módulo | Carpeta | Estado (2026-08-26) |
 |---|---|---|---|
 | Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25) |
-| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | En `dev` (MERGED #34, G2-only tras revertir #30 con #32) |
+| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 (G2) listo en `feature/alerts` (G2-only tras revertir #30 con #32); PR G2 → dev pendiente |
 | Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
 | Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En `dev` (MERGED #20); Sprint 1 |
 | Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend en `dev` (#21); falta UI offline |
 | Futuro | Red mesh / satélite / Mesh/satellite network | `infra/mesh-satelite` | Roadmap futuro |
 | Futuro | Código abierto / Open source | `LICENSE`, `CONTRIBUTING.md` | Roadmap futuro |
 
-## Estructura del repositorio
-
-- `frontend/` — HTML, CSS y JS (PWA): `index.html` y `pages/` (mapa, alertas, voluntariado, donaciones, personas, estoy-bien).
-- `backend/` — API en FastAPI: `main.py`, `config.py`, `db/` (modelos + migraciones), `modules/` (necesidades, alertas, voluntariado, donaciones, personas), `sync/` (modo offline), `integrations/` (GDACS), `middleware/`.
-- `tests/backend/` — suites de pytest por módulo.
-- `docs/` — gobernanza, decisiones y trazabilidad (`backlog.md`, `equipos/`).
-- `infra/` — notas de red mesh/satélite (futuro).
-
-## Endpoints de la API
-
-Todos bajo `/api` (FastAPI). Documentación interactiva en `http://localhost:8000/docs`.
-
-| Módulo | Métodos y rutas (prefijo) |
-|--------|---------------------------|
-| Necesidades (G1) | `GET/POST /api/necesidades`, `PATCH /api/necesidades/{id}` (cambio de estado) |
-| Alertas (G2) | `GET /api/alertas` (GDACS + fallback) |
-| Voluntariado (G3) | `GET/POST /api/voluntarios`, `GET /api/voluntarios/{id}/aprobar|rechazar`, `PATCH /api/voluntarios/{id}/disponible` |
-| Donaciones (G3) | `GET/POST /api/donaciones` — en desarrollo |
-| Personas (G4) | `POST /api/personas` ("estoy bien") |
-| Sync / offline (G4) | `POST /api/sync/batch` |
-| Salud | `GET /api/health` |
-
-## Páginas del frontend
-
-`index.html` (inicio) y `frontend/pages/`: `mapa.html` (necesidades), `alertas.html`, `voluntariado.html`, `donaciones.html`, `personas.html`, `estoy-bien.html`. El JS por módulo está en `frontend/js/core/` y `frontend/js/siguiente/`.
-
-## Variables de entorno
-
-Copiar `backend/.env.example` → `backend/.env`. Principales:
-
-- `DATABASE_URL` — SQLite por defecto (`sqlite:///./nexo.db`).
-- `BACKEND_PORT` — puerto de la API (8000).
-- `CORS_ORIGINS` — origen del frontend (p.ej. `http://localhost:5500`).
-- `GDACS_API_URL`, `GDACS_CACHE_TTL_SECONDS` — fuente y caché de alertas oficiales.
-- `PROTECCION_CIVIL_API_URL` — hueco previsto para Protección Civil.
-- `NEXO_ADMIN_KEY` — clave para acciones de organización.
-
-## Pruebas
-
-```bash
-cd backend
-pip install -r requirements.txt
-pytest            # o: cd .. && pytest tests/backend
-```
-
-Hay suites de pytest por módulo en `tests/backend/` (necesidades, alertas, voluntariado, donaciones, personas y sync).
-
 ## Estado actual
 
-- **Base común:** Arreglada y en `dev` (MERGED #35, `fix/base-comun`): `dev` arranca (`init_db` idempotente) y conecta (CORS + `apiClient`).
-- **Alertas oficiales (G2):** Sprint 1 completado y en `dev` (MERGED #34, `feature/alerts`, G2-only tras revertir #30 con #32). Backend GDACS + fallback, filtros país ES→EN, frontend `alertas.html` y tests en verde.
-- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25, #37).
-- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29); falta conectar `donaciones.js` al backend real.
+- **Base común:** Incompleta tras revertir #30: `dev` no arranca (falta `init_db`) ni conecta (CORS/`apiClient`). Stopgap en `fix/base-comun` → `dev` (4 archivos), pendiente de merge.
+- **Alertas oficiales (G2):** Sprint 1 (G2) completado en `feature/alerts`, reconstruido G2-only tras revertir #30 (#32). Pendiente integración a `dev` (PR G2 → dev). Base común separada a `fix/base-comun`.
+- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
+- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
 - **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
-- **Kanban:** Issues creados automáticamente vía `.github/workflows/setup-kanban.yml` (usa `GITHUB_TOKEN`). Creados: #40 Base común (**CERRADO**), #41 Equipo 1, #42 Equipo 2 (**CERRADO**), #43 Equipo 3, #44 Equipo 4, #45 Futuro. El script se corrigió en #46 (pendiente de merge) para que el workflow funcione en CI. El tablero visual es un Project V2 personal del PM.
+- **Kanban:** En Sprint 2 el tablero se regenera con `scripts/setup-kanban.sh` (idempotente) al mergear `feature/docs → dev`. Crea los epics por equipo (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) y cierra con trazabilidad los issues de Sprint 1 (#41, #43, #44). Cada epic se cierra al mergear el PR del grupo con `Closes #<num>`. El tablero es un Project V2 personal del PM.
 
 ## Equipos
 
@@ -195,9 +149,10 @@ Nexo is not a commercial product: it is a civic, non-profit, academically origin
 - `docs/faq.md` — FAQ and curated decisions (Group 2 and Group 4).
 - `docs/backlog.md` — per-module status and governance pending items (maintained by PM).
 - `docs/equipos.md` — composition of the 4 teams and mapping to Kanban blocks.
-- `docs/equipos/grupo1-tareas.md` — Group 1 (Needs Map) task split.
-- `docs/equipos/grupo2-tareas.md` — Group 2 meeting script and checklist.
-- `docs/equipos/grupo3-tareas.md` — Group 3 (Volunteering and donations) task split.
+- `docs/equipos/grupo1-tareas.md` — Group 1 (Necesidades) task split.
+- `docs/equipos/grupo2-tareas.md` — Group 2 meeting script and checklist (Alertas + activación).
+- `docs/equipos/grupo3-tareas.md` — Group 3 (Ayudas: donation + volunteering) task split.
+- `docs/equipos/grupo4-tareas.md` — Group 4 (Mapa + Interfaz principal) task split.
 - `estructura/` — file structure guides (`estructuranexo.md`, `estructuranexoexplicada.md`).
 
 ## How to run
@@ -229,71 +184,24 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Modules
 
-| Priority | Module | Folder | Status (2026-08-26) |
+| Priority | Module | Folder | Status (2026-08-25) |
 |---|---|---|---|
 | Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25) |
-| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | In `dev` (MERGED #34, G2-only after reverting #30 with #32) |
+| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 (G2) done in `feature/alerts` (G2-only after reverting #30 with #32); G2 PR → dev pending |
 | Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired to backend |
 | Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In `dev` (MERGED #20); Sprint 1 |
 | Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
 | Future | Mesh/satellite network | `infra/mesh-satelite` | Future roadmap |
 | Future | Open source | `LICENSE`, `CONTRIBUTING.md` | Future roadmap |
 
-## Repository structure
-
-- `frontend/` — HTML, CSS and JS (PWA): `index.html` and `pages/` (mapa, alertas, voluntariado, donaciones, personas, estoy-bien).
-- `backend/` — FastAPI API: `main.py`, `config.py`, `db/` (models + migrations), `modules/` (necesidades, alertas, voluntariado, donaciones, personas), `sync/` (offline mode), `integrations/` (GDACS), `middleware/`.
-- `tests/backend/` — pytest suites per module.
-- `docs/` — governance, decisions and traceability (`backlog.md`, `equipos/`).
-- `infra/` — mesh/satellite network notes (future).
-
-## API endpoints
-
-All under `/api` (FastAPI). Interactive docs at `http://localhost:8000/docs`.
-
-| Module | Methods and routes (prefix) |
-|--------|------------------------------|
-| Needs (G1) | `GET/POST /api/necesidades`, `PATCH /api/necesidades/{id}` (status change) |
-| Alerts (G2) | `GET /api/alertas` (GDACS + fallback) |
-| Volunteering (G3) | `GET/POST /api/voluntarios`, `GET /api/voluntarios/{id}/aprobar|rechazar`, `PATCH /api/voluntarios/{id}/disponible` |
-| Donations (G3) | `GET/POST /api/donaciones` — in progress |
-| Persons (G4) | `POST /api/personas` ("I'm safe") |
-| Sync / offline (G4) | `POST /api/sync/batch` |
-| Health | `GET /api/health` |
-
-## Frontend pages
-
-`index.html` (home) and `frontend/pages/`: `mapa.html` (needs), `alertas.html`, `voluntariado.html`, `donaciones.html`, `personas.html`, `estoy-bien.html`. Per-module JS lives in `frontend/js/core/` and `frontend/js/siguiente/`.
-
-## Environment variables
-
-Copy `backend/.env.example` → `backend/.env`. Main ones:
-
-- `DATABASE_URL` — SQLite by default (`sqlite:///./nexo.db`).
-- `BACKEND_PORT` — API port (8000).
-- `CORS_ORIGINS` — frontend origin (e.g. `http://localhost:5500`).
-- `GDACS_API_URL`, `GDACS_CACHE_TTL_SECONDS` — official alerts source and cache.
-- `PROTECCION_CIVIL_API_URL` — placeholder for Civil Protection.
-- `NEXO_ADMIN_KEY` — key for organizer actions.
-
-## Tests
-
-```bash
-cd backend
-pip install -r requirements.txt
-pytest            # or: cd .. && pytest tests/backend
-```
-
-Pytest suites per module live in `tests/backend/` (necesidades, alertas, voluntariado, donaciones, personas and sync).
-
 ## Current status
 
-- **Common base:** Fixed and in `dev` (MERGED #35, `fix/base-comun`): `dev` boots (`init_db` idempotent) and connects (CORS + `apiClient`).
-- **Official alerts (G2):** Sprint 1 completed and in `dev` (MERGED #34, `feature/alerts`, G2-only after reverting #30 with #32). GDACS backend + fallback, country filter ES→EN, `alertas.html` frontend and green tests.
-- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25, #37).
-- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29); UI `donaciones.js` still needs to be wired to the real backend.
+- **Common base:** Incomplete after reverting #30: `dev` won't boot (missing `init_db`) or connect (CORS/`apiClient`). Stopgap in `fix/base-comun` → `dev` (4 files), pending merge.
+- **Official alerts (G2):** Sprint 1 (G2) completed in `feature/alerts`, rebuilt G2-only after reverting #30 (#32). Dev integration pending (G2 PR → dev). Common base split into `fix/base-comun`.
+- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
+- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
 - **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
-- **Kanban:** Issues are auto-created via `.github/workflows/setup-kanban.yml` (uses `GITHUB_TOKEN`). Created: #40 Common base (**CLOSED**), #41 Team 1, #42 Team 2 (**CLOSED**), #43 Team 3, #44 Team 4, #45 Future. The script was fixed in #46 (pending merge) so the workflow runs in CI. The board is a personal V2 Project owned by the PM.
+- **Kanban:** In Sprint 2 the board is regenerated with `scripts/setup-kanban.sh` (idempotent) when merging `feature/docs → dev`. It creates the per-team epics (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) and closes the obsolete Sprint 1 issues (#41, #43, #44) with traceability. Each epic closes when the team's PR is merged with `Closes #<num>`. The board is a personal V2 Project owned by the PM.
 
 ## Teams
 
