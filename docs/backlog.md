@@ -10,9 +10,11 @@
 | Alertas oficiales | Núcleo (MVP) | `feature/alerts`, `fix/base-comun` | #56 **ABIERTO** (feature/alerts→dev, G2-only) · `fix/base-comun`→dev **ABIERTO** | Grupo 2 (Juan, capitán) | Backend + pantalla + tests en verde (feature/alerts, G2-only tras revertir #30 con #32). Base común separada en `fix/base-comun` (dev no arranca tras revertir #30). |
 | Mapa de necesidades | Núcleo (MVP) | `dev` | #18 **MERGED** | Grupo 1 + elenadiaz1 | En `dev`: backend + frontend conectados (datos reales). |
 | Voluntariado y donaciones | Núcleo (MVP) | `dev` | #24, #27, #29 **MERGED** | Grupo 3 | En `dev`: registro + disponibilidad + config/soporte. Falta conectar `donaciones.js` al backend real. |
-| Registro de personas / "estoy bien" | Siguiente | `dev` | #20 **MERGED** | Grupo 4 | En `dev`: backend "estoy bien" (45 tests). **Sprint 1**. |
-| Modo offline (PWA) | Siguiente | `dev` | #21 **MERGED** (backend) | Grupo 4 | Backend de sincronización en `dev`; falta UI offline en frontend. |
+| Registro de personas / "estoy bien" | Siguiente | `dev` | #20 **MERGED** | Transversal (S1: Grupo 4) | En `dev`: backend "estoy bien" (45 tests). **Sprint 1**. |
+| Modo offline (PWA) | Siguiente | `dev` | #21 **MERGED** (backend) | Transversal (S1: Grupo 4) | Backend de sincronización en `dev`; falta UI offline en frontend. |
 | Documentación y gobernanza | Transversal | `feature/docs` | **ABIERTO** (feature/docs→dev) | PM (Juan) | README bilingüe, `equipos.md`, `equipos/grupo*-tareas.md`, `.github/workflows/setup-kanban.yml` en `feature/docs` (pendiente merge a `dev`). |
+
+> **Mapeo de grupos actualizado en Sprint 2 (reunión 27/08):** G1=Necesidades, G2=Alertas, G3=Ayudas, G4=Mapa + Interfaz principal. En Sprint 1 eran G1=Mapa de necesidades, G2=Alertas, G3=Voluntariado/Donaciones, G4=Personas/Offline. La sección "Trazabilidad Sprint 1" más abajo mantiene el detalle anterior para trazabilidad.
 
 ## PRs (2026-08-25)
 
