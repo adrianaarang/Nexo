@@ -3,6 +3,7 @@
 La validación de entrada corresponde a ``schemas.py``. Este módulo ejecuta
 consultas parametrizadas y devuelve diccionarios serializables.
 """
+
 from sqlite3 import Row
 from typing import Any
 
@@ -12,43 +13,131 @@ from modules.personas.schemas import PersonStatus
 
 def _row_to_dict(row: Row | None) -> dict[str, Any] | None:
     """Convierte una fila SQLite en diccionario sin exponer el cursor."""
-
     return dict(row) if row is not None else None
 
 
-def mark_person_safe(person_id: int) -> dict[str, Any] | None:
-    """Marca como segura una persona ya registrada.
+def get_all_personas(
+    search_q: str | None = None,
+) -> list[dict[str, Any]]:
+    """Consulta y retorna todas las personas activas."""
 
-    Devuelve ``None`` si el identificador no existe.
+    with get_cursor() as cursor:
+        query = """
+            SELECT *
+            FROM personas
+            WHERE is_deleted = 0
+        """
+        params: list[Any] = []
 
-    Repetir la operación cuando la persona ya está en ``estoy_bien`` es
-    válido y devuelve el registro sin modificarlo. Esto mantiene la operación
-    idempotente y facilita futuros reintentos de sincronización offline.
+        if search_q:
+            query += """
+                AND (
+                    nombre LIKE ?
+                    OR ultima_ubicacion LIKE ?
+                )
+            """
+            params.extend(
+                [
+                    f"%{search_q}%",
+                    f"%{search_q}%",
+                ]
+            )
 
-    Las reglas completas de transición entre estados quedan fuera de esta
-    función por ahora, hasta que el Equipo 4 las acuerde.
-    """
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+
+        return [dict(row) for row in rows]
+
+
+def get_persona_by_id(
+    person_id: int,
+) -> dict[str, Any] | None:
+    """Busca y devuelve una persona activa por su ID."""
 
     with get_cursor() as cursor:
         cursor.execute(
-            "SELECT * FROM personas WHERE id = ?",
+            """
+            SELECT *
+            FROM personas
+            WHERE id = ?
+            AND is_deleted = 0
+            """,
             (person_id,),
         )
-        current_row = cursor.fetchone()
 
-        if current_row is None:
+        return _row_to_dict(cursor.fetchone())
+
+
+def create_persona(
+    data: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Inserta una nueva persona y retorna el registro creado."""
+
+    with get_cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO personas (
+                nombre,
+                edad,
+                ultima_ubicacion,
+                descripcion,
+                estado,
+                reportado_por,
+                client_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                data.get("nombre"),
+                data.get("edad"),
+                data.get("ultima_ubicacion"),
+                data.get("descripcion"),
+                data.get(
+                    "estado",
+                    PersonStatus.MISSING.value,
+                ),
+                data.get("reportado_por"),
+                data.get("client_id"),
+            ),
+        )
+
+        new_id = cursor.lastrowid
+
+        if new_id is None:
             return None
 
-        if current_row["estado"] == PersonStatus.SAFE.value:
-            return dict(current_row)
+        return get_persona_by_id(new_id)
 
+
+def mark_person_safe(
+    person_id: int,
+) -> dict[str, Any] | None:
+    """Marca como segura una persona e incrementa su versión."""
+
+    current_person = get_persona_by_id(person_id)
+
+    if current_person is None:
+        return None
+
+    # La operación es idempotente.
+    if current_person.get("estado") == PersonStatus.SAFE.value:
+        return current_person
+
+    with get_cursor() as cursor:
         cursor.execute(
-            "UPDATE personas SET estado = ? WHERE id = ?",
-            (PersonStatus.SAFE.value, person_id),
+            """
+            UPDATE personas
+            SET
+                estado = ?,
+                version = version + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            AND is_deleted = 0
+            """,
+            (
+                PersonStatus.SAFE.value,
+                person_id,
+            ),
         )
 
-        cursor.execute(
-            "SELECT * FROM personas WHERE id = ?",
-            (person_id,),
-        )
-        return _row_to_dict(cursor.fetchone())
+    return get_persona_by_id(person_id)

@@ -26,7 +26,7 @@
     </nav>
   </header>
 
-  <main style="padding: 2.5rem 2rem 2rem; max-width: 1200px; margin: 0 auto;">
+  <main class="donaciones-main">
 
     <div class="donaciones-layout">
 
@@ -42,7 +42,7 @@
               <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <ul class="nexo-select__menu">
-              <li data-value="" class="seleccionado">Todas</li>
+              <li data-value="" class="nexo-select__opcion--activa">Todas</li>
               <li data-value="ofrecida">Ofrecidas</li>
               <li data-value="solicitada">Solicitadas</li>
             </ul>
@@ -54,7 +54,7 @@
               <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <ul class="nexo-select__menu">
-              <li data-value="recientes" class="seleccionado">Más recientes</li>
+              <li data-value="recientes" class="nexo-select__opcion--activa">Más recientes</li>
               <li data-value="antiguos">Más antiguos</li>
             </ul>
           </div>
@@ -65,7 +65,7 @@
               <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <ul class="nexo-select__menu">
-              <li data-value="" class="seleccionado">Todas las categorías</li>
+              <li data-value="" class="nexo-select__opcion--activa">Todas las categorías</li>
               <li data-value="Agua">Agua</li>
               <li data-value="Comida">Comida</li>
               <li data-value="Productos de higiene">Productos de higiene</li>
@@ -105,7 +105,7 @@
                 <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="nexo-select__menu">
-                <li data-value="ofrecida" class="seleccionado">Ofrezco recursos</li>
+                <li data-value="ofrecida" class="nexo-select__opcion--activa">Ofrezco recursos</li>
                 <li data-value="solicitada">Necesito recursos</li>
               </ul>
             </div>
@@ -115,7 +115,7 @@
             <label>Categoría</label>
             <div class="nexo-select nexo-select--form" id="recurso" data-value="">
               <button class="nexo-select__trigger" type="button">
-                <span class="nexo-select__label" style="color: var(--nexo-text-muted, #9CA0A8);">Selecciona una categoría</span>
+                <span class="nexo-select__label nexo-select__label--placeholder">Selecciona una categoría</span>
                 <svg class="nexo-select__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <ul class="nexo-select__menu">
@@ -132,6 +132,7 @@
                 <li data-value="Material de primeros auxilios">Material de primeros auxilios</li>
                 <li data-value="Artículos para bebés">Artículos para bebés</li>
                 <li data-value="Herramientas">Herramientas</li>
+                <li data-value="Transporte">Transporte</li>
                 <li data-value="Bebidas">Bebidas</li> 
                 <li data-value="Otros">Otros</li>             
               </ul>
@@ -139,19 +140,19 @@
           </div>
 
           <div class="nexo-form__campo">
-            <label for="descripcion">Descripción <span style="font-weight:400; text-transform:none; letter-spacing:0;">(máx. 1000 caracteres)</span></label>
-            <textarea id="descripcion" maxlength="1000" rows="4" placeholder="Especifica qué vas a donar, en qué estado está, dónde está disponible..."></textarea>
-            <span id="contador-desc" style="font-size:0.72rem; color: var(--nexo-text-muted, #9CA0A8); text-align:right; display:block;">0 / 1000</span>
+            <label for="descripcion">Descripción <span class="nexo-form__campo-nota">(máx. 1000 caracteres)</span></label>
+            <textarea id="descripcion" name="descripcion" maxlength="1000" rows="4" placeholder="Especifica qué vas a donar, en qué estado está, dónde está disponible..."></textarea>
+            <span id="contador-desc" class="donaciones-contador">0 / 1000</span>
           </div>
 
           <div class="nexo-form__campo">
-            <label for="cantidad">Cantidad <span style="font-weight:400; text-transform:none; letter-spacing:0;">(opcional)</span></label>
-            <input id="cantidad" type="text" placeholder="Ej. 10 litros, 5 cajas..." />
+            <label for="cantidad">Cantidad <span class="nexo-form__campo-nota">(opcional)</span></label>
+            <input id="cantidad" name="cantidad" type="text" placeholder="Ej. 10 litros, 5 cajas..." />
           </div>
 
           <div class="nexo-form__campo">
             <label for="contacto">Contacto</label>
-            <input id="contacto" type="text" placeholder="Email o teléfono" required />
+            <input id="contacto" name="contacto" type="text" placeholder="Email o teléfono" required />
           </div>
 
           <button type="submit" class="nexo-btn">Publicar</button>
