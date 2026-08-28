@@ -169,4 +169,77 @@ footer {
   letter-spacing: 0.04em;
 }
 
+/* ==========================================
+   PERSONA 4
+   MARCADORES DE NECESIDADES
+   ========================================== */
+
+.nexo-marker {
+    background: transparent;
+    border: none;
+}
+
+.nexo-marker-icon {
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 3px solid #ffffff;
+
+    border-radius: 50%;
+
+    font-size: 21px;
+
+    line-height: 1;
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.35);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.nexo-marker-icon:hover {
+
+    transform: scale(1.15);
+
+    box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ==========================================
+   POPUPS
+   ========================================== */
+
+.nexo-popup {
+
+    min-width: 190px;
+
+    color: #222;
+}
+
+.nexo-popup h3 {
+
+    margin: 0 0 10px 0;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+.nexo-popup p {
+
+    margin: 6px 0;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+}
+
 .nexo-offline-banner.visible { display: block; }
