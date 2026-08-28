@@ -7,22 +7,27 @@
  * del frontend (mapa, formularios, listados) no tenga que saber nada
  * de fetch, JSON.stringify ni códigos HTTP.
  *
- * Contrato esperado con el backend (routes.py / schemas.py):
+ * Contrato esperado con el backend (routes.py / schemas.py) — rediseño con
+ * 8 categorías cerradas, ciclo de vida simplificado a abierta/cubierta y
+ * ubicación por dirección (geocodificada) en vez de coordenadas sueltas:
  *
  *   GET    /api/necesidades?tipo=&estado=   -> Necesidad[]
+ *   GET    /api/necesidades/{id}            -> Necesidad
  *   POST   /api/necesidades                 -> Necesidad (201)
- *   PATCH  /api/necesidades/{id}/estado     -> Necesidad (200)
+ *   PATCH  /api/necesidades/{id}            -> Necesidad (200)
  *
  *   Necesidad = {
  *     id: number,
- *     titulo: string,
- *     tipo: string,
- *     descripcion: string,
+ *     titulo: string,             // generado por el servidor a partir de la categoría
+ *     tipo: string,                // una de TIPOS_NECESIDAD
+ *     descripcion: string,         // opcional, puede venir vacía
+ *     direccion: string,           // texto legible del lugar (geocodificacion.js)
  *     latitud: number,
  *     longitud: number,
  *     prioridad: string,
- *     estado: "abierta" | "en_proceso" | "cubierta",
- *     creado_en: string   // fecha ISO generada por el servidor
+ *     estado: "abierta" | "cubierta",
+ *     creado_en: string,           // fecha ISO generada por el servidor
+ *     categoria_etiqueta: string   // p. ej. "💧 Agua", lista para pintar
  *   }
  *
  *   Errores -> siempre { error: string, detalle: string } con status 404 o 409.
@@ -53,13 +58,33 @@ export function configurarBaseUrl(baseUrl) {
 // Enums espejo de schemas.py (NeedType, NeedPriority, NeedStatus).
 // Mantenerlos aquí evita strings sueltos repartidos por selects/formularios
 // y hace explícito el punto de contacto si el backend cambia un valor.
+//
+// 8 categorías cerradas del rediseño (antes había 6, con "medicina" y
+// "herramientas" en vez de "parafarmacia", "ropa", "higiene" y "otros").
 export const TIPOS_NECESIDAD = Object.freeze({
   AGUA: "agua",
-  ALIMENTO: "alimento",
-  MEDICINA: "medicina",
+  ALIMENTOS: "alimentos",
+  PARAFARMACIA: "parafarmacia",
+  ROPA: "ropa",
+  HIGIENE: "higiene",
   REFUGIO: "refugio",
-  HERRAMIENTAS: "herramientas",
   TRANSPORTE: "transporte",
+  OTROS: "otros",
+});
+
+// Etiqueta con emoji por categoría. El backend ya la manda en
+// "categoria_etiqueta" dentro de cada Necesidad; esta copia sirve para
+// pintar los propios controles del formulario/filtro (que no vienen del
+// backend, los define este archivo) sin repetir los emojis sueltos.
+export const ETIQUETAS_TIPO_NECESIDAD = Object.freeze({
+  [TIPOS_NECESIDAD.AGUA]: "💧 Agua",
+  [TIPOS_NECESIDAD.ALIMENTOS]: "🍞 Alimentos",
+  [TIPOS_NECESIDAD.PARAFARMACIA]: "💊 Parafarmacia",
+  [TIPOS_NECESIDAD.ROPA]: "👕 Ropa",
+  [TIPOS_NECESIDAD.HIGIENE]: "🧴 Higiene",
+  [TIPOS_NECESIDAD.REFUGIO]: "🏠 Refugio",
+  [TIPOS_NECESIDAD.TRANSPORTE]: "🚗 Transporte",
+  [TIPOS_NECESIDAD.OTROS]: "📦 Otros",
 });
 
 export const PRIORIDADES_NECESIDAD = Object.freeze({
@@ -69,9 +94,10 @@ export const PRIORIDADES_NECESIDAD = Object.freeze({
   CRITICA: "critica",
 });
 
+// Ciclo de vida simplificado a un solo paso (antes había un estado
+// intermedio "en_proceso" que se ha retirado en este rediseño).
 export const ESTADOS_NECESIDAD = Object.freeze({
   ABIERTA: "abierta",
-  EN_PROCESO: "en_proceso",
   CUBIERTA: "cubierta",
 });
 
@@ -193,15 +219,35 @@ export async function obtenerNecesidades(filtros = {}) {
 }
 
 /**
+ * Obtiene una única necesidad por su id (p. ej. al abrir el detalle
+ * de un marcador del mapa).
+ *
+ * @param {number} idNecesidad
+ * @returns {Promise<object>}
+ */
+export async function obtenerNecesidad(idNecesidad) {
+  const response = await fetch(`${NECESIDADES_BASE_URL}/${idNecesidad}`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+
+  return parseRespuesta(response);
+}
+
+/**
  * Crea una nueva necesidad en el mapa.
  *
  * El backend genera id, estado inicial ("abierta") y creado_en,
  * así que aquí solo enviamos los campos que rellena la persona usuaria.
+ * "direccion" es el texto legible que el frontend obtiene al geocodificar
+ * (ver geocodificacion.js); "titulo" puede llegar vacío y el servidor lo
+ * genera a partir de la categoría (ver services.py).
  *
  * @param {{
- *   titulo: string,
+ *   titulo?: string,
  *   tipo: string,
- *   descripcion: string,
+ *   descripcion?: string,
+ *   direccion?: string,
  *   latitud: number,
  *   longitud: number,
  *   prioridad?: string
@@ -224,26 +270,23 @@ export async function crearNecesidad(datosNecesidad) {
 /**
  * Cambia el estado de una necesidad existente.
  *
- * Transiciones válidas en el backend: abierta -> en_proceso -> cubierta.
- * Un salto de estado o una reapertura devuelve 409, que aquí se traduce
- * en un NecesidadApiError con status 409.
+ * La única transición válida en el backend: abierta -> cubierta.
+ * Un intento de reabrir una necesidad ya cubierta devuelve 409, que aquí
+ * se traduce en un NecesidadApiError con status 409.
  *
  * @param {number} idNecesidad
- * @param {"abierta"|"en_proceso"|"cubierta"} nuevoEstado
+ * @param {"abierta"|"cubierta"} nuevoEstado
  * @returns {Promise<object>} la necesidad actualizada
  */
 export async function actualizarEstadoNecesidad(idNecesidad, nuevoEstado) {
-  const response = await fetch(
-    `${NECESIDADES_BASE_URL}/${idNecesidad}/estado`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ estado: nuevoEstado }),
-    }
-  );
+  const response = await fetch(`${NECESIDADES_BASE_URL}/${idNecesidad}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ estado: nuevoEstado }),
+  });
 
   return parseRespuesta(response);
 }
