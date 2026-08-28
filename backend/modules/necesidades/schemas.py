@@ -2,23 +2,45 @@
 
 Los nombres de Python siguen la convención técnica en inglés. Los alias en
 español conservan el contrato JSON ya compartido con el equipo de frontend.
+
+REDISEÑO (rehecho tras el sprint anterior): categorías cerradas a 8 iconos
+(ver NEED_TYPE_LABELS) y ciclo de vida simplificado a abierta -> cubierta,
+tal y como se acordó en docs/reparto-trabajo.md para el Equipo 1.
 """
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class NeedType(str, Enum):
-    """Categorías de necesidad admitidas por el mapa del MVP."""
+    """Categorías cerradas de necesidad admitidas por el formulario y el mapa."""
 
     # FastAPI serializa estos enums con los valores acordados del contrato JSON.
     WATER = "agua"
-    FOOD = "alimento"
-    MEDICINE = "medicina"
+    FOOD = "alimentos"
+    PHARMACY = "parafarmacia"
+    CLOTHING = "ropa"
+    HYGIENE = "higiene"
     SHELTER = "refugio"
-    TOOLS = "herramientas"
     TRANSPORT = "transporte"
+    OTHER = "otros"
+
+
+# Etiqueta con emoji para cada categoría, tal y como se van a mostrar en el
+# formulario simplificado y en las tarjetas del mapa. Vive aquí (y no solo
+# en el frontend) para que la respuesta de la API ya incluya el texto listo
+# para pintar (ver NeedResponse.category_label) y frontend no duplique el mapeo.
+NEED_TYPE_LABELS: dict[NeedType, str] = {
+    NeedType.WATER: "💧 Agua",
+    NeedType.FOOD: "🍞 Alimentos",
+    NeedType.PHARMACY: "💊 Parafarmacia",
+    NeedType.CLOTHING: "👕 Ropa",
+    NeedType.HYGIENE: "🧴 Higiene",
+    NeedType.SHELTER: "🏠 Refugio",
+    NeedType.TRANSPORT: "🚗 Transporte",
+    NeedType.OTHER: "📦 Otros",
+}
 
 
 class NeedPriority(str, Enum):
@@ -31,10 +53,14 @@ class NeedPriority(str, Enum):
 
 
 class NeedStatus(str, Enum):
-    """Estados disponibles durante el ciclo de vida de una necesidad."""
+    """Estados disponibles durante el ciclo de vida de una necesidad.
+
+    Simplificado a dos pasos (abierta -> cubierta): el estado intermedio
+    "en_proceso" del sprint anterior se elimina para volver al alcance
+    acordado en docs/reparto-trabajo.md.
+    """
 
     OPEN = "abierta"
-    IN_PROGRESS = "en_proceso"
     COVERED = "cubierta"
 
 
@@ -45,9 +71,24 @@ class NeedBase(BaseModel):
     # Los alias obligan a que la API reciba exactamente las claves del contrato.
     model_config = ConfigDict(extra="forbid")
 
-    title: str = Field(alias="titulo", min_length=3, max_length=120)
+    # El formulario simplificado no obliga a escribir un título: si llega
+    # vacío, el servicio (services.py) genera uno a partir de la categoría.
+    title: str = Field(default="", alias="titulo", max_length=120)
     need_type: NeedType = Field(alias="tipo")
-    description: str = Field(alias="descripcion", min_length=3, max_length=1000)
+    # La descripción también pasa a ser opcional para que registrar una
+    # necesidad sea lo más rápido posible: categoría + ubicación bastan.
+    description: str = Field(default="", alias="descripcion", max_length=1000)
+    # Texto legible del lugar (p. ej. "Calle Mayor 3, Valencia"). Lo rellena
+    # el frontend al geocodificar la dirección escrita, o al hacer
+    # geocodificación inversa tras usar el GPS o un clic en el mapa (ver
+    # geocodificacion.js). Se guarda tal cual para poder mostrarlo en la
+    # tarjeta y el popup sin depender solo de las coordenadas.
+    #
+    # Nominatim (el servicio de geocodificación) puede devolver direcciones
+    # muy largas (barrio, comarca, código postal, país...), así que en vez
+    # de rechazarlas se recortan a este límite en strip_text_fields de abajo;
+    # max_length coincide con ese recorte para que nunca pueda saltar.
+    address: str = Field(default="", alias="direccion", max_length=300)
     latitude: float = Field(alias="latitud", ge=-90, le=90, allow_inf_nan=False)
     longitude: float = Field(
         alias="longitud",
@@ -60,13 +101,17 @@ class NeedBase(BaseModel):
         alias="prioridad",
     )
 
-    @field_validator("title", "description", mode="before")
+    @field_validator("title", "description", "address", mode="before")
     @classmethod
-    def strip_text_fields(cls, value: object) -> object:
-        """Elimina espacios laterales antes de validar la longitud."""
+    def strip_text_fields(cls, value: object, info) -> object:
+        """Elimina espacios laterales y, para "address", recorta si hace falta."""
 
-        if isinstance(value, str):
-            return value.strip()
+        if not isinstance(value, str):
+            return value
+
+        value = value.strip()
+        if info.field_name == "address":
+            value = value[:300]
         return value
 
 
@@ -90,3 +135,15 @@ class NeedResponse(NeedBase):
     id: int = Field(gt=0)
     status: NeedStatus = Field(alias="estado")
     created_at: datetime = Field(alias="creado_en")
+    # Campo calculado (no vive en la base de datos): etiqueta con emoji
+    # lista para pintar en la tarjeta o el popup del mapa, sin que el
+    # frontend tenga que mantener su propia copia de NEED_TYPE_LABELS.
+    category_label: str = Field(default="", alias="categoria_etiqueta")
+
+    @model_validator(mode="after")
+    def _fill_category_label(self) -> "NeedResponse":
+        if not self.category_label:
+            object.__setattr__(
+                self, "category_label", NEED_TYPE_LABELS[self.need_type]
+            )
+        return self

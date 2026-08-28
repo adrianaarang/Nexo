@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import DATABASE_PATH
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
+MIGRATIONS_TABLE = "schema_migrations"
 
 
 def get_connection():
@@ -58,13 +59,36 @@ def _run_migration(conn, sql):
 
 
 def init_db():
-    """Ejecuta todas las migraciones .sql en orden. Idempotente:
-    los `CREATE TABLE IF NOT EXISTS` no recrean tablas y los `ALTER TABLE`
-    ya aplicados se ignoran (ver `_run_migration`)."""
+    """Ejecuta una sola vez cada migración, en orden y en una transacción."""
+
     conn = get_connection()
     try:
-        for migration in sorted(MIGRATIONS_DIR.glob("*.sql")):
-            _run_migration(conn, migration.read_text(encoding="utf-8"))
+        conn.execute(
+            f"""CREATE TABLE IF NOT EXISTS {MIGRATIONS_TABLE} (
+                nombre TEXT PRIMARY KEY,
+                aplicada_en TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )"""
+        )
         conn.commit()
+
+        for migration in sorted(MIGRATIONS_DIR.glob("*.sql")):
+            applied = conn.execute(
+                f"SELECT 1 FROM {MIGRATIONS_TABLE} WHERE nombre = ?",
+                (migration.name,),
+            ).fetchone()
+            if applied:
+                continue
+
+            try:
+                conn.execute("BEGIN")
+                _run_migration(conn, migration.read_text(encoding="utf-8"))
+                conn.execute(
+                    f"INSERT INTO {MIGRATIONS_TABLE} (nombre) VALUES (?)",
+                    (migration.name,),
+                )
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
     finally:
         conn.close()

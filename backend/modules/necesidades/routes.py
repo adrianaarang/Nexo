@@ -28,8 +28,8 @@ from fastapi.responses import JSONResponse
 #
 # Los nombres internos están en inglés para seguir las convenciones
 # técnicas del proyecto.
-from modules.necesidades.models import (
-    InvalidStatusTransition,
+from modules.necesidades.models import InvalidStatusTransition
+from modules.necesidades.services import (
     create_need,
     list_needs,
     update_need_status,
@@ -227,13 +227,8 @@ def change_need_status(
 ):
     """Cambia el estado de una necesidad existente.
 
-    Las transiciones permitidas son:
-
-    - abierta → en_proceso
-    - en_proceso → cubierta
-
-    No se permite saltar estados, retroceder ni reabrir
-    una necesidad que ya está cubierta.
+    La transición permitida es abierta → cubierta. Repetir el estado
+    actual es idempotente; no se permite reabrir una necesidad cubierta.
     """
 
     try:
