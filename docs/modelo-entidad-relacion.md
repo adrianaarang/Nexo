@@ -64,6 +64,11 @@
 
 ## Diagrama (Mermaid)
 
+> Render del modelo (generado en dbdiagram.io):
+> ![Modelo ER Nexo](NEXO_Emergencias_Y_Ayudas.svg)
+> - [Versión PNG](NEXO_Emergencias_Y_Ayudas.png)
+> - [Fuente dbdiagram.io (editable)](NEXO_Emergencias_Y_Ayudas.dbdiagram.html)
+
 ```mermaid
 erDiagram
     NECESIDADES {
