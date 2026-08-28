@@ -1,14 +1,6 @@
 // Donations list and form — Team 3 frontend.
 // Lista y formulario de donaciones — Equipo 3 frontend.
-import { getDonations, postDonation } from "./donacionesApi.js";
-
-// Fallback data used when the backend is unavailable.
-// Datos de prueba usados cuando el backend no está disponible.
-const MOCK = [
-  { id: 1, tipo: "ofrecida",   recurso: "Agua",        cantidad: "50 litros",   descripcion: "Botellas de 1.5L sin abrir.",                         contacto: "voluntario@ejemplo.com", estado: "activa", creado_en: "2026-08-21T10:00:00Z" },
-  { id: 2, tipo: "solicitada", recurso: "Mantas",       cantidad: "10 unidades", descripcion: "Para familias desplazadas en el polideportivo.",       contacto: "afectado@ejemplo.com",   estado: "activa", creado_en: "2026-08-21T11:00:00Z" },
-  { id: 3, tipo: "ofrecida",   recurso: "Ropa infantil",cantidad: "",            descripcion: "Tallas 2-8 años, invierno.",                           contacto: "cruz.roja@ejemplo.com",  estado: "activa", creado_en: "2026-08-21T12:00:00Z" },
-];
+import { getDonations, markDonationAsDelivered, postDonation } from "./donacionesApi.js";
 
 const list           = document.getElementById("lista-donaciones");
 const statusEl       = document.getElementById("estado-lista");
@@ -25,9 +17,9 @@ function initDropdowns() {
 
     trigger.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isOpen = sel.classList.contains("abierto");
-      document.querySelectorAll(".nexo-select.abierto").forEach(s => s.classList.remove("abierto"));
-      if (!isOpen) sel.classList.add("abierto");
+      const isOpen = sel.classList.contains("nexo-select--abierto");
+      document.querySelectorAll(".nexo-select.nexo-select--abierto").forEach(s => s.classList.remove("nexo-select--abierto"));
+      if (!isOpen) sel.classList.add("nexo-select--abierto");
     });
 
     // Form dropdowns don't reload the list on selection.
@@ -38,17 +30,17 @@ function initDropdowns() {
       li.addEventListener("click", () => {
         sel.dataset.value = li.dataset.value;
         label.textContent = li.textContent;
-        label.style.color = "";
-        menu.querySelectorAll("li").forEach(l => l.classList.remove("seleccionado"));
-        li.classList.add("seleccionado");
-        sel.classList.remove("abierto");
+        label.classList.remove("nexo-select__label--placeholder");
+        menu.querySelectorAll("li").forEach(l => l.classList.remove("nexo-select__opcion--activa"));
+        li.classList.add("nexo-select__opcion--activa");
+        sel.classList.remove("nexo-select--abierto");
         if (!isFormDropdown) loadDonations();
       });
     });
   });
 
   document.addEventListener("click", () => {
-    document.querySelectorAll(".nexo-select.abierto").forEach(s => s.classList.remove("abierto"));
+    document.querySelectorAll(".nexo-select.nexo-select--abierto").forEach(s => s.classList.remove("nexo-select--abierto"));
   });
 }
 
@@ -165,30 +157,15 @@ list.addEventListener("click", async (e) => {
 });
 
 async function markAsDelivered(id) {
-  const card = document.getElementById(`donacion-${id}`);
-  if (!card) return;
-
-  const led = card.querySelector(".donacion-led");
-  if (led) {
-    led.className = "donacion-led donacion-led--entregada";
-    led.innerHTML = `<span class="donacion-led__punto"></span>Entregada`;
-  }
-  card.querySelector(".donacion-card__btn")?.remove();
-
   try {
-    await fetch(`http://localhost:8000/api/donaciones/${id}/estado`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ estado: "entregada" }),
-    });
+    await markDonationAsDelivered(id);
+    await loadDonations();
+    return;
   } catch {
+    showStatus("No se pudo actualizar el estado de la donación.");
     // Backend unavailable — visual update only. / Sin backend, solo actualización visual.
   }
 
-  setTimeout(() => {
-    card.remove();
-    if (list.children.length === 0) showStatus("No hay donaciones en este momento.");
-  }, 1200);
 }
 
 function showStatus(text) {
@@ -208,13 +185,12 @@ async function loadDonations() {
   list.innerHTML = "";
   showStatus("Cargando...");
 
-  // Fetch from API; fall back to mock data if unavailable.
-  // Carga desde la API; usa datos de prueba si no hay conexión.
   let data;
   try {
     data = await getDonations(type);
   } catch {
-    data = type ? MOCK.filter(d => d.tipo === type) : [...MOCK];
+    showStatus("No se pudieron cargar las donaciones. Inténtalo de nuevo más tarde.");
+    return;
   }
 
   if (category) data = data.filter(d => d.recurso === category);
@@ -234,25 +210,20 @@ async function loadDonations() {
 
   list.innerHTML = data.map(renderCard).join("");
 
-  list.querySelectorAll(".donacion-card").forEach((card, i) => {
-    card.style.animationDelay = `${i * 0.07}s`;
-    card.style.opacity = "0";
-    card.addEventListener("animationend", () => { card.style.opacity = "1"; }, { once: true });
-  });
 }
 
 function resetFormDropdowns() {
   const typeEl = document.getElementById("tipo");
   typeEl.dataset.value = "ofrecida";
   typeEl.querySelector(".nexo-select__label").textContent = "Ofrezco recursos";
-  typeEl.querySelectorAll("li").forEach((li, i) => li.classList.toggle("seleccionado", i === 0));
+  typeEl.querySelectorAll("li").forEach((li, i) => li.classList.toggle("nexo-select__opcion--activa", i === 0));
 
   const resourceEl    = document.getElementById("recurso");
   resourceEl.dataset.value = "";
   const resourceLabel = resourceEl.querySelector(".nexo-select__label");
   resourceLabel.textContent  = "Selecciona una categoría";
-  resourceLabel.style.color  = "var(--nexo-text-muted, #9CA0A8)";
-  resourceEl.querySelectorAll("li").forEach(li => li.classList.remove("seleccionado"));
+  resourceLabel.classList.add("nexo-select__label--placeholder");
+  resourceEl.querySelectorAll("li").forEach(li => li.classList.remove("nexo-select__opcion--activa"));
 }
 
 form.addEventListener("submit", async (e) => {
@@ -260,8 +231,9 @@ form.addEventListener("submit", async (e) => {
 
   const resourceEl = document.getElementById("recurso");
   if (!resourceEl.dataset.value) {
-    resourceEl.querySelector(".nexo-select__trigger").style.borderColor = "#F2542D";
-    setTimeout(() => { resourceEl.querySelector(".nexo-select__trigger").style.borderColor = ""; }, 1500);
+    const trigger = resourceEl.querySelector(".nexo-select__trigger");
+    trigger.classList.add("nexo-select__trigger--error");
+    setTimeout(() => trigger.classList.remove("nexo-select__trigger--error"), 1500);
     return;
   }
 

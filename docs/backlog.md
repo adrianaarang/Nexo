@@ -89,6 +89,7 @@ Nota: sin respuesta de la integradora y entrega mañana; si no hay merge de `fix
 - [ ] Preparar Demo Day (narrativa alerta→mapa→necesidad→recurso→resolución).
 - [x] Decidir herramienta de backlog: Trello — decidido.
 - [x] Reparto de tareas del Grupo 4 — creado `docs/equipos/grupo4-tareas.md` en Sprint 2.
+- [x] Votar la convención bilingüe (README bilingüe oficial en `dev`).
 
 ## Abierto (por decidir)
 - Zonas/celdas del mapa aún no definidas.

@@ -180,12 +180,10 @@ volunteerForm.addEventListener('submit', async (event) => {
       vehicle_type: formData.get('vehicle_type') || null,
       availability_slots: getAvailabilitySlots(formData),
       skills: formData.get('skills'),
-      status: 'available',
     });
     volunteerForm.reset();
     updateVehicleTypeVisibility();
-    formStatus.textContent = 'Disponibilidad registrada. Gracias por ayudar.';
-    loadVolunteers();
+    formStatus.textContent = 'Solicitud enviada. Un administrador la revisará antes de publicarla.';
   } catch (error) {
     formStatus.textContent = error.message;
   } finally {

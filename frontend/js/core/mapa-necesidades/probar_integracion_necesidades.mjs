@@ -104,6 +104,7 @@ async function main() {
       titulo: "Prueba de integración — agua potable",
       tipo: TIPOS_NECESIDAD.AGUA,
       descripcion: "Necesidad creada por el script de pruebas manuales.",
+      direccion: "Puerta del Sol, Madrid",
       latitud,
       longitud,
       prioridad: PRIORIDADES_NECESIDAD.ALTA,
@@ -112,6 +113,7 @@ async function main() {
     assert(typeof resultado.id === "number", "falta 'id' numérico en la respuesta");
     assert(resultado.estado === ESTADOS_NECESIDAD.ABIERTA, "el estado inicial debería ser 'abierta'");
     assert(resultado.tipo === TIPOS_NECESIDAD.AGUA, "el campo 'tipo' no coincide con lo enviado");
+    assert(resultado.direccion === "Puerta del Sol, Madrid", "el campo 'direccion' no coincide con lo enviado");
     assert(typeof resultado.creado_en === "string", "falta 'creado_en' en la respuesta");
 
     necesidadCreada = resultado;
@@ -121,7 +123,7 @@ async function main() {
     const { latitud, longitud } = coordenadasDeSondeo();
     const resultado = await crearNecesidad({
       titulo: "Prueba de integración — sin prioridad",
-      tipo: TIPOS_NECESIDAD.ALIMENTO,
+      tipo: TIPOS_NECESIDAD.ALIMENTOS,
       descripcion: "Verifica el valor por defecto de prioridad.",
       latitud,
       longitud,
@@ -131,6 +133,29 @@ async function main() {
     assert(
       resultado.prioridad === PRIORIDADES_NECESIDAD.MEDIA,
       `se esperaba prioridad 'media' por defecto, llegó '${resultado.prioridad}'`
+    );
+  });
+
+  await caso("genera un título a partir de la categoría si se omite (formulario simplificado)", async () => {
+    const { latitud, longitud } = coordenadasDeSondeo();
+    const resultado = await crearNecesidad({
+      tipo: TIPOS_NECESIDAD.PARAFARMACIA,
+      latitud,
+      longitud,
+      // titulo, descripcion y direccion omitidos a propósito
+    });
+
+    assert(
+      resultado.titulo.length > 0,
+      "el servidor debería generar un título aunque el formulario no lo mande"
+    );
+    assert(
+      resultado.categoria_etiqueta === "💊 Parafarmacia",
+      `se esperaba la etiqueta con emoji de parafarmacia, llegó '${resultado.categoria_etiqueta}'`
+    );
+    assert(
+      resultado.direccion === "",
+      "la dirección debería quedar vacía si no se manda (solo hay coordenadas)"
     );
   });
 
@@ -205,32 +230,17 @@ async function main() {
     );
   });
 
-  console.log("\nCambio de estado (PATCH):");
+  console.log("\nCambio de estado (PATCH) — ciclo de vida simplificado a un solo paso:");
 
-  await caso("avanza de 'abierta' a 'en_proceso'", async () => {
+  await caso("repetir el estado actual ('abierta') es idempotente (no lanza error)", async () => {
     const actualizada = await actualizarEstadoNecesidad(
       necesidadCreada.id,
-      ESTADOS_NECESIDAD.EN_PROCESO
+      ESTADOS_NECESIDAD.ABIERTA
     );
-    assert(actualizada.estado === ESTADOS_NECESIDAD.EN_PROCESO, "el estado no avanzó como se esperaba");
+    assert(actualizada.estado === ESTADOS_NECESIDAD.ABIERTA, "repetir el estado actual debería ser un no-op válido");
   });
 
-  await caso("repetir el mismo estado es idempotente (no lanza error)", async () => {
-    const actualizada = await actualizarEstadoNecesidad(
-      necesidadCreada.id,
-      ESTADOS_NECESIDAD.EN_PROCESO
-    );
-    assert(actualizada.estado === ESTADOS_NECESIDAD.EN_PROCESO, "repetir el estado actual debería ser un no-op válido");
-  });
-
-  await caso("rechaza retroceder de 'en_proceso' a 'abierta' con 409", async () => {
-    await esperarError(
-      () => actualizarEstadoNecesidad(necesidadCreada.id, ESTADOS_NECESIDAD.ABIERTA),
-      409
-    );
-  });
-
-  await caso("avanza de 'en_proceso' a 'cubierta'", async () => {
+  await caso("avanza de 'abierta' a 'cubierta'", async () => {
     const actualizada = await actualizarEstadoNecesidad(
       necesidadCreada.id,
       ESTADOS_NECESIDAD.CUBIERTA
@@ -240,7 +250,7 @@ async function main() {
 
   await caso("rechaza reabrir una necesidad ya 'cubierta' con 409", async () => {
     await esperarError(
-      () => actualizarEstadoNecesidad(necesidadCreada.id, ESTADOS_NECESIDAD.EN_PROCESO),
+      () => actualizarEstadoNecesidad(necesidadCreada.id, ESTADOS_NECESIDAD.ABIERTA),
       409
     );
   });
@@ -249,7 +259,7 @@ async function main() {
 
   await caso("PATCH sobre un id inexistente devuelve 404", async () => {
     await esperarError(
-      () => actualizarEstadoNecesidad(999999, ESTADOS_NECESIDAD.EN_PROCESO),
+      () => actualizarEstadoNecesidad(999999, ESTADOS_NECESIDAD.CUBIERTA),
       404
     );
   });
