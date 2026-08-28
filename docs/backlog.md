@@ -56,6 +56,20 @@ Mapeo Sprint 2 (reparto final 27/08):
 > Los issues de Sprint 1 (#41 Equipo 1, #43 Equipo 3, #44 Equipo 4) se cierran al crear los de
 > Sprint 2, con un comentario de trazabilidad hacia el nuevo issue.
 
+### Sprint 1 (histórico) — issues originales del Kanban
+
+> Snapshot 2026-08-25. El script de Sprint 2 cierra estos issues con trazabilidad:
+> #41 → Equipo 1 - Necesidades, #43 → Equipo 3 - Ayudas, #44 → Equipo 4 - Mapa + Interfaz.
+
+| # | Título (Sprint 1) | Label | Estado a 2026-08-25 |
+|---|-------------------|-------|---------------------|
+| #40 | Base comun - revision previa al reparto | base-comun, kanban | **CERRADO** |
+| #41 | Equipo 1 - Mapa de necesidades | equipo-1, kanban | Abierto |
+| #42 | Equipo 2 - Alertas oficiales | equipo-2, kanban | **CERRADO** |
+| #43 | Equipo 3 - Voluntariado y donaciones | equipo-3, kanban | Abierto |
+| #44 | Equipo 4 - Personas y modo offline | equipo-4, kanban | Abierto |
+| #45 | Futuro - Resilience OS | futuro, kanban | Abierto |
+
 ## Objetivos MVP (de `docs/manifiesto.md`)
 - [ ] O1 Alertas GDACS con filtros y estados (núcleo del Grupo 2) — feature/alerts (G2) listo, falta PR #56 a dev; base común en fix/base-comun
 - [ ] O2 Mapa de necesidades end-to-end — en dev
