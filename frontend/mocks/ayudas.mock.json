@@ -1,0 +1,8 @@
+[
+  { "id": 1, "type": "resource", "category": "food", "latitude": 40.411, "longitude": -3.699, "status": "available" },
+  { "id": 2, "type": "resource", "category": "clothing", "latitude": 40.413, "longitude": -3.697, "status": "available" },
+  { "id": 3, "type": "resource", "category": "medication", "latitude": 40.407, "longitude": -3.704, "status": "available" },
+  { "id": 4, "type": "service", "category": "transport", "latitude": 40.444, "longitude": -3.744, "status": "available" },
+  { "id": 5, "type": "service", "category": "housing", "latitude": 40.442, "longitude": -3.747, "status": "available" },
+  { "id": 6, "type": "time", "category": "presencial", "latitude": 40.410, "longitude": -3.702, "status": "available" }
+]

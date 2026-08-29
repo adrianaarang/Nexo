@@ -12,25 +12,27 @@ front o solo en backend y todos tengan algo que enseñar en la demo de forma ind
 
 > Aún no hay PR de la base común; se pide que al menos una persona de cada equipo la revise.
 
-## Equipo 1 — Mapa de necesidades
-Módulo con más votos en la encuesta (50%); pantalla principal.
-- Frontend: `frontend/pages/mapa.html` y `frontend/js/core/mapa-necesidades/`.
-- Backend: `backend/modules/necesidades/` (guardar, listar, cambiar estado abierta→cubierta).
-- **Decidir:** cómo se define la prioridad de una necesidad; si el mapa filtra por tipo.
+## Equipo 1 — Necesidades
+- Frontend: `frontend/pages/mapa.html` (formulario) y `frontend/js/core/mapa-necesidades/`.
+- Backend: `backend/modules/necesidades/` (guardar, listar, estados, 8 categorías, intensidad).
+- **Decidir:** categorías de necesidad; intensidad por conteo en el mapa.
+- Nota: la visualización del mapa pasa al Equipo 4 (Mapa + Interfaz principal) en Sprint 2.
 
-## Equipo 2 — Alertas oficiales
-- Frontend: `frontend/pages/alertas.html` y `frontend/js/core/alertas-oficiales/`.
-- Backend: `backend/modules/alertas/` e `backend/integrations/` (GDACS mundial + hueco para Protección Civil local).
-- **Decidir:** qué mostrar sin alertas activas; si conviene cachear respuesta de GDACS.
-- Ver detalle en `docs/equipos/grupo2-alertas.md`.
+## Equipo 2 — Alertas + activación de crisis
+- Frontend: `frontend/pages/alertas.html` y `frontend/js/core/alertas-oficiales/` (incluye `crisis.js`).
+- Backend: `backend/modules/alertas/` e `backend/integrations/` (GDACS + Protección Civil).
+- **Sprint 2:** activación de crisis (crear/activar/alto-riesgo/desactivar) y contrato mapa `{id, risk_level, status, zone}`.
+- Ver detalle en `docs/equipos/grupo2-tareas.md`.
 
-## Equipo 3 — Voluntariado y donaciones
+## Equipo 3 — Ayudas (unifica donación + voluntariado)
 - Frontend: `frontend/pages/voluntariado.html`, `frontend/pages/donaciones.html` y `frontend/js/core/voluntariado-donaciones/`.
-- Backend: `backend/modules/voluntariado/` y `backend/modules/donaciones/`.
-- **Decidir:** cómo marcar una donación ya cubierta; si un voluntario puede marcarse como asignado.
+- Backend: `backend/modules/voluntariado/` y `backend/modules/donaciones/` (unificados en módulo Ayudas).
+- **Decidir:** 3 tipos de ayuda (recursos, servicios, tiempo/voluntariado con nombre+DNI); marcar ayuda cubierta.
+- Ver detalle en `docs/equipos/grupo3-tareas.md`.
 
-## Equipo 4 — Personas y modo sin conexión
-Van juntas porque el registro de personas es el caso que más necesita funcionar sin internet.
-- Frontend: `frontend/pages/personas.html`, `frontend/pages/estoy-bien.html` y `frontend/js/siguiente/` (registro de personas + modo offline).
-- Backend: `backend/modules/personas/` y `backend/sync/`.
-- **Decidir:** qué pasa si dos personas reportan a la misma desaparecida por separado; cómo probar el modo sin conexión (modo avión del móvil).
+## Equipo 4 — Mapa + Interfaz principal
+Consume alertas y necesidades vía los contratos JSON y pinta la zona de alerta ALTO RIESGO.
+- Frontend: `frontend/pages/mapa.html` + `frontend/js/core/mapa-necesidades/mapaNecesidades.js` (consumo de alertas y necesidades) e interfaz principal.
+- Backend: comparte los contratos de `alertas` y `necesidades` (no implementa módulos propios salvo lo de mapa).
+- **Decidir:** resaltado de zona ALTO RIESGO; intensidad por conteo (🟢🟠🔴).
+- Ver detalle en `docs/equipos/grupo4-tareas.md`.

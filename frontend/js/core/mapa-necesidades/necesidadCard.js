@@ -4,31 +4,23 @@
  * Componente Objeto para las Tarjetas de Necesidad y Estados UI.
  *
  * Los campos de needData vienen del backend en español
- * (ver schemas.py -> NeedResponse): titulo, tipo, descripcion,
- * prioridad, estado, latitud, longitud, id, creado_en.
+ * (ver schemas.py -> NeedResponse): titulo (generado por el backend a
+ * partir de la categoría, ya no lo escribe la persona), tipo, descripcion,
+ * direccion (texto legible del lugar, ver geocodificacion.js), prioridad,
+ * estado, latitud, longitud, id, creado_en, categoria_etiqueta (p. ej.
+ * "💧 Agua", ya lista para pintar).
  *
- * El backend solo permite avanzar el estado paso a paso, sin saltos
- * ni retrocesos: abierta -> en_proceso -> cubierta (ver
- * update_need_status en models.py). SIGUIENTE_ESTADO refleja esa
- * misma regla aquí, para que el botón siempre pida el paso correcto
- * y no un 409.
+ * Rediseño: el ciclo de vida ahora es un solo paso, abierta -> cubierta
+ * (ver STATUS_TRANSITIONS en models.py). Ya no hay estado intermedio.
  */
-const SIGUIENTE_ESTADO = {
-  abierta: "en_proceso",
-  en_proceso: "cubierta",
-};
-
-const ETIQUETA_BOTON = {
-  abierta: "Marcar en proceso",
-  en_proceso: "Marcar cubierta",
-};
+const ETIQUETA_BOTON_CUBRIR = "Marcar cubierta";
 
 export class NeedCardComponent {
   /**
    * @param {Object} needData - Datos de la necesidad
-   * @param {Function} [onStatusChange] - Callback para cambio de estado.
-   *   Recibe (id, estadoActual, siguienteEstado) y debe devolver (o
-   *   resolver a) la necesidad ya actualizada por el backend.
+   * @param {Function} [onStatusChange] - Callback para marcar como cubierta.
+   *   Recibe (id, "abierta", "cubierta") y debe devolver (o resolver a)
+   *   la necesidad ya actualizada por el backend.
    */
   constructor(needData, onStatusChange) {
     this.data = needData;
@@ -42,9 +34,12 @@ export class NeedCardComponent {
   createDOMElement() {
     const card = document.createElement("article");
     const prioridad = (this.data.prioridad || "baja").toLowerCase();
+    const tipo = (this.data.tipo || "otros").toLowerCase();
+    const etiquetaCategoria = this.data.categoria_etiqueta || tipo;
 
     card.className = `nexo-card nexo-card--${prioridad}`;
     card.dataset.id = this.data.id;
+    card.dataset.tipo = tipo;
 
     card.innerHTML = `
       <div class="nexo-card__header">
@@ -52,8 +47,9 @@ export class NeedCardComponent {
         <span class="nexo-card__badge nexo-card__badge--${prioridad}">${prioridad}</span>
       </div>
       <p class="nexo-card__desc">${this.data.descripcion || "Sin descripción."}</p>
+      ${this.data.direccion ? `<p class="nexo-card__address">📍 ${this.data.direccion}</p>` : ""}
       <div class="nexo-card__footer">
-        <span class="nexo-card__type">🏷️ ${(this.data.tipo || "General").toUpperCase()}</span>
+        <span class="nexo-card__type nexo-card__type--${tipo}">${etiquetaCategoria}</span>
         <span class="nexo-card__estado-slot"></span>
       </div>
     `;
@@ -70,16 +66,13 @@ export class NeedCardComponent {
    */
   renderEstado(card) {
     const slot = card.querySelector(".nexo-card__estado-slot");
-    const siguiente = SIGUIENTE_ESTADO[this.data.estado];
 
-    if (!siguiente) {
-      // No hay siguiente paso: ya está "cubierta" (o un estado desconocido).
+    if (this.data.estado === "cubierta") {
       slot.innerHTML = '<span class="check-done">✓ Cubierta</span>';
       return;
     }
 
-    const etiqueta = ETIQUETA_BOTON[this.data.estado];
-    slot.innerHTML = `<button type="button" class="btn-cover" data-id="${this.data.id}">${etiqueta}</button>`;
+    slot.innerHTML = `<button type="button" class="btn-cover" data-id="${this.data.id}">${ETIQUETA_BOTON_CUBRIR}</button>`;
 
     const btn = slot.querySelector(".btn-cover");
     btn.addEventListener("click", async () => {
@@ -94,7 +87,7 @@ export class NeedCardComponent {
         const necesidadActualizada = await this.onStatusChange(
           this.data.id,
           this.data.estado,
-          siguiente,
+          "cubierta",
         );
 
         if (necesidadActualizada) {
@@ -107,7 +100,7 @@ export class NeedCardComponent {
           `No se pudo actualizar el estado: ${error.message} ${error.detalle ? `(${error.detalle})` : ""}`,
         );
         btn.disabled = false;
-        btn.textContent = etiqueta;
+        btn.textContent = ETIQUETA_BOTON_CUBRIR;
       }
     });
   }

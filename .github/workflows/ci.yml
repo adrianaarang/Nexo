@@ -9,24 +9,28 @@ on:
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Instalar dependencias
         run: |
           cd backend
           python -m pip install -r requirements-dev.txt
+
       - name: Ejecutar tests
-        env:
-          PYTHONPATH: backend
-        run: pytest tests/
+        run: PYTHONPATH=backend python -m pytest tests/
 
   frontend-lint:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Comprobación básica de HTML/JS
         run: |
           echo "Sin build step: frontend estático (HTML/CSS/JS puro)."
