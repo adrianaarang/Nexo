@@ -160,10 +160,10 @@ def test_update_need_status_returns_200(client, monkeypatch):
         received_data["need_id"] = need_id
         received_data["status"] = status
 
-        # Simulamos una necesidad que ha avanzado a en_proceso.
+        # Simulamos una necesidad que ha quedado cubierta.
         return {
             **SAMPLE_NEED,
-            "estado": "en_proceso",
+            "estado": "cubierta",
         }
 
     monkeypatch.setattr(
@@ -174,19 +174,19 @@ def test_update_need_status_returns_200(client, monkeypatch):
 
     response = client.patch(
         "/api/necesidades/1/estado",
-        json={"estado": "en_proceso"},
+        json={"estado": "cubierta"},
     )
 
     assert response.status_code == 200
 
     # Comprobamos qué valores recibió la función del modelo.
     assert received_data["need_id"] == 1
-    assert received_data["status"].value == "en_proceso"
+    assert received_data["status"].value == "cubierta"
 
     # Comprobamos el JSON devuelto al frontend.
     response_body = response.json()
     assert response_body["id"] == 1
-    assert response_body["estado"] == "en_proceso"
+    assert response_body["estado"] == "cubierta"
 
 
 def test_update_missing_need_returns_404(client, monkeypatch):
@@ -204,7 +204,7 @@ def test_update_missing_need_returns_404(client, monkeypatch):
 
     response = client.patch(
         "/api/necesidades/99999/estado",
-        json={"estado": "en_proceso"},
+        json={"estado": "cubierta"},
     )
 
     assert response.status_code == 404
