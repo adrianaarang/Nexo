@@ -10,12 +10,12 @@ front o solo en backend y todos tengan algo que enseñar en la demo de forma ind
 - Arranque del servidor en Python (`main.py`, `config.py`) y conexión a BD con tablas ya creadas: `necesidades`, `voluntarios`, `donaciones`, `personas`.
 - Datos de ejemplo (`seed.py`) para ver la app funcionando desde el día 1.
 
-> Aún no hay PR de la base común; se pide que al menos una persona de cada equipo la revise.
+> Base común mergeada en `dev` vía #53 — `dev` ya arranca (ver `docs/backlog.md`).
 
 ## Equipo 1 — Necesidades
-- Frontend: `frontend/pages/mapa.html` (formulario) y `frontend/js/core/mapa-necesidades/`.
-- Backend: `backend/modules/necesidades/` (guardar, listar, estados, 8 categorías, intensidad).
-- **Decidir:** categorías de necesidad; intensidad por conteo en el mapa.
+- Frontend: `frontend/pages/mapa.html` (formulario `formularioNecesidad.js`) y `frontend/js/core/mapa-necesidades/` (+ `geocodificacion.js`).
+- Backend: `backend/modules/necesidades/` (guardar, listar, estados 2 pasos, 8 categorías, `direccion` + `services.py` + intensidad) — mergeado en `dev` (PR #56 + #61, 91a7647).
+- **Decidir:** intensidad por conteo en el mapa (resuelto parcialmente con rediseño 8 cats).
 - Nota: la visualización del mapa pasa al Equipo 4 (Mapa + Interfaz principal) en Sprint 2.
 
 ## Equipo 2 — Alertas + activación de crisis

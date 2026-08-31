@@ -6,9 +6,10 @@
 
 ## Entidades y atributos
 
-### necesidades (núcleo)
-- `id` PK · `titulo` · `tipo` (CHECK: agua/alimento/medicina/refugio/herramientas/transporte)
-- `descripcion` · `latitud` REAL · `longitud` REAL · `prioridad` (CHECK) · `estado` (CHECK) · `creado_en`
+### necesidades (núcleo) — rediseño G1 (Sprint 2, PR #61 / #56: 8 categorías, 2 estados)
+- `id` PK · `titulo` TEXT DEFAULT '' (opcional; si vacío, `services.py` lo genera desde `tipo`) · `tipo` (CHECK: agua/alimentos/parafarmacia/ropa/higiene/refugio/transporte/otros)
+- `descripcion` TEXT DEFAULT '' (opcional) · `direccion` TEXT DEFAULT '' (texto legible geocodificado; ver `geocodificacion.js`) · `latitud` REAL · `longitud` REAL
+- `prioridad` (CHECK: baja/media/alta/critica) · `estado` (CHECK: abierta/cubierta — se retiró `en_proceso`) · `creado_en`
 
 ### voluntarios
 - `id` PK · `nombre` · `contacto` · `habilidades` · `disponibilidad` · `creado_en`
@@ -88,6 +89,7 @@ erDiagram
         string titulo
         string tipo
         string descripcion
+        string direccion
         float latitud
         float longitud
         string prioridad
@@ -180,6 +182,7 @@ Table NECESIDADES {
   titulo varchar
   tipo varchar
   descripcion varchar
+  direccion varchar
   latitud real
   longitud real
   prioridad varchar

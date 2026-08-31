@@ -78,24 +78,24 @@ Abre `http://localhost:5500`. El frontend espera la API en `http://localhost:800
 
 ## Módulos
 
-| Prioridad | Módulo | Carpeta | Estado (2026-08-26) |
+| Prioridad | Módulo | Carpeta | Estado (2026-08-31) |
 |---|---|---|---|
-| Núcleo | Mapa de necesidades / Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25) |
-| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 (G2) listo en `feature/alerts` (G2-only tras revertir #30 con #32); PR G2 → dev pendiente |
-| Núcleo | Voluntariado y donaciones / Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
+| Núcleo | Mapa de necesidades / Needs map — Necesidades (G1) | `frontend/js/core/mapa-necesidades` + `geocodificacion.js`, `backend/modules/necesidades` | En `dev` (MERGED #18, #22, #25, #56, #61) — rediseño 8 cats/2 estados + `direccion` + `services.py` + geocodificación (91a7647) |
+| Núcleo | Alertas oficiales (globales, GDACS) / Official alerts — Alertas (G2) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | Sprint 1 (G2) listo en `feature/alerts` (G2-only tras revertir #30); PR G2 → dev pendiente |
+| Núcleo | Voluntariado y donaciones / Volunteering and donations — Ayudas (G3) | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | En `dev` (MERGED #24, #27, #29); falta conectar UI donaciones al backend |
 | Siguiente | Registro de personas / estoy bien / Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | En `dev` (MERGED #20); Sprint 1 |
 | Siguiente | Modo offline / Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend en `dev` (#21); falta UI offline |
 | Futuro | Red mesh / satélite / Mesh/satellite network | `infra/mesh-satelite` | Roadmap futuro |
 | Futuro | Código abierto / Open source | `LICENSE`, `CONTRIBUTING.md` | Roadmap futuro |
 
-## Estado actual
+## Estado actual (2026-08-31 — `dev` en 91a7647)
 
-- **Base común:** Incompleta tras revertir #30: `dev` no arranca (falta `init_db`) ni conecta (CORS/`apiClient`). Stopgap en `fix/base-comun` → `dev` (4 archivos), pendiente de merge.
-- **Alertas oficiales (G2):** Sprint 1 (G2) completado en `feature/alerts`, reconstruido G2-only tras revertir #30 (#32). Pendiente integración a `dev` (PR G2 → dev). Base común separada a `fix/base-comun`.
-- **Mapa (G1):** En `dev`. Backend + frontend conectados con datos reales (MERGED #18, #22, #25).
-- **Voluntariado/Donaciones (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
-- **Personas/Offline (G4):** "Estoy bien" en `dev` (MERGED #20, 45 tests). Backend de sincronización offline en `dev` (MERGED #21); falta la UI offline en el frontend.
-- **Kanban:** En Sprint 2 el tablero se regenera con `scripts/setup-kanban.sh` (idempotente) al mergear `feature/docs → dev`. Crea los epics por equipo (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) y cierra con trazabilidad los issues de Sprint 1 (#41, #43, #44). Cada epic se cierra al mergear el PR del grupo con `Closes #<num>`. El tablero es un Project V2 personal del PM.
+- **Base común:** En `dev` (mergeado vía #53). `dev` arranca (init_db idempotente) y conecta (CORS + `apiClient`) — ver `docs/equipos.md`.
+- **Necesidades (G1):** En `dev`. Rediseño mergeado (#56 + #61): 8 categorías/2 estados + `direccion` + geocodificación + `services.py` (91a7647).
+- **Alertas oficiales (G2):** Sprint 1 (G2) completado en `feature/alerts` (G2-only tras revertir #30). Pendiente integración a `dev`.
+- **Ayudas (G3):** En `dev`. Registro, disponibilidad y configuración mergeados (#24, #27, #29). Falta conectar `donaciones.js` al backend real.
+- **Personas/Offline:** "Estoy bien" en `dev` (MERGED #20). Backend sync offline en `dev` (MERGED #21); falta UI offline.
+- **Kanban:** En `dev` (merge #53). Tablero Sprint 2 regenerado con `scripts/setup-kanban.sh`; `feature/docs` ya mergeado — ver `docs/backlog.md` y `.github/workflows/setup-kanban.yml`.
 
 ## Equipos
 
@@ -184,24 +184,24 @@ Open `http://localhost:5500`. The frontend expects the API at `http://localhost:
 
 ## Modules
 
-| Priority | Module | Folder | Status (2026-08-25) |
+| Priority | Module | Folder | Status (2026-08-31) |
 |---|---|---|---|
-| Core | Needs map | `frontend/js/core/mapa-necesidades`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25) |
-| Core | Official alerts (global, GDACS) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 (G2) done in `feature/alerts` (G2-only after reverting #30 with #32); G2 PR → dev pending |
-| Core | Volunteering and donations | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired to backend |
+| Core | Needs map — Necesidades (G1) | `frontend/js/core/mapa-necesidades` + `geocodificacion.js`, `backend/modules/necesidades` | In `dev` (MERGED #18, #22, #25, #56, #61) — redesign 8 cats/2 states + `direccion` + `services.py` (91a7647) |
+| Core | Official alerts — Alertas (G2) | `frontend/js/core/alertas-oficiales`, `backend/modules/alertas` | S1 (G2) done in `feature/alerts` (G2-only after revert); G2 PR → dev pending |
+| Core | Volunteering and donations — Ayudas (G3) | `frontend/js/core/voluntariado-donaciones`, `backend/modules/voluntariado`, `backend/modules/donaciones` | In `dev` (MERGED #24, #27, #29); UI donations not yet wired |
 | Next | Person registry / I'm safe | `frontend/js/siguiente/registro-personas`, `backend/modules/personas` | In `dev` (MERGED #20); Sprint 1 |
 | Next | Offline mode | `frontend/js/siguiente/modo-offline`, `backend/sync` | Backend in `dev` (#21); offline UI pending |
 | Future | Mesh/satellite network | `infra/mesh-satelite` | Future roadmap |
 | Future | Open source | `LICENSE`, `CONTRIBUTING.md` | Future roadmap |
 
-## Current status
+## Current status (2026-08-31 — `dev` at 91a7647)
 
-- **Common base:** Incomplete after reverting #30: `dev` won't boot (missing `init_db`) or connect (CORS/`apiClient`). Stopgap in `fix/base-comun` → `dev` (4 files), pending merge.
-- **Official alerts (G2):** Sprint 1 (G2) completed in `feature/alerts`, rebuilt G2-only after reverting #30 (#32). Dev integration pending (G2 PR → dev). Common base split into `fix/base-comun`.
-- **Map (G1):** In `dev`. Backend + frontend connected with real data (MERGED #18, #22, #25).
-- **Volunteering/Donations (G3):** In `dev`. Registration, availability and configuration merged (#24, #27, #29). UI `donaciones.js` still needs to be wired to the real backend.
-- **Persons/Offline (G4):** "I'm safe" in `dev` (MERGED #20, 45 tests). Offline sync backend in `dev` (MERGED #21); offline UI still pending.
-- **Kanban:** In Sprint 2 the board is regenerated with `scripts/setup-kanban.sh` (idempotent) when merging `feature/docs → dev`. It creates the per-team epics (Necesidades, Alertas+activación, Ayudas, Mapa+Interfaz) and closes the obsolete Sprint 1 issues (#41, #43, #44) with traceability. Each epic closes when the team's PR is merged with `Closes #<num>`. The board is a personal V2 Project owned by the PM.
+- **Common base:** In `dev` (merged via #53). `dev` boots (init_db idempotent) and connects (CORS + `apiClient`).
+- **Needs (G1):** In `dev`. Redesign merged (#56 + #61): 8 cats/2 states + `direccion` + geocoding + `services.py` (91a7647).
+- **Official alerts (G2):** S1 (G2) completed in `feature/alerts` (G2-only after revert). Pending `dev` integration.
+- **Aid (G3):** In `dev`. Registration, availability, config merged (#24, #27, #29). UI `donaciones.js` pending.
+- **Persons/Offline:** "I'm safe" in `dev` (MERGED #20). Sync backend in `dev` (MERGED #21); offline UI pending.
+- **Kanban:** In `dev` (merged #53). Sprint 2 board regenerated with `scripts/setup-kanban.sh`; `feature/docs` already merged.
 
 ## Teams
 
