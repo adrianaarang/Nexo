@@ -14,10 +14,10 @@ class InvalidStatusTransition(ValueError):
     """Permite que la capa de rutas traduzca una transición inválida a HTTP 409."""
 
 
-# Una necesidad solo puede avanzar; no se pueden saltar pasos ni reabrirla.
+# Ciclo de vida simplificado a un solo paso: una necesidad solo puede pasar
+# de abierta a cubierta; no hay estados intermedios ni se puede reabrir.
 STATUS_TRANSITIONS = {
-    NeedStatus.OPEN: NeedStatus.IN_PROGRESS,
-    NeedStatus.IN_PROGRESS: NeedStatus.COVERED,
+    NeedStatus.OPEN: NeedStatus.COVERED,
 }
 
 
@@ -73,12 +73,13 @@ def create_need(need: NeedCreate) -> dict[str, Any]:
         # SQLite genera el id, el estado inicial y la fecha de creación.
         cursor.execute(
             """INSERT INTO necesidades
-               (titulo, tipo, descripcion, latitud, longitud, prioridad)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+               (titulo, tipo, descripcion, direccion, latitud, longitud, prioridad)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (
                 need.title,
                 need.need_type.value,
                 need.description,
+                need.address,
                 need.latitude,
                 need.longitude,
                 need.priority.value,

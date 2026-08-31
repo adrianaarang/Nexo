@@ -1,19 +1,20 @@
-# Grupo 3 (Voluntariado y Donaciones) - Distribución de tareas
+# Grupo 3 (Ayudas) — Distribución de tareas (Sprint 2)
 
-Reparto del equipo 3 recibido de Laura (SM del grupo 3, `LauraSilRu`). Paralelo a `grupo1-tareas.md` y `grupo2-tareas.md`.
+Reparto del equipo 3 recibido de Laura (SM del grupo 3, `LauraSilRu`). En Sprint 2 **donación y
+voluntariado se unifican en un módulo "Ayudas"** (3 tipos: recursos, servicios, tiempo/voluntariado).
 
 ## A. Reparto por persona
-- [ ] **Laura S.R. — Backend Voluntariado** (`backend/modules/voluntariado/`): API, modelos, schemas, servicios, validaciones, configuración y lógica del módulo de voluntariado.
-- [ ] **María — Frontend Voluntariado** (`frontend/js/core/voluntariado-donaciones/`): página, formulario, disponibilidad, listado, estados, integración con API y estilos del lado de voluntariado.
-- [ ] **Majo — Frontend Donaciones** (`frontend/js/core/voluntariado-donaciones/`): página, formulario, listado, lógica, API client y estilos del módulo de donaciones.
-- [ ] **María Isabel — Backend Donaciones** (`backend/modules/donaciones/`): API, modelos, lógica y persistencia del módulo de donaciones.
+- [ ] **Laura S.R. — Backend Ayudas (voluntariado)** (`backend/modules/voluntariado/`): modelos, schemas, servicios y lógica de ayudas (recursos / servicios / tiempo).
+- [ ] **María Isabel — Backend Ayudas (donaciones)** (`backend/modules/donaciones/`): persistencia de donaciones integrada como tipo de ayuda.
+- [ ] **Majo — Frontend Donaciones/Ayudas** (`frontend/js/core/voluntariado-donaciones/`): página, formulario, listado, estados y estilos del lado de donaciones.
+- [ ] **María — Frontend Voluntariado/Ayudas** (`frontend/js/core/voluntariado-donaciones/`): página, formulario de disponibilidad, listado, estados y estilos del lado de voluntariado.
 - [ ] **José — Integración + QA**: integración de ramas, resolución de conflictos, coordinación técnica y tests del equipo.
 
 ## B. Coordinación y dependencias
-- El backend de voluntariado (Laura) y el de donaciones (María Isabel) son los contratos de los que dependen los fronts correspondientes.
-- María (front voluntariado) y Majo (front donaciones) pueden avanzar con mocks hasta que los backends expongan los endpoints reales; luego enchufan el API client.
-- José centraliza la integración de ramas y los tests E2E/QA antes del PR del equipo.
-- **Nota de estado (26/08):** los PRs #24, #27 y #29 (registro, config y disponibilidad de voluntariado) ya están mergeados en `dev`; falta conectar `donaciones.js` al backend real de donaciones (María Isabel + Majo).
+- El backend unificado expone 3 tipos: `recursos`, `servicios`, `tiempo/voluntariado` (este último con `nombre` + `DNI`).
+- Contrato hacia el mapa (G4): `{id, type, category, latitude, longitude, status}`.
+- Se reusa la lógica de voluntariado/donaciones de Sprint 1.
+- **Nota de estado (28/08):** los PRs #24, #27 y #29 (registro, config y disponibilidad de voluntariado) ya están en `dev`; falta unificar donaciones como tipo de ayuda y conectar `donaciones.js` al backend real.
 
 ## C. Definition of Done (recordatorio)
 Implementado · pytest/JS tests verdes · no rompe otros módulos · revisado en PR · demostrable en demo.

@@ -20,17 +20,22 @@ def seed() -> None:
         cursor.execute("DELETE FROM donaciones")
         cursor.execute("DELETE FROM personas")
 
-        # Estos registros respetan el mismo contrato que usará el formulario.
-        # Permiten probar tipos, prioridades y estados diferentes en la demo.
+        # Estos registros respetan el mismo contrato que usará el formulario
+        # simplificado. Cubren las 8 categorías cerradas y los dos estados
+        # posibles (abierta / cubierta) para poder probar filtros y mapa.
+        # La "direccion" es el texto legible que en producción generaría la
+        # geocodificación (ver geocodificacion.js); aquí se escribe a mano
+        # porque son coordenadas de ejemplo, no una búsqueda real.
         cursor.executemany(
             """INSERT INTO necesidades
-               (titulo, tipo, descripcion, latitud, longitud, prioridad, estado)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+               (titulo, tipo, descripcion, direccion, latitud, longitud, prioridad, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             [
                 (
                     "Agua potable",
                     "agua",
                     "Punto sin agua potable desde hace 2 días",
+                    "Carrer de la Pau 12, Valencia",
                     39.4699,
                     -0.3763,
                     "alta",
@@ -40,28 +45,71 @@ def seed() -> None:
                     "Alojamiento temporal",
                     "refugio",
                     "Familia de 4 sin techo, necesita alojamiento temporal",
+                    "Plaza del Ayuntamiento, Valencia",
                     39.4712,
                     -0.3801,
                     "alta",
                     "abierta",
                 ),
                 (
-                    "Insulina",
-                    "medicina",
+                    "Necesidad de parafarmacia",
+                    "parafarmacia",
                     "Falta insulina en el centro de acogida",
+                    "Calle Colón 45, Valencia",
                     39.4650,
                     -0.3750,
                     "critica",
-                    "en_proceso",
+                    "abierta",
                 ),
                 (
                     "Comida para 30 personas",
-                    "alimento",
+                    "alimentos",
                     "Reparto de comida para 30 personas",
+                    "Mercado Central, Valencia",
                     39.4680,
                     -0.3720,
                     "media",
                     "cubierta",
+                ),
+                (
+                    "Ropa de abrigo",
+                    "ropa",
+                    "Se necesitan abrigos y mantas para el punto de acogida",
+                    "Calle Ruzafa 8, Valencia",
+                    39.4665,
+                    -0.3790,
+                    "media",
+                    "abierta",
+                ),
+                (
+                    "Kits de higiene",
+                    "higiene",
+                    "Gel, compresas y pañales para el polideportivo",
+                    "Polideportivo Municipal, Valencia",
+                    39.4705,
+                    -0.3735,
+                    "media",
+                    "abierta",
+                ),
+                (
+                    "Vehículo para reparto",
+                    "transporte",
+                    "Furgoneta para trasladar donaciones al punto de acogida",
+                    "Avenida del Puerto 30, Valencia",
+                    39.4690,
+                    -0.3770,
+                    "baja",
+                    "cubierta",
+                ),
+                (
+                    "Necesidad de otros",
+                    "otros",
+                    "Material de limpieza para la zona afectada",
+                    "Calle San Vicente 60, Valencia",
+                    39.4675,
+                    -0.3745,
+                    "baja",
+                    "abierta",
                 ),
             ],
         )

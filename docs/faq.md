@@ -25,7 +25,7 @@
 **Abierto**
 - **Trello vs GitHub Projects:** decidido → **Trello** (un tablero por grupo + uno general).
 
-## Grupo 4 — Personas / Offline (dudas generales)
+## Personas / Offline (dudas generales)
 
 **Decisiones / estado**
 1. **Guía `personas.html`:** no hay guía específica; seguir el patrón de `index.html` y la lógica
@@ -38,7 +38,7 @@
    faltan endpoints (listar/crear/estoy-bien) y el frontend.
 4. **Offline transversal:** diseño en `docs/architecture.md` (apiClient → syncQueue → IndexedDB →
    `procesarColaPendiente()` → `POST /api/sync` → `sync_controller`). La base común lo dejó en TODO
-   (`syncQueue.js` solo avisa, `localDb.js`/`serviceWorker.js` TODO) → lo implementa Grupo 4.
+   (`syncQueue.js` solo avisa, `localDb.js`/`serviceWorker.js` TODO) → lo implementa el equipo de frontend (en Sprint 1 correspondía al Grupo 4 — Personas/Offline).
 5. **Despliegue:** ninguno definido. Hoy local (frontend `python -m http.server` :5500, backend
    `uvicorn` :8000). CI sí, despliegue no. Opciones demo: frontend Vercel/Netlify, backend
    Render/Railway/Fly.
