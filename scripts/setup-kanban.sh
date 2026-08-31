@@ -28,9 +28,9 @@ milestone() {
 issue() {
   local title="$1" body="$2" labels="$3" ms="$4" assignee="$5" close="$6"
   local found existing
-  found=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq 'length' 2>/dev/null || echo 0)
+  found=$(gh issue list -R "$REPO" --state all --json number,title --jq "[.[] | select(.title==\"$title\")] | length" 2>/dev/null || echo 0)
   if [ -n "$found" ] && [ "$found" != "0" ]; then
-    existing=$(gh issue list -R "$REPO" --search "$title" --state all --json number --jq '.[0].number' 2>/dev/null || true)
+    existing=$(gh issue list -R "$REPO" --state all --json number,title --jq "[.[] | select(.title==\"$title\")] | .[0].number" 2>/dev/null || true)
     LAST_ISSUE_NUM="$existing"
     # Actualiza para mantener trazabilidad (idempotente: no falla si no cambia).
     gh issue edit "$existing" -R "$REPO" -b "$body" -l "$labels" >/dev/null 2>&1 || true
@@ -76,11 +76,12 @@ milestone "Sprint 2" "Reparto final 27/08: Necesidades, Alertas, Ayudas, Mapa"
 
 # ---- Issues (epics) Sprint 2 ----
 issue "Equipo 1 - Necesidades" \
-"Frontend pages/mapa.html (formulario) + js/core/mapa-necesidades/. Backend modules/necesidades/ (estados, categorias, intensidad).
-- [ ] Categorias (8): agua, alimentos, medicinas, ropa, higiene, refugio, transporte, otros
-- [ ] Estados: abierta -> en_proceso -> cubierta
+"Frontend pages/mapa.html (formulario) + js/core/mapa-necesidades/ + geocodificacion.js. Backend modules/necesidades/ (services.py, categorias, direccion, intensidad).
+- [ ] Categorias (8): agua, alimentos, parafarmacia, ropa, higiene, refugio, transporte, otros
+- [ ] Estados: abierta -> cubierta (se retiro en_proceso)
+- [ ] Campo direccion (texto legible geocodificado) + latitud/longitud
 - [ ] Intensidad por conteo (verde/naranja/rojo) en el mapa
-- [ ] Contrato JSON hacia el mapa: {id, type, latitude, longitude, status}
+- [ ] Contrato JSON hacia el mapa: {id, type, latitude, longitude, status, direccion}
 - [ ] pytest + JS tests verdes
 - [ ] Detalle en docs/equipos/grupo1-tareas.md
 Al mergear el PR de integracion del grupo, incluir 'Closes #<num>' para cerrar este issue." \
